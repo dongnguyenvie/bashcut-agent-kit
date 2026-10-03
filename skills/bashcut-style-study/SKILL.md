@@ -1,0 +1,41 @@
+---
+name: bashcut-style-study
+description: Learn a creator's or channel's editing style by measurement — cut pacing, shot sizes, hook, on-screen text, colour (black/white point, saturation, split-tone tint), sound design (music under voice, SFX on cuts, silences) — from reference videos, then turn the findings into a project memo, a saved BashCut look and style kit, and rules for the other skills. Use when the user shares reference videos or a channel and says "học style", "phân tích kênh", "làm giống kênh X", "dựng theo phong cách này".
+---
+
+# Study a style
+
+Reply in the user's language.
+
+## Sources
+
+Work from videos the user provides or has the right to analyse. Downloading a channel (for example with
+`yt-dlp`) is the user's decision: ask first, keep the files in a private folder outside any project that will
+be published, and never re-upload them.
+
+## Measure
+
+For each reference video (10–30 is enough):
+
+| What | How | Read it as |
+|---|---|---|
+| Cuts per minute, shot length | `ffmpeg -i v.mp4 -vf "select='gt(scene,0.28)',showinfo" -an -f null - 2>&1 \| grep pts_time` | food-review TikTok ≈ 30–40 cuts/min (1.4–1.8 s); cinematic vlog ≈ 12–20 (3–5 s) |
+| Shot sizes, hook, text | contact sheet: `python3 <skill_dir>/../bashcut-footage-survey/survey.py DIR --frames 10`, then look | what the first 3 s show; where and how text appears |
+| Colour | `uv run <skill_dir>/../bashcut-color-grade/grade.py measure v.mp4` | black > 3 = matte; white < 90 = rolled highlights; sat < 30 muted, > 45 punchy; shadow tint R−B < 0 with highlight R−B > 0 = teal-orange |
+| Speech vs music | transcribe in BashCut or listen | music buried (−20 dB), bed (−10), present (−6), leading (> 0) |
+| SFX on cuts | listen at 5–10 cuts | hits on most cuts = SFX-driven style; random = none |
+
+Scene detection merges cuts under ~0.25 s and misses dissolves and whips: look at the frames, don't trust the
+count alone. Speech recognition invents text over music: trust your ears over a transcript.
+
+## Turn it into BashCut
+
+1. **Project memo** (`knowledge memo`): a short table of the numbers and 5–10 rules ("hard cuts only, one
+   special transition", "music 12 dB under voice", "captions small serif, lower third").
+2. **Look**: start from the closest look in `bashcut-color-grade`, adjust its params toward the measured numbers,
+   preview, import the LUT and `looks save`; then `style save ID --title T --look ID --caption-preset P` so
+   `style apply ID` gives the whole style in one step.
+3. **Rules for skills**: if a finding is general (true beyond this project), propose it as a change to this kit
+   with `bashcut-self-learn`.
+
+Tell the user which rules matter most, with the numbers behind them.

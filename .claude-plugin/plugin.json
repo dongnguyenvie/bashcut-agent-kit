@@ -1,0 +1,9 @@
+{
+  "name": "bashcut",
+  "version": "0.0.1",
+  "description": "Editing skills for BashCut: survey footage, cut on rhythm, mix sound, captions, colour, effects, voiceover. Includes the BashCut MCP server.",
+  "author": { "name": "BashCut" },
+  "homepage": "https://github.com/dongnguyenvie/bashcut-agent-kit",
+  "repository": "https://github.com/dongnguyenvie/bashcut-agent-kit",
+  "keywords": ["video", "editing", "bashcut", "mcp"]
+}
