@@ -28,11 +28,11 @@ Pexels License: free, no attribution required, don't sell unaltered copies. Avoi
 
 - **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --base-rev N`, then `media place`
   on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
-- **Still photos**: BashCut does not import images yet. Until it does, turn the photo into a short clip once —
-  a plain format conversion, no effect baked in — and import that:
-  `ffmpeg -loop 1 -t 3 -i photo.jpg -vf "scale=1080:-2,format=yuv420p" -r 30 -c:v libx264 -crf 16 photo.mp4`
-  Then frame it in BashCut with `transform` (zoom below 1 for a card, pan/tilt to place it) on an overlay layer.
-  Ask the user first, since this writes a new file.
+- **Still photos** import directly: `media import /abs/media/stock/photo.jpg --place --track OVERLAY --at-frame F
+  --base-rev N` (kind `image`; JPEG, PNG with transparency, HEIC). An image is placed for 3 s; trim it to the words
+  it illustrates. Frame it with `transform` (zoom below 1 for a card, pan/tilt to place it), and give it life with
+  `clip motion ITEM --preset zoom-in` (or `pan-left`/`pan-right`): a still that does not move looks frozen.
+  Never convert photos to video files.
 
 ## 4. Rules
 
