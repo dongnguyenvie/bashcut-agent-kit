@@ -115,6 +115,7 @@ def write_cube(P, out, size=33, title="look"):
     b, gg, r = np.meshgrid(g, g, g, indexing="ij")  # .cube: R varies fastest
     c = np.stack([r, gg, b], -1).reshape(-1, 3)
     o = apply(c, P)
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, "w") as f:
         f.write(f'TITLE "{title}"\nLUT_3D_SIZE {size}\nDOMAIN_MIN 0 0 0\nDOMAIN_MAX 1 1 1\n')
         for row in o:
@@ -200,6 +201,7 @@ def cmd_preview(src, cube, out, n):
         d = ImageDraw.Draw(sheet)
         d.text((4, i * h + 4), f"original {t:.1f}s", fill="yellow")
         d.text((w + 4, i * h + 4), os.path.basename(cube), fill="yellow")
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     sheet.save(out, quality=85)
     print(out)
 

@@ -32,6 +32,9 @@ uv run "$G" match /abs/clip.mp4 matte-cinematic -o /abs/project/luts-src/matte.c
 uv run "$G" preview /abs/clip.mp4 /abs/project/luts-src/matte.cube -o /tmp/prev.jpg --n 6
 ```
 
+`match` neutralises the footage's white balance from its mid tones; on graphics, screen recordings or scenes
+that are meant to be coloured (sunset, neon) it shifts colours wrongly: use `lut` there instead.
+
 Look at `prev.jpg` (left original, right graded) on the **brightest and darkest** clips before applying. The
 preview is for looking only. Then:
 
