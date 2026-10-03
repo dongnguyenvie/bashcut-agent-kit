@@ -54,7 +54,6 @@ Speed changes break lip sync: use them on b-roll and action, not on talking shot
 ## Not possible yet — say so and offer the alternative
 
 - Typewriter text, counting numbers, shake, glitch, film grain.
-- Volume keyframes (use `fadeIn`/`fadeOut` and ducking).
 - Segmentation (text behind a person, cut-outs), motion tracking, AI-generated transitions.
 
 When the user needs one of these, note it as a feature request for BashCut (or a plugin action) rather than

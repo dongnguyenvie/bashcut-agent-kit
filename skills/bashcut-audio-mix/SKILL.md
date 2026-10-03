@@ -13,6 +13,7 @@ Reply in the user's language. Mix inside BashCut; never bake a mix with ffmpeg.
 |---|---|
 | Clip level | `setProperties` patch `{"volumeDb": -6}` (−120…+24) |
 | Fades | `{"fadeIn": 15, "fadeOut": 30}` in frames |
+| Volume that changes over time (swell the music at a drop, dip it for one line) | `clip keyframe ITEM --property volume --value -18 --at-frame F` per key (dB, timeline frame inside the item; `--ease linear/in/out/inOut/hold`); keys replace `volumeDb` and stack with fades and ducking. Key audio items, or clips whose sound is not unlinked |
 | Silence a clip / a layer | `{"muted": true}` / `layers set TRACK --muted on` |
 | Music under speech | music layer: `setTrackProperties` `{"duckingEnabled": true, "duckUnderSpeechDb": -12, "duckAttackFrames": 6, "duckReleaseFrames": 15}` |
 | Final loudness | `setProjectProperties` `{"audio": {"targetLUFS": -14, "normalizeEnabled": true}}`, export with `--normalize-audio` (needs `audio.loudness`, core audio-analysis) |
