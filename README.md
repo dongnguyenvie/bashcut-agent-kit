@@ -75,3 +75,18 @@ scripts/check.py                  checks every skill's frontmatter, size and ref
 - No personal presets, voices or download sources: those belong in a user's project memo.
 - Only rules that were observed (a measurement, an error, a user's correction), with the number that proves it.
 - Run `python3 scripts/check.py` before committing.
+
+## Verification
+
+CI runs skill checks, checker unit tests and explicit CLI example validation against the generated BashCut
+command reference in `reference/commands.md`. Its source commit is recorded in `reference/source.json`; it is
+vended here because the app repository is private and the public kit's CI cannot check it out. Refresh both
+files when adopting app command changes. In a sibling checkout, validate directly against the app with:
+
+```sh
+python3 scripts/check_commands.py --reference ../bash-cut/docs/reference/commands.md
+python3 -m unittest discover -s tests
+```
+
+Pull requests that change `skills/` must increase `.claude-plugin/plugin.json`'s semantic version.
+The version check compares against the PR base; it never rewrites a contributor's branch.
