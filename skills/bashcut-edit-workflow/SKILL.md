@@ -22,6 +22,9 @@ Hard rules:
   read, never from memory. Every edit needs the latest `--base-rev`.
 - Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
   read it. You cannot hear: ask the user to listen where sound matters.
+- Name every folder and file you create in English, lowercase with hyphens (`survey/`, `renders/`,
+  `voiceover/`, `subtitles/`, `draft-v1`), whatever language the chat is in. Only text the viewer sees
+  (captions, titles, voiceover lines) follows the video's language.
 - Seconds → frames with the project fps from `timeline get` (29.97 → 30000/1001). Frames are integers.
 
 ## The order
@@ -80,7 +83,11 @@ bashcut review run                        # structure, gaps, speech coverage
 bashcut ui frame 120                      # PNG of the edit at frame 120: read it
 bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio
 bashcut export status
+python3 <footage-survey skill>/survey.py /abs/draft-v1.mp4 --every 2 --out /abs/project/survey/draft-v1
 ```
+
+The last line puts the whole draft on one labelled sheet (a frame every 2 s): read it to check the pace,
+repeated shots and where text sits before asking the user to watch.
 
 Check: no unintended gaps on the main layer, no two voices at once, captions inside the safe area
 (`ui view --safe-area on`), loudness normalised. Exports wait for the user's approval in the app.

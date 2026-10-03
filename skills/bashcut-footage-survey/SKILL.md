@@ -8,12 +8,19 @@ description: Survey a footage folder before editing in BashCut — probe specs a
 Reply in the user's language. Run this **first**, before promising anything about the edit.
 
 ```sh
-python3 "<skill_dir>/survey.py" /abs/footage [--out DIR] [--frames 4] [--recursive]   # <skill_dir> = this SKILL.md's folder
+python3 "<skill_dir>/survey.py" /abs/footage [--out DIR] [--frames 4 | --every SECONDS] [--recursive]
+python3 "<skill_dir>/survey.py" /abs/render/draft-v1.mp4 --every 2        # review a rendered cut
+# <skill_dir> = this SKILL.md's folder
 ```
 
-Output in `<footage>/_survey/`: `SHEET_*.jpg` (one row per clip, same order as the printed table),
-`survey.json` (duration, size, rotation, orientation, fps, audio level) and `frames/`. Needs ffmpeg and ffprobe;
-Python standard library only. It reads footage and writes only into `_survey/`.
+Output in `<footage>/_survey/` (or `--out`; inside a project use `<project>/survey`, an English name):
+- `SHEET_*.jpg`: grids of frames (8 × 3 portrait, 6 × 6 landscape). Each cell is labelled
+  `<cell> <clip ID> <time in clip>`, e.g. `14 c06 0:33`. Clip IDs are the `ID` column of the printed table; the
+  label colour switches between yellow and cyan at each new clip.
+- `survey.json`: `clips` (duration, size, rotation, orientation, fps, audio level) and `cells` (sheet, cell,
+  clip, time of every frame), so a cell number from a sheet maps back to a clip and a time.
+
+Needs ffmpeg and ffprobe; Python standard library only. It reads footage and writes only into the output folder.
 
 **Then actually look at every sheet** with the image reader. That is the whole value of this skill.
 
@@ -21,9 +28,9 @@ Python standard library only. It reads footage and writes only into `_survey/`.
 
 | You see | Conclusion |
 |---|---|
-| Frames in one row clearly differ | the clip has coverage and several usable moments |
-| Frames in one row are identical | locked-off camera: the clip gives **one** shot size |
-| Many rows look alike | repeated scenes: the edit will feel monotonous |
+| Frames of one clip clearly differ | the clip has coverage and several usable moments |
+| Frames of one clip are identical | locked-off camera: the clip gives **one** shot size |
+| Many clips look alike | repeated scenes: the edit will feel monotonous |
 | Rows with texture and no people (smoke, rain, objects, hands) | often the best cutaways: prioritise them |
 
 ## When coverage is missing, say so
