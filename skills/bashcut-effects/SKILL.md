@@ -1,6 +1,6 @@
 ---
 name: bashcut-effects
-description: Pick the right editing effect for the moment and genre (food, travel, daily vlog, review/unboxing, product ad, talking head, real estate, event/MV) and make it with BashCut's native tools — transitions (dissolve, whip, blink, zoom, spin, shutter, wipe), speed ramps, freeze frames, reverse, punch-in, split moments, text presets, stickers and matching SFX — or say plainly when an effect is not possible yet. Use when the user asks "hiệu ứng", "effect", "chuyển cảnh", "transition", "speed ramp", "freeze", "chữ nhảy", "làm giống CapCut", or when a cut feels flat and needs emphasis.
+description: Pick the right editing effect for the moment and genre (food, travel, daily vlog, review/unboxing, product ad, talking head, real estate, event/MV) and make it with BashCut's native tools — transitions (dissolve, whip, blink, zoom, spin, shutter, wipe), speed ramps, freeze frames, reverse, punch-in, keyframe motion (Ken Burns, animated titles), split moments, text presets, word-by-word captions, stickers and matching SFX — or say plainly when an effect is not possible yet. Use when the user asks "hiệu ứng", "effect", "chuyển cảnh", "transition", "speed ramp", "freeze", "chữ nhảy", "làm giống CapCut", or when a cut feels flat and needs emphasis.
 ---
 
 # Effects: when, then how
@@ -43,22 +43,25 @@ Reply in the user's language. Decide **when** first; most cuts should stay hard 
 | Pop text, labels, prices | text items with `hook-title`, `keyword-sticker`, `place-card` (`bashcut-captions-text`) |
 | Stickers | Stickers panel (emoji text items) |
 | Fade from/to black | `dissolve` against a black clip, or audio `fadeIn`/`fadeOut` for sound |
+| Ken Burns on a photo, slow push-in | `clip motion ITEM --preset zoom-in` (also zoom-out, pan-left, pan-right, pan-up, pan-down) |
+| Animated title or label | `clip motion TEXT_ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch) |
+| Custom move (zoom, pan, tilt, rotation, opacity over time) | `clip motion ITEM --keyframes '{"zoom":[{"frame":0,"value":1},{"frame":45,"value":1.3,"ease":"out"}]}'` (frames from the item's start; eases linear, in, out, inOut, hold) or one key at a time: `clip keyframe ITEM --property pan --value -80 --at-frame F` |
+| Word-by-word captions | `captions words --all --style highlight` (karaoke, reveal); see `bashcut-captions-text` |
 
 Speed changes break lip sync: use them on b-roll and action, not on talking shots. Real slow motion needs
 50/60/120 fps sources; slowing 30 fps footage below ~0.5× stutters.
 
 ## Not possible yet — say so and offer the alternative
 
-- Animated position, scale or opacity over time (keyframes): no Ken Burns, sliding text or zoom animation.
-  Alternatives: a speed ramp, a static punch-in on the next cut, or a `zoom` transition.
-- Word-by-word animated captions, typewriter, counting numbers, shake, glitch, film grain.
+- Typewriter text, counting numbers, shake, glitch, film grain.
+- Volume keyframes (use `fadeIn`/`fadeOut` and ducking).
 - Segmentation (text behind a person, cut-outs), motion tracking, AI-generated transitions.
-- Still images on the timeline (see `bashcut-stock-images` for the workaround).
 
 When the user needs one of these, note it as a feature request for BashCut (or a plugin action) rather than
 faking it with a pre-rendered file.
 
 ## Verify
 
-Render frames just before, inside and after each effect with `ui frame F` and read them; `timeline get` lists
+Render frames just before, inside and after each effect with `ui frame F` and read them (for motion: the first,
+middle and last frame of the item); `timeline get` lists
 the transitions you added. Ask the user to listen to the matching sound.

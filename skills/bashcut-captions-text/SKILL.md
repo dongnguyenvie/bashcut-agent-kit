@@ -1,6 +1,6 @@
 ---
 name: bashcut-captions-text
-description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, import SubRip, and place hook titles, place cards, keyword stickers and chapter cards with the right preset, size and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương".
+description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, and place hook titles, place cards, keyword stickers and chapter cards with the right preset, size and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương".
 ---
 
 # Captions and on-screen text
@@ -24,6 +24,18 @@ bashcut captions import /abs/captions.srt --base-rev N --replace
   transcript; automatic phrase splits broke lines in the middle of phrases ("một căn / nhà hoàn chỉnh").
 - Acronyms read out as words in the voice ("xê en xê") are shown as letters (CNC) in captions.
 - On a vertical 1080 px frame keep a caption line under ~28–30 characters; two lines at most.
+
+## Word by word
+
+`captions generate --media ID --word-style highlight` (or `karaoke`, `reveal`) makes captions that follow the
+speech word by word; on existing captions: `captions words --all --style highlight [--color "#FFD400"]`, or one
+item with `captions words ITEM --style reveal`; `--style none` turns it off. Timings come from the transcription
+(Whisper returns them) and are estimated from word length for captions without them (typed or edited ones).
+`highlight` suits talking heads and reviews; `reveal` suits hooks and short punchlines; keep `none` for
+cinematic serif captions.
+
+- Animate titles with `clip motion ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch); one animated title
+  per moment, captions stay still.
 
 ## Presets
 
