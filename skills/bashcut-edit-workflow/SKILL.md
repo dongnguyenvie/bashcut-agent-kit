@@ -53,6 +53,11 @@ bashcut project create --name "Market vlog" --dir ~/Movies/BashCut --footage /ab
 bashcut media list                        # media IDs, fps, frames, hasAudio, proxy state
 ```
 
+Pick the canvas from where the video will be watched: `portrait` for TikTok/Reels/Shorts, `landscape` (16:9)
+for YouTube and computers, `square` for feeds. Ask when it is not clear. It can change later with
+`project format --canvas landscape` (one undoable edit), but reframing and text placement must then be checked
+again with `ui frame`.
+
 `--footage` links the footage folder into the project (it is never modified). Then add the clips you chose
 after the survey, one file per call: `media import /abs/path/clip.mp4 --base-rev N` (add `--place` to also put
 it on the timeline, or place it later with `media place --media ID --at-frame F`). The CLI resolves relative

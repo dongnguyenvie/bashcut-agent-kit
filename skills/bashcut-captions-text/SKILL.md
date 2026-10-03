@@ -43,7 +43,8 @@ bashcut captions import /abs/captions.srt --base-rev N --replace
 {"op":"setProperties","item":"hook-1","patch":{"textStyle":{"size":0.07,"positionY":0.62,"strokeWidth":6}}}
 ```
 
-`textStyle.positionY` is the baseline from the bottom (0–1); `size` is a fraction of the frame height. Patches
+`textStyle.positionY` is the baseline from the bottom (0–1); `size` is a fraction of the frame's short side (so a
+preset looks the same in portrait and landscape), and a line wider than 90% of the frame shrinks to fit. Patches
 replace the whole `textStyle`: send every key you want to keep. Add a text layer with
 `layers add --kind text --role overlay` when the captions layer is busy.
 
