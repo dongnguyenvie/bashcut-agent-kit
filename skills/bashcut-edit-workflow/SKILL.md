@@ -20,6 +20,8 @@ Hard rules:
   user's job (`plugins search` tells them what to install).
 - Read before you edit: `context get`, then `timeline get --format text`. Track IDs and roles come from the
   read, never from memory. Every edit needs the latest `--base-rev`.
+- Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
+  read it. You cannot hear: ask the user to listen where sound matters.
 - Seconds → frames with the project fps from `timeline get` (29.97 → 30000/1001). Frames are integers.
 
 ## The order
@@ -70,7 +72,7 @@ paths against its own working directory, so pass absolute paths.
 
 ```sh
 bashcut review run                        # structure, gaps, speech coverage
-bashcut ui seek 120                       # look at the frames that matter
+bashcut ui frame 120                      # PNG of the edit at frame 120: read it
 bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio
 bashcut export status
 ```

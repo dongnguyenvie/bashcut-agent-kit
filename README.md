@@ -25,7 +25,7 @@ only analyse (contact sheets, LUT files).
 
 ## Requirements
 
-- BashCut running (its MCP server talks to the open app).
+- BashCut running (its MCP server talks to the open app), a version with `ui frame` (BashCut PR #14).
 - Claude Code or Codex.
 - For the scripts: `ffmpeg` and `ffprobe`; `uv` for `grade.py` (it installs numpy and Pillow on first run).
 - Skills that use capabilities need the matching BashCut plugin: captions (`captions.transcribe`), beats

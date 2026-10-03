@@ -62,4 +62,4 @@ replace the whole `textStyle`: send every key you want to keep. Add a text layer
 
 ## Verify
 
-Seek to each title and a few captions (`ui seek`) and look. `captions export` once more to check timing.
+Render each title and a few captions with `ui frame F` and read the PNGs (position, size, faces, overlaps). `captions export` once more to check timing.

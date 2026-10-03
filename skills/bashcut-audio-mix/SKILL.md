@@ -73,5 +73,6 @@ out), leave the most honest line with no music. Keep the music continuous across
 
 ## Verify
 
-Play the joins and every voiceover window (`ui seek`, then listen), `review run`, and look at the loudness in
+You cannot listen, so: `review run` (voices too close, speech coverage), list the joins and voiceover windows
+for the user to play (`ui seek` takes them there), and read the loudness in
 the export receipt (`export status`: `lufs`, `truePeakDbTP`).

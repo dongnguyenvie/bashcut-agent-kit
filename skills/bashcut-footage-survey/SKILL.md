@@ -57,7 +57,8 @@ keeps them apart by path.
 ## Picking in-points
 
 - Pick by measured sharpness, not by eye on a small sheet: motion blur hides at sheet size. Look at the frame
-  full size (`ui source MEDIA_ID --in F`, then a viewer frame) before committing to an in-point.
+  full size before committing to an in-point (`ffmpeg -ss SECONDS -i clip -frames:v 1 /tmp/f.jpg`, then read it;
+  once placed, `ui frame F` shows it in the edit).
 - Long clips that change inside (timelapse, walks) need more frames: rerun with `--frames 10`.
 - Speech: transcribe in BashCut (`captions generate --media ID`). Speech recognition invents text over music,
   crowd noise and silence ("hãy subscribe kênh…", "cảm ơn các bạn đã theo dõi"): drop lines like that, and treat

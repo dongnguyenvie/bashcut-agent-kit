@@ -28,8 +28,8 @@ bashcut jobs status JOB_ID                         # bpm and beat frames; also s
 
 - A result under ~75 BPM is usually the **bar**, not the beat (measured 58.7, truth 117). Double it when the
   music clearly moves faster.
-- Right BPM with the wrong phase still misses. Check the first beat lands on an audible hit: `ui seek` to it
-  and listen, or compare with the waveform.
+- Right BPM with the wrong phase still misses. You cannot listen: ask the user to check that the first beat
+  lands on an audible hit (`ui seek` puts the playhead there for them).
 - A mix of several songs has several tempos: detect per song.
 
 ## 3. Beats per cut
@@ -76,5 +76,5 @@ section marker (`upsertSection`) and a place label (`bashcut-captions-text`) at 
 
 ## Verify
 
-Seek to three consecutive cuts in one scene (`ui seek`) and look: three different shot sizes? Then
+Render three consecutive cuts in one scene with `ui frame F` and read the PNGs: three different shot sizes? Then
 `review run` for gaps. Lock the cut before `bashcut-audio-mix`.

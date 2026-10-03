@@ -60,4 +60,5 @@ faking it with a pre-rendered file.
 
 ## Verify
 
-Seek to each effect (`ui seek`), look at the frames before and after, and listen to its sound.
+Render frames just before, inside and after each effect with `ui frame F` and read them; `timeline get` lists
+the transitions you added. Ask the user to listen to the matching sound.

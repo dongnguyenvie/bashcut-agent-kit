@@ -67,5 +67,5 @@ Write your own look as a params JSON (keys in `grade.py -h`) and pass its path i
 
 ## Verify
 
-Seek to the brightest, darkest and skin-heavy shots (`ui seek`) and look at the viewer, with `ui view --compare
-on` for before/after.
+Render the brightest, darkest and skin-heavy shots with `ui frame F` and read the PNGs; `ui view --compare on`
+shows the user before/after in the viewer.
