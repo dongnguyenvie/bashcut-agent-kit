@@ -33,7 +33,9 @@ only analyse (contact sheets, LUT files).
 
 ## Install
 
-**Inside BashCut's terminals** nothing is needed once BashCut loads the kit itself (planned).
+**Inside BashCut** nothing is needed: BashCut ships the kit and loads it in its Claude and Codex tabs.
+Settings › Agents (or `bashcut agent setup claude|codex`) also sets up Claude Code and Codex outside
+BashCut from that copy, including configuration folders moved with `CLAUDE_CONFIG_DIR` or `CODEX_HOME`.
 
 **Claude Code**
 
