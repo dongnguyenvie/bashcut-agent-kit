@@ -1,6 +1,6 @@
 ---
 name: bashcut-audio-mix
-description: Balance sound in a BashCut edit — clip gain, fades, music bed with ducking under speech, sound effects, choosing and looping music, real speech vs voiceover, and the final loudness target — using BashCut's own volume, fade, ducking and normalization. Use when loud places drown quiet ones, music comes and goes, voices clash, SFX are needed at cuts, or before export. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc chỗ có chỗ không", "nhạc to quá", "thêm sfx", "âm thanh".
+description: Balance sound in a BashCut edit — clip gain, fades, music bed with ducking under speech, sound effects, choosing and looping music, real speech vs voiceover, and the final loudness target — using BashCut's own volume, fade, ducking and normalization. Use when loud places drown quiet ones, music comes and goes, voices clash, SFX are needed at cuts, or before export. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc chỗ có chỗ không", "nhạc to quá", "thêm sfx", "âm thanh", "ẩn giọng desktop", "chọn nhạc phù hợp giọng".
 ---
 
 # Audio mix in BashCut
@@ -53,6 +53,10 @@ out), leave the most honest line with no music. Keep the music continuous across
   before repeating it.
 - Put song changes and loop points **on a hard picture cut**: the eye takes the scene change and the ear
   ignores the join.
+- Under a talking voice, measure the candidates: `python3 "<skill_dir>/music_fit.py" TRACK... --voice CLIP`
+  prints each file's loudness range and its energy share at 1–4 kHz, where consonants carry the words. Measured
+  0.009 (soft piano and strings, LRA 2 LU), 0.068 (lofi) and 0.110 (busy acoustic) against a voice at 0.066: the
+  0.009 track sat under a calm male voice ducked 8 dB with nothing to fix (−13.7 LUFS export).
 - Check the music's licence before using it in a published video.
 
 ## Real speech vs voiceover
@@ -63,6 +67,15 @@ out), leave the most honest line with no music. Keep the music continuous across
   vocal-removal plugin if one is installed (`plugins search --capability ...`). Keep the original sound
   everywhere the voiceover is silent: stripping it everywhere made a cameraman's real voice disappear.
 - After the mix, report seconds of real speech vs voiceover, and listen to every voiceover window.
+
+## Screen recordings ("ẩn giọng desktop")
+
+- Speech comes from the presenter's camera; mute the screen recording's clips (`{"muted": true}`). Its sound held
+  the same voice through the room mic 2.5 s late (an echo) plus the desktop's own sound.
+- The camera mic also hears the laptop speaker: when the demo plays the tool's output, drop those sentences;
+  they are lines of the output's script, not the presenter's.
+- When the output's sound is wanted (a hook showing the result), place the output file itself on an audio layer
+  at the offset `sync.py` gives (`bashcut-footage-survey`), never the speaker leak. Start the music bed after it.
 
 ## SFX
 

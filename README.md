@@ -4,15 +4,15 @@ Editing skills for Claude Code and Codex that drive the [BashCut](https://github
 video editor. BashCut makes video editable by agents (CLI, MCP, undoable edits); this kit says **how to edit
 well**: what to look at, where to cut, how to mix, which effect fits which moment.
 
-Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its two scripts
-only analyse (contact sheets, LUT files).
+Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its scripts
+only analyse (contact sheets, LUT files, sync offsets between recordings, how much music competes with speech).
 
 ## Skills
 
 | Skill | Use it for |
 |---|---|
 | `bashcut-edit-workflow` | The whole edit from footage to export, and which skill to use when |
-| `bashcut-footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`) |
+| `bashcut-footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`); camera ↔ screen sync (`sync.py`) |
 | `bashcut-beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `bashcut-audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `bashcut-voiceover` | Text-to-speech lines that read right, checked and placed |

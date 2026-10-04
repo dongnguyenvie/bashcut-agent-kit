@@ -1,6 +1,6 @@
 ---
 name: bashcut-edit-workflow
-description: Plan and run a whole edit in BashCut from raw footage to export — survey, story, rough cut, rhythm, sound, captions and text, colour, effects, review — and pick the right skill for each step. Use when the user asks to edit/cut a video, make a vlog, review, short or montage from a folder of footage, or asks "where do I start". Triggers: "dựng video", "cắt video", "làm vlog", "dựng giúp", "edit this", "bắt đầu từ đâu".
+description: Plan and run a whole edit in BashCut from raw footage to export — survey, story, rough cut, rhythm, sound, captions and text, colour, effects, review — and pick the right skill for each step. Use when the user asks to edit/cut a video, make a vlog, review, short or montage from a folder of footage, or asks "where do I start". Also tool demos and tutorials from a screen recording plus a presenter camera. Triggers: "dựng video", "cắt video", "làm vlog", "dựng giúp", "edit this", "bắt đầu từ đâu", "video giới thiệu tool", "video desktop làm nền", "người đọc ở trên video".
 ---
 
 # Editing a video in BashCut
@@ -14,7 +14,7 @@ server) explain each command and the `timeline apply` operations; this kit expla
 Hard rules:
 - Never pre-render picture or sound with ffmpeg to fake an effect, a mix or captions. BashCut does cuts, speed and
   ramps, freeze frames, reframing, transitions, volume, fades, ducking, captions, text presets, colour and
-  loudness natively. Scripts in this kit only **analyse** (contact sheets, LUT files).
+  loudness natively. Scripts in this kit only **analyse** (contact sheets, LUT files, sync offsets, music fit).
 - Never edit `project.bashcut.json` by hand while the app is open; never overwrite original footage.
 - Ask before downloading media or installing anything. Installing, trusting and setting up plugins is the
   user's job (`plugins search` tells them what to install).
@@ -70,11 +70,30 @@ paths against its own working directory, so pass absolute paths.
 
 - **Hook in the first 1–3 s**: the best or most surprising moment, often the ending shot or the loudest moment,
   then go back to the start. A cold open of three shots (~8 s) worked well for travel and food vlogs.
+- Tool demos and tutorials: the hook is the tool's **output** with its own sound, then the presenter (see
+  "Screen recording with a presenter").
 - Sections in time order after the hook; mark them with `upsertSection` so the user sees the structure.
 - Talking videos: build the timeline as a **chain of spoken lines** (real speech + voiceover, ~0.14 s gaps) and
   cut picture to what is being said. Music-led montages: cut on the beat grid (`bashcut-beat-cut`).
 - Find lines with `captions generate --media ID` on each talking clip (needs a `captions.transcribe` plugin),
   then `captions export` to read them with timings.
+
+## Screen recording with a presenter
+
+Users describe this layout in their own words; map each phrase to the edit:
+
+| The user says | Build |
+|---|---|
+| "video giới thiệu tool", "demo phần mềm", "tutorial", "N phút" | hook = the tool's output (5–7 s, its own sound, a label like "VIDEO NÀY DO AI DỰNG"), then the presenter: prompt → tool working (fast-forward) → how it works, one panel per sentence → limits and next steps |
+| "video desktop làm nền", "màn hình làm nền" | screen recording on the main layer, cut to the same moments as the speech (offset from `sync.py`, `bashcut-footage-survey`); on a portrait canvas a blurred copy below fills the bars (`bashcut-stock-images`) |
+| "người đọc / người nói ở trên video", "khung mặt" | presenter camera on an overlay layer *in front of* the screen, zoom ~0.37 (a 9:16 camera becomes ~400 px wide), at the bottom centre; captions between screen and face. "Ở trên" can mean the layer order or the top of the frame: bottom centre was kept without complaint; ask when unsure |
+| "ẩn giọng desktop", "tắt tiếng màn hình" | mute the screen clips; speech comes from the camera (`bashcut-audio-mix`, "Screen recordings") |
+| "chọn nhạc phù hợp giọng" | measure candidates against the voice (`music_fit.py`, `bashcut-audio-mix`) |
+| (unsaid, always) | zoom onto the panel being talked about, fast-forward waiting and typing (`bashcut-effects`) |
+
+Real case: a 5 min session (camera + screen) became a 2:00 intro with speech over 92% of the time; dropped:
+fillers, muddled lines, reactions to bugs, and sentences where the camera mic heard the laptop playing the output.
+The first cut opened on the presenter's "hello"; the user sent it back: "end user muốn biết output".
 
 ## Review before export
 

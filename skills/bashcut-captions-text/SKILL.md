@@ -19,6 +19,9 @@ bashcut captions import /abs/captions.srt --base-rev N --replace
 - Speech recognition invents text over music, crowds, rooms and screen recordings ("hãy subscribe kênh…",
   "cảm ơn các bạn đã theo dõi", repeated phrases). Delete those cues; trust a clip with only that text as
   having no speech.
+- A cue longer than ~10 s, or one word repeated many times ("à à à …"), is a recognition loop: its word timings
+  are smeared (a 5 min talk lost 128–237 s to three such cues). Don't cut on them; transcribe that stretch again
+  in ~20 s pieces, which gave clean sentences.
 - Product and place names come out wrong: fix them by hand.
 - Voiceover you wrote yourself: write the cues from your own text (one cue per phrase), not from the
   transcript; automatic phrase splits broke lines in the middle of phrases ("một căn / nhà hoàn chỉnh").
