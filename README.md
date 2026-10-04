@@ -88,5 +88,5 @@ python3 scripts/check_commands.py --reference ../bash-cut/docs/reference/command
 python3 -m unittest discover -s tests
 ```
 
-Bump `.claude-plugin/plugin.json`'s semantic version when cutting a release. BashCut refreshes its bundled
-copy by content hash, so pull requests do not need their own version bumps.
+Pull requests that change `skills/` must increase `.claude-plugin/plugin.json`'s semantic version.
+The version check compares against the PR base; it never rewrites a contributor's branch.
