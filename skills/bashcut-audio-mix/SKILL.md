@@ -55,9 +55,10 @@ out), leave the most honest line with no music. Keep the music continuous across
   ignores the join.
 - Under a talking voice, measure the candidates and the voice: `bashcut audio measure --media ID` (a job; `jobs
   status JOB_ID` gives `loudnessRangeLU` and `presenceShare`, the energy share at 1–4 kHz where consonants carry the
-  words). Import candidates with `media import` first; they need not be placed. Measured
-  0.009 (soft piano and strings, LRA 2 LU), 0.068 (lofi) and 0.110 (busy acoustic) against a voice at 0.066: the
-  0.009 track sat under a calm male voice ducked 8 dB with nothing to fix (−13.7 LUFS export).
+  words). Import candidates with `media import` first; they need not be placed. Measured 0.006 (soft piano and
+  strings, LRA 2 LU) and 0.046 (lofi, LRA 5.3) against a voice at 0.063: the 0.006 track sat under a calm male
+  voice ducked 8 dB with nothing to fix (−13.7 LUFS export). Compare shares between tracks; they are not exact
+  fractions: the band edges fall 24 dB/octave (−6 dB at the edge), so tones at 2 and 3 kHz alone read 0.684.
 - Check the music's licence before using it in a published video.
 
 ## Real speech vs voiceover

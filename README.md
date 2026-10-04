@@ -88,6 +88,12 @@ python3 scripts/check_commands.py --reference ../bash-cut/docs/reference/command
 python3 -m unittest discover -s tests
 ```
 
+`tests/test_e2e_bashcut.py` checks the skills' claims against a live BashCut on synthetic media with known answers
+(sync offsets, band shares, `--focus` framing, crop, ranged captions, the loop review). It opens its own project in
+a temporary folder and reopens yours afterwards; it skips when BashCut is not running or the open project has
+unsaved changes, and per test when the CLI lacks a command or no ready plugin provides the capability it needs.
+`BASHCUT_CLI` points it at a specific `bashcut` binary.
+
 Pull requests that change `skills/` must increase `.claude-plugin/plugin.json`'s semantic version.
 The version check compares against the PR base; it never rewrites a contributor's branch.
 Claude Code caches an installed plugin per version, so an unchanged version keeps serving the old skills even

@@ -23,7 +23,9 @@ bashcut captions import /abs/captions.srt --base-rev N --replace
 - A cue longer than ~10 s, or one word repeated many times ("à à à …"), is a recognition loop: its word timings
   are smeared (a 5 min talk lost 128–237 s to three such cues). `review run` flags them ("Possible recognition
   loop"). Don't cut on them; transcribe that stretch again in ~20 s pieces (`--from/--to` with `--replace`, which
-  swaps only the captions heard in the piece), which gave clean sentences.
+  swaps only the captions heard in the piece), which gave clean sentences. Order matters: the whole clip first,
+  then the pieces with `--replace`; a whole-clip run without `--replace` after a ranged one added every line of the
+  range a second time.
 - Product and place names come out wrong: fix them by hand.
 - Voiceover you wrote yourself: write the cues from your own text (one cue per phrase), not from the
   transcript; automatic phrase splits broke lines in the middle of phrases ("một căn / nhà hoàn chỉnh").

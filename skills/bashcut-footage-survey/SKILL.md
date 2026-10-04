@@ -57,7 +57,7 @@ all nearly identical — 9 minutes of footage gave two shot sizes. Then:
 
 ## Two recordings of one session (camera + screen)
 
-Filename clocks lie (82 s and 101 s apart by name, 2.49 s by sound once the recording had been trimmed). Measure:
+Filename clocks lie (82 s and 101 s apart by name, 2.44 s by sound once the recording had been trimmed). Measure:
 
 ```sh
 bashcut media sync --media CAMERA_ID --to SCREEN_ID [--item CAMERA_CLIP]   # job: screen time = camera time + offset
@@ -66,10 +66,11 @@ bashcut jobs status JOB_ID
 ```
 
 Both files must be project media (`media import`). It correlates loudness envelopes and checks each half of the
-overlap: camera vs screen 0.79 with halves agreeing to 0.01 s; a 46 s render found inside a 5 min screen recording
-at 275.74 s (0.97). `reliable` is false below 0.4 or when the halves are more than 0.02 s apart (`steady`): wrong
+overlap: camera vs screen −2.44 s at 0.785, both halves −2.44; a 46 s render found inside a 5 min screen recording
+at 275.74 s (0.97). Use BashCut's number, not one measured with ffmpeg: ffmpeg read the DJI camera's sound 44 ms
+later than BashCut (it keeps 2112 samples of AAC priming that BashCut drops) and gave −2.49. `reliable` is false below 0.4 or when the halves are more than 0.02 s apart (`steady`): wrong
 match or drifting clocks. Matching caption sentences of the two files instead was too rough (9 matches, −1.5 to
-−4.8 s, median −2.94 for a true −2.49). Then screen in-point = camera in-point + offset; with `--item` the result
+−4.8 s, median −2.94 for −2.44). Then screen in-point = camera in-point + offset; with `--item` the result
 gives it as `item.otherSourceIn` (frames of the screen media).
 
 ## Time and place from filenames
