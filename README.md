@@ -108,6 +108,9 @@ BashCut's Settings › Agents checks `releases.json` on `main` and offers newer 
 git tag v0.0.2 && git push origin v0.0.2
 ```
 
+The catalog entry's `minAppVersion` (the oldest BashCut whose commands the kit uses; older apps are not offered it)
+comes from the repository variable `KIT_MIN_APP`, 0.0.1 when it is unset: `gh variable set KIT_MIN_APP --body 0.0.4`.
+
 `.github/workflows/release.yml` checks the skills, runs `scripts/release.py` to zip the committed kit files, signs
 the archive digest with the BashCut publisher key (repository secret `BASHCUT_SIGNING_KEY`, the same key as
 `bashcut-plugins`), attaches it to the GitHub Release and adds the version to `releases.json`. BashCut installs only

@@ -27,11 +27,13 @@ jobs:
         id: package
         env:
           BASHCUT_SIGNING_KEY: ${{ secrets.BASHCUT_SIGNING_KEY }}
+          # Oldest BashCut whose commands this kit uses (repository variable; Settings › Secrets and variables › Actions).
+          KIT_MIN_APP: ${{ vars.KIT_MIN_APP }}
         run: |
           if [ -z "$BASHCUT_SIGNING_KEY" ]; then echo "::error::The BASHCUT_SIGNING_KEY secret is missing"; exit 1; fi
           # The tag's files, but main's releases.json: it holds every earlier release.
           git show origin/main:releases.json > releases.json
-          out=$(python3 scripts/release.py --tag "$GITHUB_REF_NAME" --register)
+          out=$(python3 scripts/release.py --tag "$GITHUB_REF_NAME" --register --min-app "${KIT_MIN_APP:-0.0.1}")
           echo "$out"
           echo "archive=$(echo "$out" | python3 -c 'import json,sys; print(json.load(sys.stdin)["archive"])')" >> "$GITHUB_OUTPUT"
           cp releases.json "$RUNNER_TEMP/releases.json"
