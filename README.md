@@ -4,15 +4,15 @@ Editing skills for Claude Code and Codex that drive the [BashCut](https://github
 video editor. BashCut makes video editable by agents (CLI, MCP, undoable edits); this kit says **how to edit
 well**: what to look at, where to cut, how to mix, which effect fits which moment.
 
-Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its two scripts
-only analyse (contact sheets, LUT files).
+Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its scripts
+only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`audio measure`, `media sync`).
 
 ## Skills
 
 | Skill | Use it for |
 |---|---|
 | `bashcut-edit-workflow` | The whole edit from footage to export, and which skill to use when |
-| `bashcut-footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`) |
+| `bashcut-footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`); camera ↔ screen sync (`media sync`) |
 | `bashcut-beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `bashcut-audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `bashcut-voiceover` | Text-to-speech lines that read right, checked and placed |
@@ -87,6 +87,12 @@ files when adopting app command changes. In a sibling checkout, validate directl
 python3 scripts/check_commands.py --reference ../bash-cut/docs/reference/commands.md
 python3 -m unittest discover -s tests
 ```
+
+`tests/test_e2e_bashcut.py` checks the skills' claims against a live BashCut on synthetic media with known answers
+(sync offsets, band shares, `--focus` framing, crop, ranged captions, the loop review). It opens its own project in
+a temporary folder and reopens yours afterwards; it skips when BashCut is not running or the open project has
+unsaved changes, and per test when the CLI lacks a command or no ready plugin provides the capability it needs.
+`BASHCUT_CLI` points it at a specific `bashcut` binary.
 
 Pull requests that change `skills/` must increase `.claude-plugin/plugin.json`'s semantic version.
 The version check compares against the PR base; it never rewrites a contributor's branch.

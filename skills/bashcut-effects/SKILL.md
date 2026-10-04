@@ -1,6 +1,6 @@
 ---
 name: bashcut-effects
-description: Pick the right editing effect for the moment and genre (food, travel, daily vlog, review/unboxing, product ad, talking head, real estate, event/MV) and make it with BashCut's native tools — transitions (dissolve, whip, blink, zoom, spin, shutter, wipe), speed ramps, freeze frames, reverse, punch-in, keyframe motion (Ken Burns, animated titles), split moments, text presets, word-by-word captions, stickers and matching SFX — or say plainly when an effect is not possible yet. Use when the user asks "hiệu ứng", "effect", "chuyển cảnh", "transition", "speed ramp", "freeze", "chữ nhảy", "làm giống CapCut", or when a cut feels flat and needs emphasis.
+description: Pick the right editing effect for the moment and genre (food, travel, daily vlog, review/unboxing, product ad, talking head, real estate, event/MV) and make it with BashCut's native tools — transitions (dissolve, whip, blink, zoom, spin, shutter, wipe), speed ramps, freeze frames, reverse, punch-in, keyframe motion (Ken Burns, animated titles), split moments, text presets, word-by-word captions, stickers and matching SFX — or say plainly when an effect is not possible yet. Use when the user asks "hiệu ứng", "effect", "chuyển cảnh", "transition", "speed ramp", "freeze", "chữ nhảy", "làm giống CapCut", "zoom vào màn hình", "tua nhanh", or when a cut feels flat and needs emphasis.
 ---
 
 # Effects: when, then how
@@ -46,6 +46,9 @@ Reply in the user's language. Decide **when** first; most cuts should stay hard 
 | Ken Burns on a photo, slow push-in | `clip motion ITEM --preset zoom-in` (also zoom-out, pan-left, pan-right, pan-up, pan-down) |
 | Animated title or label | `clip motion TEXT_ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch) |
 | Custom move (zoom, pan, tilt, rotation, opacity over time) | `clip motion ITEM --keyframes '{"zoom":[{"frame":0,"value":1},{"frame":45,"value":1.3,"ease":"out"}]}'` (frames from the item's start; eases linear, in, out, inOut, hold) or one key at a time: `clip keyframe ITEM --property pan --value -80 --at-frame F` |
+| Zoom onto a panel of a screen recording | `clip motion ITEM --focus x,y,w,h [--focus-to x,y,w,h] [--ease out]`: the panel's rectangle in the recording's pixels (origin top left, size from `media list`); BashCut works out zoom, pan and tilt and keeps the picture's edges out of the frame. One panel per sentence. Draw the rectangle around the panel only: at zoom 1.9 a 1920 px recording showed 1010 px and a neighbouring window crept in; 2.6 isolated the panel. Confirm with `ui frame` |
+| Presenter box over a screen recording | `setProperties` `{"crop": {"left": 0.2, "right": 0.2, "top": 0.1, "bottom": 0.3, "radius": 0.15}}` on the camera clip (fractions of the picture; `radius` 0.5 = circle), then `transform` zoom/pan/tilt to size and place it (zoom ~0.37 for a 9:16 camera, bottom centre). The visible part keeps its place in the picture: an uneven crop (left 0.28, right 0) left the face box off-centre to the right until pan moved it back by (left − right) / 2 × canvas width × zoom |
+| Fast-forward waiting, typing, rendering | `clip speed ITEM --speed 18`, 2.4–3.6 s, no presenter or captions, one label saying what happens (a 65 s typing stretch read clearly in 3.6 s) |
 | Word-by-word captions | `captions words --all --style highlight` (karaoke, reveal); see `bashcut-captions-text` |
 
 Speed changes break lip sync: use them on b-roll and action, not on talking shots. Real slow motion needs

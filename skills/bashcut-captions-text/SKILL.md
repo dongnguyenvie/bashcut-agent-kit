@@ -12,6 +12,7 @@ a video with Pillow or ffmpeg.
 
 ```sh
 bashcut captions generate --media MEDIA_ID [--replace]   # job; needs a captions.transcribe plugin
+bashcut captions generate --media MEDIA_ID --from 128 --to 148 --replace   # one stretch again (source seconds)
 bashcut captions export --format text > /tmp/captions.srt # read and fix
 bashcut captions import /abs/captions.srt --base-rev N --replace
 ```
@@ -19,6 +20,12 @@ bashcut captions import /abs/captions.srt --base-rev N --replace
 - Speech recognition invents text over music, crowds, rooms and screen recordings ("hãy subscribe kênh…",
   "cảm ơn các bạn đã theo dõi", repeated phrases). Delete those cues; trust a clip with only that text as
   having no speech.
+- A cue longer than ~10 s, or one word repeated many times ("à à à …"), is a recognition loop: its word timings
+  are smeared (a 5 min talk lost 128–237 s to three such cues). `review run` flags them ("Possible recognition
+  loop"). Don't cut on them; transcribe that stretch again in ~20 s pieces (`--from/--to` with `--replace`, which
+  swaps only the captions heard in the piece), which gave clean sentences. Order matters: the whole clip first,
+  then the pieces with `--replace`; a whole-clip run without `--replace` after a ranged one added every line of the
+  range a second time.
 - Product and place names come out wrong: fix them by hand.
 - Voiceover you wrote yourself: write the cues from your own text (one cue per phrase), not from the
   transcript; automatic phrase splits broke lines in the middle of phrases ("một căn / nhà hoàn chỉnh").

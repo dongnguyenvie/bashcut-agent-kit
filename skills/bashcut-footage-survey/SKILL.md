@@ -1,6 +1,6 @@
 ---
 name: bashcut-footage-survey
-description: Survey a footage folder before editing in BashCut — probe specs and build contact sheets to SEE which shots actually exist, catch missing coverage, silent audio, broken files and portrait/landscape mixes early, and pick sharp in-points. Use at the start of any edit from raw footage, when choosing clips or moments, or when the cut feels boring and it is unclear whether the problem is the shooting or the editing. Triggers: "khảo sát footage", "xem footage", "contact sheet", "có những cảnh gì".
+description: Survey a footage folder before editing in BashCut — probe specs and build contact sheets to SEE which shots actually exist, catch missing coverage, silent audio, broken files and portrait/landscape mixes early, and pick sharp in-points. Use at the start of any edit from raw footage, when choosing clips or moments, or when the cut feels boring and it is unclear whether the problem is the shooting or the editing. Also syncs a camera with a screen recording of the same session by their sound (bashcut media sync). Triggers: "khảo sát footage", "xem footage", "contact sheet", "có những cảnh gì", "đồng bộ", "quay màn hình".
 ---
 
 # Footage survey
@@ -54,6 +54,24 @@ all nearly identical — 9 minutes of footage gave two shot sizes. Then:
   project canvas. Phones often report 1920×1080 with rotation −90: that clip is portrait.
 - **fps**: clips at another rate than the project play fine in BashCut, but true slow motion needs 50/60/120 fps
   sources.
+
+## Two recordings of one session (camera + screen)
+
+Filename clocks lie (82 s and 101 s apart by name, 2.44 s by sound once the recording had been trimmed). Measure:
+
+```sh
+bashcut media sync --media CAMERA_ID --to SCREEN_ID [--item CAMERA_CLIP]   # job: screen time = camera time + offset
+bashcut media sync --media SCREEN_ID --to RENDER_ID                        # a render played on screen starts at −offset
+bashcut jobs status JOB_ID
+```
+
+Both files must be project media (`media import`). It correlates loudness envelopes and checks each half of the
+overlap: camera vs screen −2.44 s at 0.785, both halves −2.44; a 46 s render found inside a 5 min screen recording
+at 275.74 s (0.97). Use BashCut's number, not one measured with ffmpeg: ffmpeg read the DJI camera's sound 44 ms
+later than BashCut (it keeps 2112 samples of AAC priming that BashCut drops) and gave −2.49. `reliable` is false below 0.4 or when the halves are more than 0.02 s apart (`steady`): wrong
+match or drifting clocks. Matching caption sentences of the two files instead was too rough (9 matches, −1.5 to
+−4.8 s, median −2.94 for −2.44). Then screen in-point = camera in-point + offset; with `--item` the result
+gives it as `item.otherSourceIn` (frames of the screen media).
 
 ## Time and place from filenames
 
