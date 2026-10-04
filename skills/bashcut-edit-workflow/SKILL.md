@@ -14,7 +14,8 @@ server) explain each command and the `timeline apply` operations; this kit expla
 Hard rules:
 - Never pre-render picture or sound with ffmpeg to fake an effect, a mix or captions. BashCut does cuts, speed and
   ramps, freeze frames, reframing, transitions, volume, fades, ducking, captions, text presets, colour and
-  loudness natively. Scripts in this kit only **analyse** (contact sheets, LUT files, sync offsets, music fit).
+  loudness natively, and measures sound itself (`audio measure`, `media sync`). Scripts in this kit only
+  **analyse** (contact sheets, LUT files).
 - Never edit `project.bashcut.json` by hand while the app is open; never overwrite original footage.
 - Ask before downloading media or installing anything. Installing, trusting and setting up plugins is the
   user's job (`plugins search` tells them what to install).
@@ -85,10 +86,10 @@ Users describe this layout in their own words; map each phrase to the edit:
 | The user says | Build |
 |---|---|
 | "video giới thiệu tool", "demo phần mềm", "tutorial", "N phút" | hook = the tool's output (5–7 s, its own sound, a label like "VIDEO NÀY DO AI DỰNG"), then the presenter: prompt → tool working (fast-forward) → how it works, one panel per sentence → limits and next steps |
-| "video desktop làm nền", "màn hình làm nền" | screen recording on the main layer, cut to the same moments as the speech (offset from `sync.py`, `bashcut-footage-survey`); on a portrait canvas a blurred copy below fills the bars (`bashcut-stock-images`) |
+| "video desktop làm nền", "màn hình làm nền" | screen recording on the main layer, cut to the same moments as the speech (offset from `media sync`, `bashcut-footage-survey`); on a portrait canvas a blurred copy below fills the bars (`bashcut-stock-images`) |
 | "người đọc / người nói ở trên video", "khung mặt" | presenter camera on an overlay layer *in front of* the screen, zoom ~0.37 (a 9:16 camera becomes ~400 px wide), at the bottom centre; captions between screen and face. "Ở trên" can mean the layer order or the top of the frame: bottom centre was kept without complaint; ask when unsure |
 | "ẩn giọng desktop", "tắt tiếng màn hình" | mute the screen clips; speech comes from the camera (`bashcut-audio-mix`, "Screen recordings") |
-| "chọn nhạc phù hợp giọng" | measure candidates against the voice (`music_fit.py`, `bashcut-audio-mix`) |
+| "chọn nhạc phù hợp giọng" | measure candidates against the voice (`audio measure`, `bashcut-audio-mix`) |
 | (unsaid, always) | zoom onto the panel being talked about, fast-forward waiting and typing (`bashcut-effects`) |
 
 Real case: a 5 min session (camera + screen) became a 2:00 intro with speech over 92% of the time; dropped:

@@ -53,8 +53,9 @@ out), leave the most honest line with no music. Keep the music continuous across
   before repeating it.
 - Put song changes and loop points **on a hard picture cut**: the eye takes the scene change and the ear
   ignores the join.
-- Under a talking voice, measure the candidates: `python3 "<skill_dir>/music_fit.py" TRACK... --voice CLIP`
-  prints each file's loudness range and its energy share at 1–4 kHz, where consonants carry the words. Measured
+- Under a talking voice, measure the candidates and the voice: `bashcut audio measure --media ID` (a job; `jobs
+  status JOB_ID` gives `loudnessRangeLU` and `presenceShare`, the energy share at 1–4 kHz where consonants carry the
+  words). Import candidates with `media import` first; they need not be placed. Measured
   0.009 (soft piano and strings, LRA 2 LU), 0.068 (lofi) and 0.110 (busy acoustic) against a voice at 0.066: the
   0.009 track sat under a calm male voice ducked 8 dB with nothing to fix (−13.7 LUFS export).
 - Check the music's licence before using it in a published video.
@@ -75,7 +76,7 @@ out), leave the most honest line with no music. Keep the music continuous across
 - The camera mic also hears the laptop speaker: when the demo plays the tool's output, drop those sentences;
   they are lines of the output's script, not the presenter's.
 - When the output's sound is wanted (a hook showing the result), place the output file itself on an audio layer
-  at the offset `sync.py` gives (`bashcut-footage-survey`), never the speaker leak. Start the music bed after it.
+  at the offset `media sync` gives (`bashcut-footage-survey`), never the speaker leak. Start the music bed after it.
 
 ## SFX
 

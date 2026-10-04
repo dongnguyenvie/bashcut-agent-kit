@@ -46,7 +46,8 @@ Reply in the user's language. Decide **when** first; most cuts should stay hard 
 | Ken Burns on a photo, slow push-in | `clip motion ITEM --preset zoom-in` (also zoom-out, pan-left, pan-right, pan-up, pan-down) |
 | Animated title or label | `clip motion TEXT_ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch) |
 | Custom move (zoom, pan, tilt, rotation, opacity over time) | `clip motion ITEM --keyframes '{"zoom":[{"frame":0,"value":1},{"frame":45,"value":1.3,"ease":"out"}]}'` (frames from the item's start; eases linear, in, out, inOut, hold) or one key at a time: `clip keyframe ITEM --property pan --value -80 --at-frame F` |
-| Zoom onto a panel of a screen recording | `clip motion ITEM --keyframes` with zoom/pan/tilt at the item's first and last frame, one panel per sentence: app 1.0–1.2, a panel 1.6–2.2, a line of text 2.4–2.9. Visible width is source width / zoom: at 1.9 a 1920 px recording showed 1010 px and a neighbouring window crept in; 2.6 isolated the panel. Fit framing, 1920×1080 on a 1080-wide canvas: s = 1080/1920 × zoom, `pan = −(cx − 960) × s`, `tilt = (cy − 540) × s` (tilt positive = up); confirm with `ui frame` |
+| Zoom onto a panel of a screen recording | `clip motion ITEM --focus x,y,w,h [--focus-to x,y,w,h] [--ease out]`: the panel's rectangle in the recording's pixels (origin top left, size from `media list`); BashCut works out zoom, pan and tilt and keeps the picture's edges out of the frame. One panel per sentence. Draw the rectangle around the panel only: at zoom 1.9 a 1920 px recording showed 1010 px and a neighbouring window crept in; 2.6 isolated the panel. Confirm with `ui frame` |
+| Presenter box over a screen recording | `setProperties` `{"crop": {"left": 0.2, "right": 0.2, "top": 0.1, "bottom": 0.3, "radius": 0.15}}` on the camera clip (fractions of the picture; `radius` 0.5 = circle), then `transform` zoom/pan/tilt to size and place it (zoom ~0.37 for a 9:16 camera, bottom centre) |
 | Fast-forward waiting, typing, rendering | `clip speed ITEM --speed 18`, 2.4–3.6 s, no presenter or captions, one label saying what happens (a 65 s typing stretch read clearly in 3.6 s) |
 | Word-by-word captions | `captions words --all --style highlight` (karaoke, reveal); see `bashcut-captions-text` |
 
@@ -57,8 +58,6 @@ Speed changes break lip sync: use them on b-roll and action, not on talking shot
 
 - Typewriter text, counting numbers, shake, glitch, film grain.
 - Segmentation (text behind a person, cut-outs), motion tracking, AI-generated transitions.
-- Crop or a rounded mask on a clip (a tight face box for picture in picture): the presenter shows the whole
-  camera frame; zoom and tilt so the face is in view.
 
 When the user needs one of these, note it as a feature request for BashCut (or a plugin action) rather than
 faking it with a pre-rendered file.
