@@ -6,7 +6,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write   # when main only takes pull requests, the catalog commit goes in through one
+  pull-requests: write   # when main only takes pull requests, the catalog commit is opened as one
 
 concurrency:
   group: releases
@@ -68,16 +68,14 @@ jobs:
           for attempt in 1 2 3 4 5; do
             if out=$(git push origin HEAD:main 2>&1); then echo "$out"; exit 0; fi
             echo "$out"
-            # A protected main (pull requests only) refuses the push: hand the commit over in a pull request.
+            # A protected main (pull requests only) refuses the push: open a pull request with the commit to merge.
             if echo "$out" | grep -qE "GH006|GH013|protected branch"; then
               branch="releases/$GITHUB_REF_NAME"
               git push --force origin "HEAD:refs/heads/$branch"
               url=$(gh pr create --base main --head "$branch" --title "releases: $GITHUB_REF_NAME" \
                 --body "Catalog update for the release \`$GITHUB_REF_NAME\`, opened by the release workflow because main only takes pull requests.")
-              echo "Opened $url"
-              gh pr merge "$url" --merge --delete-branch && exit 0
-              echo "::error::Could not merge $url; merge it to offer $GITHUB_REF_NAME in BashCut"
-              exit 1
+              echo "::notice::Opened $url; merge it to offer $GITHUB_REF_NAME in BashCut"
+              exit 0
             fi
             git pull --rebase origin main || exit 1
           done
