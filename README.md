@@ -107,3 +107,7 @@ the archive digest with the BashCut publisher key (repository secret `BASHCUT_SI
 `bashcut-plugins`), attaches it to the GitHub Release and adds the version to `releases.json`. BashCut installs only
 archives whose SHA-256 and first-party signature match. `python3 scripts/release.py` builds the archive locally
 without signing.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
