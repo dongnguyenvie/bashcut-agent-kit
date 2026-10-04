@@ -18,7 +18,9 @@ def main():
     parser.add_argument("--base", required=True)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    base = subprocess.check_output(["git", "rev-parse", "--verify", f"{args.base}^{{commit}}"], cwd=root, text=True).strip()
+    target = subprocess.check_output(["git", "rev-parse", "--verify", f"{args.base}^{{commit}}"], cwd=root, text=True).strip()
+    # Compare with the fork point: skill changes that landed on the base branch later are not this PR's.
+    base = subprocess.check_output(["git", "merge-base", target, "HEAD"], cwd=root, text=True).strip()
     changed = subprocess.check_output(["git", "diff", "--name-only", base, "HEAD", "--", "skills"], cwd=root, text=True)
     if not changed.strip():
         print("OK: no skill changes")

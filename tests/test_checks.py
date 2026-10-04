@@ -77,6 +77,16 @@ class VersionGateTests(unittest.TestCase):
             git('commit', '-m', 'version')
             self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
 
+            # The base branch moved on with its own skill change and bump; a docs-only branch from the old fork
+            # point must not be compared with that newer base tree.
+            later = git('rev-parse', 'HEAD')
+            git('checkout', '-q', '-b', 'docs', base)
+            (root / 'README.md').write_text('docs only')
+            git('add', '.')
+            git('commit', '-m', 'docs')
+            moved = subprocess.run([sys.executable, str(script), '--base', later], capture_output=True, text=True)
+            self.assertEqual(moved.returncode, 0, moved.stderr)
+
 
 if __name__ == '__main__':
     unittest.main()
