@@ -92,3 +92,18 @@ Pull requests that change `skills/` must increase `.claude-plugin/plugin.json`'s
 The version check compares against the PR base; it never rewrites a contributor's branch.
 Claude Code caches an installed plugin per version, so an unchanged version keeps serving the old skills even
 after BashCut refreshes its copy. Codex links the skill folders and sees changes at once.
+
+## Releases and in-app updates
+
+BashCut's Settings › Agents checks `releases.json` on `main` and offers newer kits as **Download & Update**
+(`bashcut agent kit-check`, `bashcut agent kit-update`). To publish one, merge the version bump, then push its tag:
+
+```sh
+git tag v0.0.2 && git push origin v0.0.2
+```
+
+`.github/workflows/release.yml` checks the skills, runs `scripts/release.py` to zip the committed kit files, signs
+the archive digest with the BashCut publisher key (repository secret `BASHCUT_SIGNING_KEY`, the same key as
+`bashcut-plugins`), attaches it to the GitHub Release and adds the version to `releases.json`. BashCut installs only
+archives whose SHA-256 and first-party signature match. `python3 scripts/release.py` builds the archive locally
+without signing.

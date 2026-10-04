@@ -1,0 +1,69 @@
+name: Release kit
+# Push a tag v<version> matching .claude-plugin/plugin.json to publish the kit for in-app updates.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: releases
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check the tagged kit
+        run: |
+          python3 scripts/check.py
+          python3 -m unittest discover -s tests
+          python3 scripts/check_commands.py --reference reference/commands.md
+      - name: Package, sign and register
+        id: package
+        env:
+          BASHCUT_SIGNING_KEY: ${{ secrets.BASHCUT_SIGNING_KEY }}
+        run: |
+          if [ -z "$BASHCUT_SIGNING_KEY" ]; then echo "::error::The BASHCUT_SIGNING_KEY secret is missing"; exit 1; fi
+          # The tag's files, but main's releases.json: it holds every earlier release.
+          git show origin/main:releases.json > releases.json
+          out=$(python3 scripts/release.py --tag "$GITHUB_REF_NAME" --register)
+          echo "$out"
+          echo "archive=$(echo "$out" | python3 -c 'import json,sys; print(json.load(sys.stdin)["archive"])')" >> "$GITHUB_OUTPUT"
+          cp releases.json "$RUNNER_TEMP/releases.json"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          archive="${{ steps.package.outputs.archive }}"
+          if gh release view "$GITHUB_REF_NAME" --json assets -q '.assets[].name' 2>/dev/null | grep -q '\.zip$'; then
+            echo "::error::Release $GITHUB_REF_NAME already has an archive; bump the version instead of re-publishing"
+            exit 1
+          fi
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$archive" "$archive.sha256" "$archive.sig"
+          else
+            gh release create "$GITHUB_REF_NAME" "$archive" "$archive.sha256" "$archive.sig" \
+              --title "$GITHUB_REF_NAME" --notes "Agent kit $GITHUB_REF_NAME. SHA-256: $(cut -d' ' -f1 "$archive.sha256")"
+          fi
+          # Verify what was published, not what was built.
+          mkdir -p check && gh release download "$GITHUB_REF_NAME" -p '*.zip' -D check
+          shasum -a 256 -c <(sed "s#  #  check/#" "$archive.sha256")
+      - name: Commit releases.json to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B release-catalog origin/main
+          cp "$RUNNER_TEMP/releases.json" releases.json
+          python3 scripts/release.py --check
+          git add releases.json
+          git commit -m "releases: $GITHUB_REF_NAME"
+          for attempt in 1 2 3 4 5; do
+            git push origin HEAD:main && exit 0
+            git pull --rebase origin main || exit 1
+          done
+          exit 1
