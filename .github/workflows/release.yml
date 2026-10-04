@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write   # when main only takes pull requests, the catalog commit goes in through one
 
 concurrency:
   group: releases
@@ -54,6 +55,8 @@ jobs:
           mkdir -p check && gh release download "$GITHUB_REF_NAME" -p '*.zip' -D check
           shasum -a 256 -c <(sed "s#  #  check/#" "$archive.sha256")
       - name: Commit releases.json to main
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -63,7 +66,19 @@ jobs:
           git add releases.json
           git commit -m "releases: $GITHUB_REF_NAME"
           for attempt in 1 2 3 4 5; do
-            git push origin HEAD:main && exit 0
+            if out=$(git push origin HEAD:main 2>&1); then echo "$out"; exit 0; fi
+            echo "$out"
+            # A protected main (pull requests only) refuses the push: hand the commit over in a pull request.
+            if echo "$out" | grep -qE "GH006|GH013|protected branch"; then
+              branch="releases/$GITHUB_REF_NAME"
+              git push --force origin "HEAD:refs/heads/$branch"
+              url=$(gh pr create --base main --head "$branch" --title "releases: $GITHUB_REF_NAME" \
+                --body "Catalog update for the release \`$GITHUB_REF_NAME\`, opened by the release workflow because main only takes pull requests.")
+              echo "Opened $url"
+              gh pr merge "$url" --merge --delete-branch && exit 0
+              echo "::error::Could not merge $url; merge it to offer $GITHUB_REF_NAME in BashCut"
+              exit 1
+            fi
             git pull --rebase origin main || exit 1
           done
           exit 1
