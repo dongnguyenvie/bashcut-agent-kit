@@ -256,7 +256,8 @@ class LiveBashCut(unittest.TestCase):
 
     def test_crop_with_rounded_corners(self):
         self.need("timeline apply")
-        if "crop" not in json.dumps(self.app.json("schema", "get")):
+        # The crop group shipped with media sync; the word "crop" alone also appears in older schemas' text.
+        if not self.app.has("media sync"):
             self.skipTest("this BashCut has no crop group")
         face = self.app.import_media(self.tmp / "face.mov")
         self.app.apply([{"op": "insert", "track": "v2", "item": {"id": "face", "media": face, "at": 0, "dur": 60, "in": 0}},
