@@ -90,3 +90,5 @@ python3 -m unittest discover -s tests
 
 Pull requests that change `skills/` must increase `.claude-plugin/plugin.json`'s semantic version.
 The version check compares against the PR base; it never rewrites a contributor's branch.
+Claude Code caches an installed plugin per version, so an unchanged version keeps serving the old skills even
+after BashCut refreshes its copy. Codex links the skill folders and sees changes at once.
