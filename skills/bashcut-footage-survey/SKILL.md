@@ -93,4 +93,5 @@ keeps them apart by path.
 ## Into BashCut
 
 After the survey, link and import only the clips you will use (see `bashcut-edit-workflow`), and write what you found
-(coverage gaps, best moments, silent clips) into the project memo with `knowledge memo` so later sessions know.
+(coverage gaps, best moments, silent clips) as project facts so later sessions know, for example
+`bashcut knowledge set-fact coverage "no wide shot of the market; C0042 has silent audio"`.

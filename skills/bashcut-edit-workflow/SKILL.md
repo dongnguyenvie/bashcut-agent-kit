@@ -114,7 +114,8 @@ Check: no unintended gaps on the main layer, no two voices at once, captions ins
 
 ## Taste of the user
 
-Preferences (length, pace, voice, style) live in BashCut, not in this kit. Run `knowledge get` at the start of
-every edit: `userMemo` holds the notes for every project (the user's taste), `memo` and `skills` are this project's
-own (stored in the project folder). Write project facts with `knowledge memo FILE` and taste with
-`knowledge memo FILE --scope user` (see bashcut-self-learn).
+Preferences (length, pace, voice, style) live in BashCut, not in this kit. `context get` summarizes the active
+lessons, preferences and project facts: follow them. At the start of every edit also run `knowledge get`:
+`userMemo` holds the free-text notes for every project, `memo` and `skills` are this project's own (stored in the
+project folder). Record taste with `knowledge set-pref`, project facts with `knowledge set-fact` and lessons with
+`knowledge add-lesson` (see bashcut-self-learn).
