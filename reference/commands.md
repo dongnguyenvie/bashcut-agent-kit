@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 96 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 110 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -261,11 +261,12 @@ Request an OpenTimelineIO export; the user approves it in the app first.
 
 ## plugins
 
-### `bashcut plugins list`
+### `bashcut plugins list [--category <category>]`
 
-List installed plugins, their providers and project provider preferences.
+List installed plugins with their category, providers and project provider preferences.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_plugins_list`
+- `category`: string, one of agents, captions, voice, audio, color, effects, export, utilities. Only plugins in this category
 
 ### `bashcut plugins actions`
 
@@ -311,13 +312,14 @@ Set one plugin option like the Plugins sheet: project-scope values are an undoab
 - `option`: string, required. Option ID
 - `value`: string. New value as text (on/off, numbers, choices)
 
-### `bashcut plugins search [<query>] [--capability <capability>] [--refresh]`
+### `bashcut plugins search [<query>] [--capability <capability>] [--category <category>] [--refresh]`
 
-Search the plugin registry (Plugins › Browse): name, summary, capability, the version this BashCut would install and whether it is installed, has an update or is incompatible.
+Search the plugin registry (Plugins › Browse): name, summary, category, capability, the version this BashCut would install and whether it is installed, has an update or is incompatible.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_plugins_search`
 - `query`: string. Search text
 - `capability`: string. Only providers of this capability, such as captions.transcribe
+- `category`: string, one of agents, captions, voice, audio, color, effects, export, utilities. Only plugins in this category
 - `refresh`: boolean, default false. Fetch the registry again instead of using the 5-minute cache
 
 ### `bashcut plugins updates`
@@ -326,13 +328,44 @@ List installed plugins with a newer compatible version in the registry.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_plugins_updates`
 
-### `bashcut plugins install <plugin> [--version <version>]`
+### `bashcut plugins validate [<path>] [--url <url>] [--ref <ref>] [--sha256 <sha256>]`
 
-Download a registry plugin (or its update), check its SHA-256 and manifest, and show the install approval in the Plugins sheet. Only the user can approve; the job ends when the approval is shown.
+Check a plugin that is not in the registry (a folder, its plugin.json, a .zip or .bashcutplugin archive, or a link) without installing or running it: its id, version and capabilities, every problem with the field and the fix, and for a link the commit or release it resolved to.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_plugins_validate`
+- `path`: string, path. Plugin folder, plugin.json, or .zip / .bashcutplugin file (or use url)
+- `url`: string. Link to a .zip / .bashcutplugin file, a GitHub repo (or /tree/<ref>/<folder>, or its plugin.json) or a GitHub release; #sha256=<hex> pins it. A private link uses the access token saved in Add Plugin…
+- `ref`: string. Tag, branch or commit for a GitHub repo link (release tag for a release link)
+- `sha256`: string. Expected SHA-256 of the downloaded archive
+
+### `bashcut plugins install [<plugin>] [--version <version>] [--path <path>] [--url <url>] [--ref <ref>] [--sha256 <sha256>] [--scope <scope>] [--link]`
+
+Download a registry plugin (or its update), check its SHA-256 and manifest, and show the install approval in the Plugins sheet. With path or url instead, add a plugin that is not in the registry (Add Plugin…): a folder, its plugin.json or a .zip / .bashcutplugin file on this Mac, or a link, checked like plugins validate. Only the user can approve; the job ends when the approval is shown.
 
 - Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_plugins_install`
-- `plugin`: string, required. Plugin ID from plugins search
+- `plugin`: string. Plugin ID from plugins search (or use path)
 - `version`: string. A specific registry version; the newest compatible by default
+- `path`: string, path. Plugin folder, plugin.json, or .zip / .bashcutplugin file on this Mac
+- `url`: string. Link to a .zip / .bashcutplugin file, a GitHub repo (or /tree/<ref>/<folder>, or its plugin.json) or a GitHub release; #sha256=<hex> pins it. A private link uses the access token saved in Add Plugin…
+- `ref`: string. Tag, branch or commit for a GitHub repo link (release tag for a release link)
+- `sha256`: string. Expected SHA-256 of the downloaded archive
+- `scope`: string, one of user, project. Where a plugin from path or url goes: user (this Mac, every project; the default) or project (the open project)
+- `link`: boolean. Link (developer mode): install a link to the plugin folder at path instead of a copy; use plugins reload after editing it
+
+### `bashcut plugins replace <plugin> --path <path>`
+
+Replace… an installed plugin with a new version from a folder, its plugin.json or a .zip / .bashcutplugin file, in the same scope. The new files must have the same plugin ID; only the user can approve, like plugins install.
+
+- Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_plugins_replace`
+- `plugin`: string, required. Plugin ID
+- `path`: string, required, path. Folder, plugin.json, or .zip / .bashcutplugin file with the new version
+
+### `bashcut plugins reload <plugin>`
+
+Reload a plugin after editing it (for linked plugins in developer mode): stop its session and check its files again. Changed files make it changed until the user chooses Trust; reload never trusts it.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_plugins_reload`
+- `plugin`: string, required. Plugin ID
 
 ### `bashcut plugins remove <plugin> [--data]`
 
@@ -724,7 +757,7 @@ Answer the topmost dialog like the user: choose an option ID or title, or give a
 Open a sheet or popover in the app.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_open`
-- `dialog`: string, required, one of new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts. Dialog
+- `dialog`: string, required, one of new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts, add-plugin. Dialog
 
 ### `bashcut ui select [<item>] [--track <track>]`
 
@@ -747,9 +780,9 @@ Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, pla
 - Mode: edit · Runs: immediately · MCP: `bashcut_ui_action`
 - `action`: string, required. Action ID or shortcut
 
-### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>]`
+### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>]`
 
-Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, and scroll the timeline to a frame.
+Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, Plugins tab and Browse category, and scroll the timeline to a frame.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_view`
 - `zoom`: integer, 1…600. Timeline zoom in pixels per second
@@ -762,6 +795,8 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `reveal`: integer, ≥ 0. Scroll the timeline so this frame is visible
 - `inspector`: string, one of video, audio, text, color, speed. Inspector tab
 - `settingsSection`: string, one of general, agents, plugins, storage. Settings section (open Settings with ui.open settings)
+- `pluginsTab`: string, one of installed, browse, updates, activity. Plugins sheet tab (open it with ui.open plugins)
+- `pluginsCategory`: string, one of all, agents, captions, voice, audio, color, effects, export, utilities. Category Plugins › Browse shows; all shows every one
 
 ### `bashcut ui source <media> [--in <in>] [--out <out>]`
 
@@ -834,21 +869,146 @@ Run the Doctor checks (workspace, tools, plugins) and return the results.
 
 ### `bashcut knowledge get`
 
-Read the project memo and project skills shared with the agents.
+Read the project memo and skills (stored in the project folder), the notes for every project, and any older memo left in the agent workspace or home folder (legacy).
 
 - Mode: read · Runs: immediately · MCP: `bashcut_knowledge_get`
 
-### `bashcut knowledge memo <text-file>`
+### `bashcut knowledge memo <text-file> [--scope <scope>]`
 
-Replace the project memo (.bashcut/agent-memory.md).
+Replace a memo: the project memo (.bashcut/agent-memory.md in the project) or, with scope user, the notes every project reads (Application Support/BashCut/Knowledge). Agents need approval for scope user.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_memo`
 - `text`: string, required. Memo text (CLI: path to a text file)
+- `scope`: string, one of project, user. project (default) or user
+
+### `bashcut knowledge migrate [--to <to>]`
+
+Move the older memo that earlier versions kept in the agent workspace or home folder into the notes for every project (default) or this project's memo; the old file is renamed agent-memory.migrated.md.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_migrate`
+- `to`: string, one of user, project. user (default) or project
 
 ### `bashcut knowledge skill <name> <text-file>`
 
-Write a project skill's SKILL.md, creating the skill and sharing it with Claude and Codex if needed.
+Write a project skill's SKILL.md in the project folder, creating the skill and linking it into the project's .claude/skills and .agents/skills if needed. Needs a saved project.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_skill`
 - `name`: string, required. Lowercase hyphenated skill name
 - `text`: string, required. SKILL.md text (CLI: path to a text file)
+
+## library
+
+### `bashcut library list [--kind <kind>] [--panel <panel>] [--tag <tag>] [--scope <scope>] [--created-by <createdBy>] [--pack <pack>] [--query <query>]`
+
+List library items (Audio, Text, Stickers, Effects, Transitions, Filters, Voice) from the open project, this Mac, plugins and built-in packs, with usage. Check here before making something new.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_library_list`
+- `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
+- `panel`: string, one of audio, text, stickers, effects, transitions, filters, voice. Only items the library panel shows
+- `tag`: string. Only items with this tag
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `createdBy`: string, one of user, agent, plugin, built-in. Only items made by
+- `pack`: string. Only items in this pack
+- `query`: string. Text to find in the id, name, pack or tags
+
+### `bashcut library get <id> [--scope <scope>]`
+
+Read one library item, with its earlier versions and file paths.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_library_get`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+
+### `bashcut library stats [--kind <kind>] [--panel <panel>]`
+
+Usage of every library item, the saved items nobody used, and groups of duplicates (same kind and content), to find what to prune or merge.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_library_stats`
+- `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
+- `panel`: string, one of audio, text, stickers, effects, transitions, filters, voice. Only items the library panel shows
+
+### `bashcut library add --kind <kind> --name <name> [--id <id>] [--scope <scope>] [--tags <tags>] [--pack <pack>] [--params <params>] [--file <file>] [--preview <preview>] [--source <source>] [--license <license>]`
+
+Save a new library item in the project or on this Mac. Files are copied in. Agents saving to the user scope wait for approval. To improve an existing item, use library update.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_add`
+- `kind`: string, required, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
+- `name`: string, required. Display name
+- `id`: string. Item ID: lowercase letters, digits and hyphens; from the name by default
+- `scope`: string, one of project, user, default "project". project (the open project's .bashcut/library; the default) or user (this Mac; agents need approval)
+- `tags`: string. Comma-separated tags (mood, use, genre…)
+- `pack`: string. Pack or collection name the panel groups it under
+- `params`: object. What the kind needs (JSON): text-preset {textPreset, text}; sticker {emoji, textPreset} or a file; effect-preset {patch: item properties}; transition-preset {kind, duration}; look {color}
+- `file`: string, path. File to copy in (audio, image sticker…)
+- `preview`: string, path. Preview image, GIF or audio snippet to copy in
+- `source`: string. Where it came from (URL or note)
+- `license`: string. License or terms of use
+
+### `bashcut library update <id> [--scope <scope>] [--name <name>] [--tags <tags>] [--pack <pack>] [--params <params>] [--file <file>] [--preview <preview>] [--source <source>] [--license <license>] [--as <as>] [--into <into>]`
+
+Improve a library item: saves a new version (the old one stays in its history). Built-in and plugin items are read-only, so pass as to save an improved copy under a new ID instead.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_update`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `name`: string. New display name
+- `tags`: string. Comma-separated tags (mood, use, genre…)
+- `pack`: string. Pack or collection name the panel groups it under
+- `params`: object. What the kind needs (JSON): text-preset {textPreset, text}; sticker {emoji, textPreset} or a file; effect-preset {patch: item properties}; transition-preset {kind, duration}; look {color}
+- `file`: string, path. File to copy in (audio, image sticker…)
+- `preview`: string, path. Preview image, GIF or audio snippet to copy in
+- `source`: string. Where it came from (URL or note)
+- `license`: string. License or terms of use
+- `as`: string. Save a copy under this new ID instead of a new version
+- `into`: string, one of project, user. Scope of the copy (with as); project by default
+
+### `bashcut library remove <id> [--scope <scope>]`
+
+Remove a project or user library item and its files. Built-in and plugin items cannot be removed. Agents removing from the user scope wait for approval.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_remove`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+
+### `bashcut library apply <id> [--scope <scope>] [--item <item>] --base-rev <baseRev>`
+
+Use a library item on an existing timeline item: a text preset on a text item, an effect preset's properties, or a look's grade. Defaults to the selected item.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_apply`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `item`: string. Timeline item ID; the selection by default
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut library place <id> [--scope <scope>] [--at-frame <atFrame>] [--duration <duration>] [--track <track>] [--text <text>] --base-rev <baseRev>`
+
+Add a library item to the timeline as a new item: a text preset or emoji sticker as text, a look as an adjustment. At the playhead by default.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_place`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `atFrame`: integer, ≥ 0. First timeline frame
+- `duration`: integer, ≥ 1. Length in timeline frames
+- `track`: string. Layer ID
+- `text`: string. Text for a text preset instead of its sample
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut library import-pack <path> [--scope <scope>] [--replace]`
+
+Add a pack (a folder with pack.json and files, or a .zip of one) to the project or user library. IDs already there are refused unless replace saves them as new versions.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_import-pack`
+- `path`: string, required, path. Pack folder or .zip
+- `scope`: string, one of project, user, default "project". project (the open project's .bashcut/library; the default) or user (this Mac; agents need approval)
+- `replace`: boolean, default false. Save items whose ID exists as new versions
+
+### `bashcut library export-pack --output <output> [--pack <pack>] [--kind <kind>] [--scope <scope>] [--name <name>]`
+
+Write library items as a pack folder (pack.json and files) to share or import elsewhere: one pack, or every item of a kind or scope.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_export-pack`
+- `output`: string, required, path. New or empty folder to write
+- `pack`: string. Items in this pack
+- `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `name`: string. Pack name; the pack filter or the folder name by default
