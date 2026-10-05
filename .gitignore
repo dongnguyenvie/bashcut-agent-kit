@@ -4,3 +4,6 @@ __pycache__/
 _survey/
 .env
 dist/
+
+# Local-only notes and scripts (release steps, signing, reusable how-tos); never committed.
+.local/
