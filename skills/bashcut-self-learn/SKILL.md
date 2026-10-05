@@ -1,6 +1,6 @@
 ---
 name: bashcut-self-learn
-description: Turn problems hit while editing in BashCut into lasting fixes — record a project-specific lesson or the user's taste in the project memo or a project skill, and draft a change to this skill kit when the lesson is general (a wrong rule, a missing step, a trigger that did not fire). Use right after a step failed or had to be redone, when the user corrected the approach, when a workaround was found, or at the end of an editing session. Triggers: "rút kinh nghiệm", "học từ lỗi này", "nhớ lần sau", "lần sau đừng", "cập nhật skill", "self-learn".
+description: Turn problems hit while editing in BashCut into lasting fixes — record a project-specific lesson in the project memo or a project skill, the user's taste in the notes for every project, and draft a change to this skill kit when the lesson is general (a wrong rule, a missing step, a trigger that did not fire). Use right after a step failed or had to be redone, when the user corrected the approach, when a workaround was found, or at the end of an editing session. Triggers: "rút kinh nghiệm", "học từ lỗi này", "nhớ lần sau", "lần sau đừng", "cập nhật skill", "self-learn".
 ---
 
 # Self-learn
@@ -27,8 +27,13 @@ lesson.
 | The lesson is about | Goes to |
 |---|---|
 | This project (its footage, people, places, what the user approved) | project memo: `knowledge get`, edit, `knowledge memo FILE` |
-| The user's taste (length, pace, voice, style) | project memo, or the agent's own memory for all projects |
+| The user's taste (length, pace, voice, style) | notes for every project: edit `userMemo` from `knowledge get`, then `knowledge memo FILE --scope user` (the user approves it in the app) |
 | A repeated workflow for this project | a project skill: `knowledge skill NAME FILE` (shared with Claude and Codex) |
+
+`knowledge memo` replaces the whole memo: start from the current text, add the lesson, write it back. Project
+knowledge lives in the project folder, so a project that was never saved refuses project writes; save it first or
+use the user notes. If `knowledge get` shows `legacy` (an older memo from the agent workspace or home folder), tell
+the user; the Knowledge sheet can move it into the notes or this project.
 | A rule in this kit that is wrong, missing or too vague | a proposed change to the kit (step 3) |
 | A skill that should have loaded but didn't | the skill's `description` (add the user's real words), via step 3 |
 | BashCut itself (a bug, a missing command or effect) | a note for the BashCut maintainers with the command, input and error |
