@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 122 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 131 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -797,7 +797,7 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `reveal`: integer, ≥ 0. Scroll the timeline so this frame is visible
 - `inspector`: string, one of video, audio, text, color, speed. Inspector tab
 - `settingsSection`: string, one of general, agents, plugins, storage. Settings section (open Settings with ui.open settings)
-- `knowledgeSection`: string, one of inbox, lessons, prefs, facts, notes, skills. Knowledge window section (open it with ui.open knowledge)
+- `knowledgeSection`: string, one of inbox, lessons, prefs, facts, notes, skills, history. Knowledge window section (open it with ui.open knowledge)
 - `pluginsTab`: string, one of installed, browse, updates, activity. Plugins sheet tab (open it with ui.open plugins)
 - `pluginsCategory`: string, one of all, agents, captions, voice, audio, color, effects, export, utilities. Category Plugins › Browse shows; all shows every one
 
@@ -890,6 +890,16 @@ Move the older memo that earlier versions kept in the agent workspace or home fo
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_migrate`
 - `to`: string, one of user, project. user (default) or project
+
+### `bashcut knowledge split-memo [<entries.json>] [--scope <scope>] [--keep] [--session <session>]`
+
+Split a memo into structured entries, once (#72): read it with knowledge get, then pass a JSON object {"lessons": [{"title", "symptom", "cause", "fix", "evidence", "tags"}], "prefs": [{"key", "value"}], "facts": [{"key", "value"}]} of what it says. Everything waits in the Knowledge inbox for the user's review; entries that already exist are skipped. The memo stays as notes. With keep, nothing is split and the split is not offered again.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_split-memo`
+- `entries`: object. What the memo says (CLI: path to a JSON file); required unless keep is set
+- `scope`: string, one of project, user. The memo to split: project (default) or user (notes for every project; no facts)
+- `keep`: boolean. Keep the memo as notes only and stop offering the split
+- `session`: string. Your agent session ID, recorded as the source
 
 ### `bashcut knowledge skill <name> <text-file>`
 
@@ -1008,13 +1018,86 @@ Reject a proposal: a proposed lesson is removed, a preference change is dropped;
 - `id`: string, required. Proposal ID (l-… or p-…) from knowledge proposals
 - `session`: string. Your agent session ID, recorded as the source
 
-### `bashcut knowledge history [--scope <scope>] [--limit <limit>]`
+### `bashcut knowledge history [--scope <scope>] [--kind <kind>] [--target <target>] [--limit <limit>]`
 
-List changes to lessons, preferences and facts, newest first, with who made them and the entry before and after.
+List changes to lessons, preferences, facts, memos and project skills, newest first: who made them, the entry before and after, and a line diff. Undo one with knowledge revert.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_knowledge_history`
 - `scope`: string, one of project, user. Only this scope; both by default
+- `kind`: string, one of lesson, prefs, facts, memo, skill. Only changes to this kind of entry
+- `target`: string. Only changes to this lesson ID, key or skill name
 - `limit`: integer, 1…500, default 50. Number of changes
+
+### `bashcut knowledge revert <id> [--session <session>]`
+
+Put an entry back to how it was before a change from knowledge history: a removed entry comes back, an added one goes, an edit is undone (later changes to the same entry too). History records the revert. Agents reverting a change for every project need approval.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_revert`
+- `id`: string, required. Change ID from knowledge history
+- `session`: string. Your agent session ID, recorded as the source
+
+## skills
+
+### `bashcut skills list [--scope <scope>]`
+
+List skills: the agent kit's (read-only), the ones for every project (user) and this project's, with whether agents get them (enabled) and their description.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_skills_list`
+- `scope`: string, one of kit, user, project. Only this scope
+
+### `bashcut skills get <name> [--scope <scope>]`
+
+Read a skill's SKILL.md. Without scope, the project's skill wins over the one for every project, which wins over the kit's.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_skills_get`
+- `name`: string, required. Skill name (lowercase, hyphenated)
+- `scope`: string, one of kit, user, project. Where to look
+
+### `bashcut skills save <name> <text-file> [--scope <scope>] [--session <session>]`
+
+Write a skill's SKILL.md, creating the skill if needed: in the project (linked for Claude and Codex; needs a saved project) or, with scope user, for every project (agents need approval). Kit skills are read-only: use skills propose.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_skills_save`
+- `name`: string, required. Skill name (lowercase, hyphenated)
+- `text`: string, required. SKILL.md text (CLI: path to a text file)
+- `scope`: string, one of project, user, default "project". project (default) or user (every project)
+- `session`: string. Your agent session ID, recorded as the source
+
+### `bashcut skills enable <name> [--scope <scope>]`
+
+Turn a skill on for agents: a project skill is linked into the project's .claude/skills and .agents/skills; a skill for every project is listed in the agents' knowledge again. Agents need approval for scope user.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_skills_enable`
+- `name`: string, required. Skill name (lowercase, hyphenated)
+- `scope`: string, one of project, user, default "project". project (default) or user (every project)
+
+### `bashcut skills disable <name> [--scope <scope>]`
+
+Turn a skill off without deleting it: a project skill is unlinked from the project's agent folders; a skill for every project is left out of the agents' knowledge. Agents need approval for scope user.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_skills_disable`
+- `name`: string, required. Skill name (lowercase, hyphenated)
+- `scope`: string, one of project, user, default "project". project (default) or user (every project)
+
+### `bashcut skills remove <name> [--scope <scope>] [--session <session>]`
+
+Delete a project skill or a skill for every project (history keeps its text; knowledge revert brings it back). Agents need approval for scope user.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_skills_remove`
+- `name`: string, required. Skill name (lowercase, hyphenated)
+- `scope`: string, one of project, user, default "project". project (default) or user (every project)
+- `session`: string. Your agent session ID, recorded as the source
+
+### `bashcut skills propose <name> <text-file> --summary <summary> [--reason <reason>] [--session <session>]`
+
+Propose a change to an agent kit skill: the line diff against the kit's SKILL.md waits in the Knowledge inbox as a lesson for every project tagged kit. The kit itself is not changed.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_skills_propose`
+- `name`: string, required. Skill name (lowercase, hyphenated)
+- `text`: string, required. SKILL.md text (CLI: path to a text file)
+- `summary`: string, required. What the change does, in a few words
+- `reason`: string. What happened that shows the kit is wrong or missing a step
+- `session`: string. Your agent session ID, recorded as the source
 
 ## library
 
