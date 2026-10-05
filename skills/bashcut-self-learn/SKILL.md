@@ -10,6 +10,11 @@ Reply in the user's language. A problem solved in chat but not written down **wi
 Run it after the problem is solved (you need the real cause), not in the middle of the user's step. At the end
 of a session, sweep the conversation for anything missed.
 
+Signals worth recording: the user corrects you ("không, dùng X", "thật ra…", "X chứ không phải Y") or rejects an
+action you proposed; the user says to remember ("nhớ là…", "lần sau đừng…"); a `bashcut` command fails or a
+result had to be redone. A question, a one-off instruction for this clip or vague feedback ("chưa ổn") is not a
+lesson.
+
 ## 1. Write the lesson
 
 Symptom → cause → what to do, with the number or error text that proves it.
@@ -20,8 +25,10 @@ Symptom → cause → what to do, with the number or error text that proves it.
 | "Music dipped 11 dB at every loop: the song has a quiet intro. Trim 2.6 s off its start before repeating." | "Watch the music." |
 
 Only what was **observed** in this session (an error, a measurement, the user's words). A guess is not a
-lesson. Before adding one, look for it: `bashcut knowledge lessons --query "close-gap"`. If it exists, improve it
-with `knowledge update-lesson ID` instead of adding a second one.
+lesson. Before adding one, look for it by tag and keyword (`bashcut knowledge lessons --tag transitions`,
+`--query "close-gap"`); the same problem is often worded differently. If it exists, update it with
+`knowledge update-lesson ID` and add the new occurrence to its evidence ("seen again rev 52") instead of adding a
+second one. A project lesson seen again in another project belongs to every project (`--scope user`).
 
 ## 2. Put it in the right place
 
@@ -35,7 +42,8 @@ re-reading a memo.
 | This project: people, places, footage notes, what the user approved | a fact: `bashcut knowledge set-fact host "Lan, speaks fast"` |
 | The user's taste (length, pace, voice, style) | a preference: `bashcut knowledge set-pref pace calm` (for every project; waits in the Knowledge inbox, below). `--scope project` for this project only |
 | A mistake that will happen in any project | a lesson for every project: `--scope user`; it waits in the user's proposals |
-| A repeated workflow for this project | a project skill: `knowledge skill NAME FILE` (shared with Claude and Codex) |
+| A workflow repeated two or three times in this project | a project skill: `bashcut skills save NAME FILE` (shared with Claude and Codex) |
+| A workflow the user repeats in every project | a skill for every project: `bashcut skills save NAME FILE --scope user` (needs the user's approval) |
 | A rule in this kit that is wrong, missing or too vague | a proposed change to the kit (step 3) |
 | A skill that should have loaded but didn't | the skill's `description` (add the user's real words), via step 3 |
 | BashCut itself (a bug, a missing command or effect) | a note for the BashCut maintainers with the command, input and error |
@@ -66,19 +74,54 @@ append lessons to them. If `knowledge get` shows `legacy` (an older memo from th
 tell the user; the Knowledge sheet can move it into the notes or this project.
 
 Wrong or outdated: `knowledge update-lesson ID --status disabled` (kept for the record) or `remove-lesson ID`;
-`set-pref KEY --remove`. Every change is in `knowledge history`.
+`set-pref KEY --remove`.
+
+A lesson about a BashCut bug or workaround can stop being true after an app update: if the plain way works now,
+disable the lesson and say so in its evidence. Do not retire lessons just because they are old.
+
+**Undo a change.** Every change to lessons, preferences, facts, memos and skills is in `knowledge history`, with
+who made it and a diff. When a change was a mistake (yours or one the user wants back), find it and revert it
+rather than re-typing the old value:
+
+```bash
+bashcut knowledge history --kind lesson --target LESSON_ID --limit 5
+bashcut knowledge revert CHANGE_ID   # the change's id from history
+```
+
+A revert brings back a removed entry, removes an added one or undoes an edit (later changes to the same entry
+too). Reverting a change for every project waits for the user's approval like any other `--scope user` write.
+
+**Splitting an old memo.** `knowledge get` shows `memoSplit` per scope: `pending` means a memo was never split into
+entries. Only when the user asks (the Knowledge sheet's **Ask the agent to split it** button sends that request),
+read the memo, write a JSON file and queue it once:
+
+```bash
+bashcut knowledge split-memo entries.json            # the project memo
+bashcut knowledge split-memo notes.json --scope user  # the notes for every project (no facts)
+```
+
+`{"lessons": [{"title", "symptom", "cause", "fix", "evidence", "tags"}], "prefs": [{"key", "value"}],
+"facts": [{"key", "value"}]}`: one short entry per idea, only what the memo says. Long notes such as style
+measurements stay in the memo; do not edit it. Everything waits in the Knowledge inbox, and existing entries are
+skipped. `--keep` keeps the memo as notes and stops offering the split.
 
 ## 3. Changing the kit
 
 Installed skills are a copy managed by the plugin system; edits there are lost on update. Instead:
 
-1. Write the change as a small diff to the skill's `SKILL.md` (a few lines, never a rewrite; check the rule
-   isn't already there).
-2. Show it to the user. If they agree and the kit repository is available locally, apply it there on a branch
-   and open a pull request.
-3. Otherwise record it as a proposal so it is not lost: `bashcut knowledge add-lesson "Kit: <skill> — <rule>"
-   --scope user --tags kit --fix "<the diff, short>" --evidence "<what happened>"`. It waits in the user's
-   proposals with the tag `kit`.
+1. Read the current text: `bashcut skills get NAME --scope kit`. Make a small change to a copy (a few lines, never
+   a rewrite; check the rule isn't already there), each line backed by what happened.
+2. Show the change to the user. If they agree and the kit repository is available locally, apply it there on a
+   branch and open a pull request.
+3. Otherwise propose it so it is not lost:
+
+   ```bash
+   bashcut skills propose bashcut-beat-cut SKILL.md --summary "close gaps before a transition" \
+     --reason "whip refused twice on a 3-frame gap"
+   ```
+
+   BashCut stores the line diff against the kit's `SKILL.md` as a lesson for every project tagged `kit`, waiting in
+   the Knowledge inbox. The installed kit is not changed.
 
 Keep skills short: a SKILL.md over ~250 lines moves detail into a `REFERENCE.md` next to it.
 
