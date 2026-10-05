@@ -33,7 +33,7 @@ re-reading a memo.
 |---|---|
 | This project: something that went wrong and how to avoid it | a project lesson (below) |
 | This project: people, places, footage notes, what the user approved | a fact: `bashcut knowledge set-fact host "Lan, speaks fast"` |
-| The user's taste (length, pace, voice, style) | a preference: `bashcut knowledge set-pref pace calm` (for every project; the user approves it in the app). `--scope project` for this project only |
+| The user's taste (length, pace, voice, style) | a preference: `bashcut knowledge set-pref pace calm` (for every project; waits in the Knowledge inbox, below). `--scope project` for this project only |
 | A mistake that will happen in any project | a lesson for every project: `--scope user`; it waits in the user's proposals |
 | A repeated workflow for this project | a project skill: `knowledge skill NAME FILE` (shared with Claude and Codex) |
 | A rule in this kit that is wrong, missing or too vague | a proposed change to the kit (step 3) |
@@ -55,6 +55,10 @@ bashcut knowledge add-lesson "Whip refused on non-adjacent clips" \
 - **Session:** pass `--session ID` when you know your agent session ID.
 - **Keys:** short, lowercase, stable (`pace`, `caption.style`, `music.genre`, `host`), so a later `set-pref`
   replaces the value instead of adding a near-duplicate.
+- **Preference for every project:** `set-pref` usually returns `"approval": "proposed"` with a `p-…` ID: the
+  change waits in the Knowledge inbox and is **not applied yet**. Tell the user it is waiting there; do not repeat
+  the command or treat the value as set. (It applies at once only when the user lets agents act without
+  confirmation.) A newer proposal for the same key replaces the older one. `knowledge proposals` lists what waits.
 
 Project entries live in the project folder, so a project that was never saved refuses project writes; save it
 first. The free-text memos (`knowledge memo`) are for longer notes such as a style study's measurements; do not

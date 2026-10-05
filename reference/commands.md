@@ -782,9 +782,9 @@ Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, pla
 - Mode: edit · Runs: immediately · MCP: `bashcut_ui_action`
 - `action`: string, required. Action ID or shortcut
 
-### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>]`
+### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>]`
 
-Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, Plugins tab and Browse category, and scroll the timeline to a frame.
+Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, Knowledge section, Plugins tab and Browse category, and scroll the timeline to a frame.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_view`
 - `zoom`: integer, 1…600. Timeline zoom in pixels per second
@@ -797,6 +797,7 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `reveal`: integer, ≥ 0. Scroll the timeline so this frame is visible
 - `inspector`: string, one of video, audio, text, color, speed. Inspector tab
 - `settingsSection`: string, one of general, agents, plugins, storage. Settings section (open Settings with ui.open settings)
+- `knowledgeSection`: string, one of inbox, lessons, prefs, facts, notes, skills. Knowledge window section (open it with ui.open knowledge)
 - `pluginsTab`: string, one of installed, browse, updates, activity. Plugins sheet tab (open it with ui.open plugins)
 - `pluginsCategory`: string, one of all, agents, captions, voice, audio, color, effects, export, utilities. Category Plugins › Browse shows; all shows every one
 
@@ -898,15 +899,16 @@ Write a project skill's SKILL.md in the project folder, creating the skill and l
 - `name`: string, required. Lowercase hyphenated skill name
 - `text`: string, required. SKILL.md text (CLI: path to a text file)
 
-### `bashcut knowledge lessons [--scope <scope>] [--status <status>] [--tag <tag>] [--query <query>]`
+### `bashcut knowledge lessons [--scope <scope>] [--status <status>] [--tag <tag>] [--query <query>] [--sort <sort>]`
 
-List lessons the agent learned (symptom, cause, fix), from this project and for every project. Read the active ones before editing; proposed ones wait for the user's review.
+List lessons the agent learned (symptom, cause, fix), from this project and for every project, newest first. Read the active ones before editing; proposed ones wait for the user's review.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_knowledge_lessons`
 - `scope`: string, one of project, user. Only this scope; both by default
 - `status`: string, one of proposed, active, disabled. Only this status
 - `tag`: string. Only lessons with this tag
-- `query`: string. Text to find in the title, symptom, cause, fix or tags
+- `query`: string. Text to find in the title, symptom, cause, fix, evidence or tags
+- `sort`: string, one of newest, oldest, default "newest". Order by last change; newest first by default
 
 ### `bashcut knowledge add-lesson <title> [--symptom <symptom>] [--cause <cause>] [--fix <fix>] [--evidence <evidence>] [--tags <tags>] [--scope <scope>] [--status <status>] [--session <session>]`
 
@@ -956,7 +958,7 @@ Read the user's preferences (taste: length, pace, voice, caption style, music…
 
 ### `bashcut knowledge set-pref <key> [<value>] [--remove] [--scope <scope>] [--session <session>]`
 
-Set or remove a preference: for every project (default; agents need approval) or only this project.
+Set or remove a preference: for every project (default) or only this project. An agent's change for every project waits in the Knowledge inbox (approval proposed) unless the user lets agents act without confirmation.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_set-pref`
 - `key`: string, required. Key
@@ -984,24 +986,27 @@ Set or remove a fact about this project. Needs a saved project.
 
 ### `bashcut knowledge proposals [--scope <scope>]`
 
-List proposed lessons waiting for the user's review.
+List what waits for the user's review in the Knowledge inbox: proposed lessons (type lesson, id l-…) and agents' preference changes for every project (type value, id p-…; value null removes the key).
 
 - Mode: read · Runs: immediately · MCP: `bashcut_knowledge_proposals`
 - `scope`: string, one of project, user. Only this scope; both by default
 
-### `bashcut knowledge approve <id>`
+### `bashcut knowledge approve <id> [--value <value>] [--session <session>]`
 
-Approve a proposed lesson so agents follow it. The user decides: an agent's request asks for approval.
+Approve a proposal: a proposed lesson becomes active, a preference change is applied. The user decides: an agent's request asks for approval.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_approve`
-- `id`: string, required. Lesson ID (l-…) from knowledge lessons
+- `id`: string, required. Proposal ID (l-… or p-…) from knowledge proposals
+- `value`: string. For a preference proposal: apply this value instead (edit)
+- `session`: string. Your agent session ID, recorded as the source
 
-### `bashcut knowledge reject <id>`
+### `bashcut knowledge reject <id> [--session <session>]`
 
-Reject a proposed lesson; it is removed and history keeps it. An agent's request asks for approval.
+Reject a proposal: a proposed lesson is removed, a preference change is dropped; history keeps both. An agent's request asks for approval.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_reject`
-- `id`: string, required. Lesson ID (l-…) from knowledge lessons
+- `id`: string, required. Proposal ID (l-… or p-…) from knowledge proposals
+- `session`: string. Your agent session ID, recorded as the source
 
 ### `bashcut knowledge history [--scope <scope>] [--limit <limit>]`
 
