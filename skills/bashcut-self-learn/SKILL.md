@@ -1,6 +1,6 @@
 ---
 name: bashcut-self-learn
-description: Turn problems hit while editing in BashCut into lasting fixes — record a project-specific lesson in the project memo or a project skill, the user's taste in the notes for every project, and draft a change to this skill kit when the lesson is general (a wrong rule, a missing step, a trigger that did not fire). Use right after a step failed or had to be redone, when the user corrected the approach, when a workaround was found, or at the end of an editing session. Triggers: "rút kinh nghiệm", "học từ lỗi này", "nhớ lần sau", "lần sau đừng", "cập nhật skill", "self-learn".
+description: Turn problems hit while editing in BashCut into lasting fixes — record a structured lesson (symptom, cause, fix) for this project or every project, the user's taste as preferences, project facts, a project skill for a repeated workflow, and draft a change to this skill kit when the lesson is general (a wrong rule, a missing step, a trigger that did not fire). Use right after a step failed or had to be redone, when the user corrected the approach, when a workaround was found, or at the end of an editing session. Triggers: "rút kinh nghiệm", "học từ lỗi này", "nhớ lần sau", "lần sau đừng", "cập nhật skill", "self-learn".
 ---
 
 # Self-learn
@@ -20,23 +20,49 @@ Symptom → cause → what to do, with the number or error text that proves it.
 | "Music dipped 11 dB at every loop: the song has a quiet intro. Trim 2.6 s off its start before repeating." | "Watch the music." |
 
 Only what was **observed** in this session (an error, a measurement, the user's words). A guess is not a
-lesson.
+lesson. Before adding one, look for it: `bashcut knowledge lessons --query "close-gap"`. If it exists, improve it
+with `knowledge update-lesson ID` instead of adding a second one.
 
 ## 2. Put it in the right place
 
+BashCut keeps knowledge as structured entries. Every session starts with a summary of the active lessons,
+preferences and facts (`context get` → `knowledge`), so a recorded entry is followed next time without anyone
+re-reading a memo.
+
 | The lesson is about | Goes to |
 |---|---|
-| This project (its footage, people, places, what the user approved) | project memo: `knowledge get`, edit, `knowledge memo FILE` |
-| The user's taste (length, pace, voice, style) | notes for every project: edit `userMemo` from `knowledge get`, then `knowledge memo FILE --scope user` (the user approves it in the app) |
+| This project: something that went wrong and how to avoid it | a project lesson (below) |
+| This project: people, places, footage notes, what the user approved | a fact: `bashcut knowledge set-fact host "Lan, speaks fast"` |
+| The user's taste (length, pace, voice, style) | a preference: `bashcut knowledge set-pref pace calm` (for every project; the user approves it in the app). `--scope project` for this project only |
+| A mistake that will happen in any project | a lesson for every project: `--scope user`; it waits in the user's proposals |
 | A repeated workflow for this project | a project skill: `knowledge skill NAME FILE` (shared with Claude and Codex) |
-
-`knowledge memo` replaces the whole memo: start from the current text, add the lesson, write it back. Project
-knowledge lives in the project folder, so a project that was never saved refuses project writes; save it first or
-use the user notes. If `knowledge get` shows `legacy` (an older memo from the agent workspace or home folder), tell
-the user; the Knowledge sheet can move it into the notes or this project.
 | A rule in this kit that is wrong, missing or too vague | a proposed change to the kit (step 3) |
 | A skill that should have loaded but didn't | the skill's `description` (add the user's real words), via step 3 |
 | BashCut itself (a bug, a missing command or effect) | a note for the BashCut maintainers with the command, input and error |
+
+A lesson:
+
+```bash
+bashcut knowledge add-lesson "Whip refused on non-adjacent clips" \
+  --symptom "transition add failed: clips not adjacent" --cause "a 3-frame gap on v1" \
+  --fix "timeline close-gap before adding a transition" --evidence "rev 41, error text" \
+  --tags transitions --status proposed
+```
+
+- **Status:** `active` (the default) when the cause is proven; `--status proposed` when you are unsure, so the user
+  reviews it first. A lesson for every project is always proposed.
+- **Tags:** one or two of the area (captions, audio, pacing, color, transitions, export…), so `--tag` finds them.
+- **Session:** pass `--session ID` when you know your agent session ID.
+- **Keys:** short, lowercase, stable (`pace`, `caption.style`, `music.genre`, `host`), so a later `set-pref`
+  replaces the value instead of adding a near-duplicate.
+
+Project entries live in the project folder, so a project that was never saved refuses project writes; save it
+first. The free-text memos (`knowledge memo`) are for longer notes such as a style study's measurements; do not
+append lessons to them. If `knowledge get` shows `legacy` (an older memo from the agent workspace or home folder),
+tell the user; the Knowledge sheet can move it into the notes or this project.
+
+Wrong or outdated: `knowledge update-lesson ID --status disabled` (kept for the record) or `remove-lesson ID`;
+`set-pref KEY --remove`. Every change is in `knowledge history`.
 
 ## 3. Changing the kit
 
@@ -45,7 +71,10 @@ Installed skills are a copy managed by the plugin system; edits there are lost o
 1. Write the change as a small diff to the skill's `SKILL.md` (a few lines, never a rewrite; check the rule
    isn't already there).
 2. Show it to the user. If they agree and the kit repository is available locally, apply it there on a branch
-   and open a pull request; otherwise save the diff in the project memo under "Proposed kit changes".
+   and open a pull request.
+3. Otherwise record it as a proposal so it is not lost: `bashcut knowledge add-lesson "Kit: <skill> — <rule>"
+   --scope user --tags kit --fix "<the diff, short>" --evidence "<what happened>"`. It waits in the user's
+   proposals with the tag `kit`.
 
 Keep skills short: a SKILL.md over ~250 lines moves detail into a `REFERENCE.md` next to it.
 
