@@ -36,6 +36,18 @@ class ChecksTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             checks.catalog('not the generated reference')
 
+    def test_reference_source_records_the_file_hash(self):
+        folder = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, folder, ignore_errors=True)
+        reference = folder / 'commands.md'
+        reference.write_text('### `bashcut media list`\n')
+        self.assertEqual(checks.check_source(reference), [])  # no source.json: an app checkout
+        digest = __import__('hashlib').sha256(reference.read_bytes()).hexdigest()
+        (folder / 'source.json').write_text(json.dumps({'commit': 'abc', 'sha256': digest}))
+        self.assertEqual(checks.check_source(reference), [])
+        reference.write_text('### `bashcut media list`\n### `bashcut media import <path>`\n')
+        self.assertIn('source.json was not updated', checks.check_source(reference)[0])
+
     def test_version_order(self):
         self.assertGreater(versions.version('0.0.10'), versions.version('0.0.9'))
         with self.assertRaises(ValueError):
