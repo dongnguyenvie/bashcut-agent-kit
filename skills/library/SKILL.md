@@ -86,11 +86,12 @@ and `animation` (a clip motion preset). GIFs place as their first frame for now;
 from the web need a licence: `bc:stock-images`.
 
 **text-preset**: `{"textPreset": "<built-in renderer preset>", "text": "sample", "textStyle": {"size": 0.07,
-"positionY": 0.62, "strokeWidth": 6}, "animation": "pop-in"}`; `textStyle` (only those three keys, the item property
-ranges) and `animation` (a clip motion preset) are optional. `save-selection` keeps the item's size, position,
-outline and its motion preset (hand-made keys are dropped); place and apply set them back. Colour and font are
-**not** stored: say so, and record them as a preference (`knowledge set-pref`) or keep them in a style kit
-(`style save`).
+"positionY": 0.62, "strokeWidth": 6, "font": "Montserrat-ExtraBold", "fill": "#FFD400", "stroke": "#000000"},
+"animation": "pop-in"}`; `textStyle` (`size`, `positionY`, `strokeWidth`, `font`, `fill`, `stroke`, `highlight`,
+with the item property rules) and `animation` (a clip motion preset) are optional. `save-selection` keeps the item's
+size, position, outline, font, colours and its motion preset (hand-made keys are dropped); place and apply set them
+back. A font from a project's `fonts/` folder is not copied with the preset: `fonts import` it in the next project
+(`bc:captions-text`).
 
 Give every item a clear English `--name` (the ID comes from it), `--tags` for mood and use, `--pack` when it
 belongs to a set (the user's channel name), and `--source` / `--license` for anything not made here.

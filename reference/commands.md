@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 140 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 147 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -392,6 +392,49 @@ Turn a plugin or its hooks off (agents can only turn them off; turning on and tr
 - `plugin`: string, required. Plugin ID
 - `enabled`: boolean. Plugin on or off
 - `hooks`: boolean. Hooks on or off
+
+### `bashcut plugins views`
+
+List ready plugins with a panel in the left rail or views (plugin API 8): title and icon, each view with where it lives (panel, dock tab or sheet) and whether it is shown, tools (actions), skills, required plugins with their state, the capabilities it uses and whether a ready plugin provides each, the open panel and sheet. Also lists the host's plugin features.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_plugins_views`
+
+### `bashcut plugins show-view <plugin> --view <view>`
+
+Show a plugin view where it lives: its plugin's panel in the left rail, its tab in the agent dock, or a sheet. Plugins call this for their own views (an action opening a form sheet).
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_plugins_show-view`
+- `plugin`: string, required. Plugin ID
+- `view`: string, required. View ID from plugins views
+
+### `bashcut plugins view <plugin> [--view <view>] [--open]`
+
+Render a plugin view and return its components as JSON (what the app draws: text, lists, inputs with their current values, buttons by id). With open, also show the view where it lives (panel, dock tab or sheet).
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_plugins_view`
+- `plugin`: string, required. Plugin ID
+- `view`: string. View ID from plugins views; the plugin's first view by default
+- `open`: boolean, default false. Show the view where it lives
+
+### `bashcut plugins view-event <plugin> [--view <view>] --node <node> [--type <type>] [--value <value>]`
+
+Do what a user does in a plugin view: click a button, change an input, submit a text field, select a list row or press a row button. Returns the view's new components.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_plugins_view-event`
+- `plugin`: string, required. Plugin ID
+- `view`: string. View ID from plugins views; the plugin's first view by default
+- `node`: string, required. Component id from plugins view
+- `type`: string, one of click, change, submit, select, action, default "click". What happened
+- `value`: string. New value (change), row id (select) or {"item","action"} (action); JSON or text
+
+### `bashcut plugins invoke <capability> [--provider <provider>] [--params <params>]`
+
+Run a plugin capability directly with raw parameters and return the provider's raw result, for capabilities without their own command (prefer voice speak, captions generate, beats detect … when one exists). Files go to the returned outputDirectory. Plugins call this from their views and actions for capabilities listed in their manifest's uses.
+
+- Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_plugins_invoke`
+- `capability`: string, required. Capability ID, such as voice.synthesize
+- `provider`: string. Provider ID; the project's choice or the highest priority by default
+- `params`: object. Request parameters (JSON object)
 
 ### `bashcut plugins health [<plugin>]`
 
@@ -1319,3 +1362,21 @@ Write library items as a pack folder (pack.json and files) to share or import el
 - `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
 - `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
 - `name`: string. Pack name; the pack filter or the folder name by default
+
+## fonts
+
+### `bashcut fonts list [--query <query>] [--project] [--vietnamese]`
+
+List fonts for text items (Inspector › Text › Font): the project's fonts folder first, then the fonts installed on this Mac, with PostScript names (textStyle.font) and Vietnamese coverage.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_fonts_list`
+- `query`: string. Only names or families containing this text
+- `project`: boolean, default false. Only the project's own fonts
+- `vietnamese`: boolean, default false. Only fonts with every Vietnamese letter
+
+### `bashcut fonts import <path>`
+
+Copy a .ttf, .otf or .ttc font into the project's fonts folder and use it for this project (Inspector › Text › Font › Add Font…). The font travels with the project; nothing is installed on the Mac.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_fonts_import`
+- `path`: string, required, path. Font file
