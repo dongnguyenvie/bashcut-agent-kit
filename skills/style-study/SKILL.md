@@ -30,12 +30,18 @@ count alone. Speech recognition invents text over music: trust your ears over a 
 
 ## Turn it into BashCut
 
+`bashcut library list --pack "Channel X"` first: the style may have been studied before.
+
 1. **Project memo** (`knowledge memo`): a short table of the numbers and 5–10 rules ("hard cuts only, one
    special transition", "music 12 dB under voice", "captions small serif, lower third").
 2. **Look**: start from the closest look in `bc:color-grade`, adjust its params toward the measured numbers,
    preview, import the LUT and `looks save`; then `style save ID --title T --look ID --caption-preset P` so
    `style apply ID` gives the whole style in one step.
-3. **Rules for skills**: if a finding is general (true beyond this project), propose it as a change to this kit
+3. **Library pack**: save the pieces in one pack so other videos reuse them. Build each once on the timeline, then
+   `bashcut library save-selection --kind look --name "Channel X look" --item ADJUSTMENT --pack "Channel X"` (also
+   `text-preset` for its captions and titles, `transition-preset` and `effect-preset` for its signature moves,
+   `audio` for its SFX). Add `--scope user` for every project; it waits for the user's approval.
+4. **Rules for skills**: if a finding is general (true beyond this project), propose it as a change to this kit
    with `bc:self-learn`.
 
 Tell the user which rules matter most, with the numbers behind them.

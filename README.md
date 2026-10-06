@@ -21,7 +21,7 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 | `effects` | Which effect for which moment, made with native transitions, speed ramps, freeze, reframe |
 | `stock-images` | Licensed stock photos and video, labelled as illustration |
 | `style-study` | Measuring a reference style and turning it into a memo, look and style kit |
-| `self-learn` | Recording lessons in the project memo, project skills or kit changes |
+| `self-learn` | Recording lessons in the project memo, project skills or kit changes; fixing or pruning library items |
 
 Claude Code and Codex both show the skills under the plugin name: `bc:audio-mix`, `bc:edit-workflow`, …
 Kit 0.1.0 renamed them from `bashcut:bashcut-<name>`; BashCut's agent setup replaces the old `bashcut` plugin and

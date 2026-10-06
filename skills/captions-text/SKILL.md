@@ -55,6 +55,12 @@ cinematic serif captions.
 | `keyword-sticker` | one emphasised word or price |
 | `chapter-card` | chapter titles in tutorials and list videos |
 
+**Library first:** `bashcut library list --kind text-preset` shows these plus the styles saved in the project, on
+this Mac or by plugins. Place one with `bashcut library place ID --text "QUÁN NÀY" --at-frame F --base-rev N`, or
+restyle a text item with `bashcut library apply ID --item ITEM --base-rev N`. When the user approves a styled
+title or label, save it: `bashcut library save-selection --kind text-preset --name "Price tag" --item ITEM`; when
+they correct it, `library update ID` (or `--as NEW_ID` for a built-in).
+
 `style apply food-review` or `style apply cinematic` sets the caption preset and look together. Single items:
 
 ```json
@@ -77,8 +83,8 @@ replace the whole `textStyle`: send every key you want to keep. Add a text layer
 - Chapter cards only in tutorials and list videos. In a narrative vlog, cards with a flash and boom at every
   section change felt disjointed; a hard cut, a bridging voiceover sentence and a small quiet date label worked
   better.
-- Emoji stickers: the Stickers panel adds them as `bold-outline` text items; place them off faces (on hair or
-  background) and check a frame per sticker.
+- Emoji stickers: `library place fire` (or the Stickers panel) adds them as `bold-outline` text items; place
+  them off faces (on hair or background) and check a frame per sticker.
 
 ## Verify
 
