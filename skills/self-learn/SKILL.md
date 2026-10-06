@@ -107,15 +107,9 @@ bashcut knowledge split-memo notes.json --scope user  # the notes for every proj
 measurements stay in the memo; do not edit it. Everything waits in the Knowledge inbox, and existing entries are
 skipped. `--keep` keeps the memo as notes and stops offering the split.
 
-**Library items.** When a saved preset, look, sound or sticker failed, was undone right after `library apply` or
-`library place`, or the user corrected it, propose a fix; never remove without a yes:
-
-- Wrong values: `bashcut library update ID --params '{...}'` (a new version; the old one stays in history).
-  Built-in and plugin items are read-only: `bashcut library update ID --as NEW_ID`, then record a preference to
-  use the copy.
-- Not wanted: `bashcut library remove ID` (project or user items; the user scope waits for approval).
-- `bashcut library stats` lists saved items nobody used and duplicates (same kind and content): offer to remove
-  them or merge into one at the end of a session.
+**Library items.** A saved preset, look, sound or sticker that failed, was undone right after `library apply` or
+`library place`, or that the user corrected: fix, copy or prune it with `bc:library` ("Look after it"); never
+remove without a yes.
 
 ## 3. Changing the kit
 
