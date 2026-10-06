@@ -101,7 +101,8 @@ bashcut knowledge split-memo notes.json --scope user  # the notes for every proj
 ```
 
 `{"lessons": [{"title", "symptom", "cause", "fix", "evidence", "tags"}], "prefs": [{"key", "value"}],
-"facts": [{"key", "value"}]}`: one short entry per idea, only what the memo says. Long notes such as style
+"facts": [{"key", "value"}]}`: one short entry per idea, only what the memo says, written in the memo's own language
+(a Vietnamese memo gives Vietnamese titles, fixes and values; keys and tags stay English). Long notes such as style
 measurements stay in the memo; do not edit it. Everything waits in the Knowledge inbox, and existing entries are
 skipped. `--keep` keeps the memo as notes and stops offering the split.
 
