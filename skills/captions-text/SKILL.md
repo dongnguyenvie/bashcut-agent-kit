@@ -59,8 +59,8 @@ cinematic serif captions.
 this Mac or by plugins. Place one with `bashcut library place ID --text "QUÁN NÀY" --at-frame F --base-rev N`, or
 restyle a text item with `bashcut library apply ID --item ITEM --base-rev N`. When the user approves a styled
 title or label, save it: `bashcut library save-selection --kind text-preset --name "Price tag" --item ITEM`; when
-they correct it, `library update ID` (or `--as NEW_ID` for a built-in). The item keeps the preset and the
-text, not size, colour or position tweaks (`bc:library`).
+they correct it, `library update ID` (or `--as NEW_ID` for a built-in). The item keeps the preset, the text, its
+size, position and outline (`textStyle`) and a `clip motion` preset; colour and font are not kept (`bc:library`).
 
 `style apply food-review` or `style apply cinematic` sets the caption preset and look together. Single items:
 

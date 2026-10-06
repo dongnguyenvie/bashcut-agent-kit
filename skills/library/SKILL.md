@@ -85,9 +85,12 @@ or a `.mov` with alpha (HEVC alpha or ProRes 4444), with optional `size` (width,
 and `animation` (a clip motion preset). GIFs place as their first frame for now; Lottie is not supported. Pictures
 from the web need a licence: `bc:stock-images`.
 
-**text-preset**: only `{"textPreset": "<built-in renderer preset>", "text": "sample"}`. Size, colour and position
-tweaks are **not** stored in the item: say so, and record them as a preference (`knowledge set-pref`) or keep them
-in a style kit (`style save`).
+**text-preset**: `{"textPreset": "<built-in renderer preset>", "text": "sample", "textStyle": {"size": 0.07,
+"positionY": 0.62, "strokeWidth": 6}, "animation": "pop-in"}`; `textStyle` (only those three keys, the item property
+ranges) and `animation` (a clip motion preset) are optional. `save-selection` keeps the item's size, position,
+outline and its motion preset (hand-made keys are dropped); place and apply set them back. Colour and font are
+**not** stored: say so, and record them as a preference (`knowledge set-pref`) or keep them in a style kit
+(`style save`).
 
 Give every item a clear English `--name` (the ID comes from it), `--tags` for mood and use, `--pack` when it
 belongs to a set (the user's channel name), and `--source` / `--license` for anything not made here.
