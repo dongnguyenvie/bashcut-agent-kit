@@ -807,9 +807,9 @@ Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, pla
 - Mode: edit · Runs: immediately · MCP: `bashcut_ui_action`
 - `action`: string, required. Action ID or shortcut
 
-### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>] [--library-query <libraryQuery>] [--library-pack <libraryPack>] [--library-tag <libraryTag>] [--library-scope <libraryScope>]`
+### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--settings-search <settingsSearch>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>] [--library-query <libraryQuery>] [--library-pack <libraryPack>] [--library-tag <libraryTag>] [--library-scope <libraryScope>]`
 
-Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, Knowledge section, Plugins tab and Browse category, the open library panel's search and filters, and scroll the timeline to a frame.
+Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section and search, Knowledge section, Plugins tab and Browse category, the open library panel's search and filters, and scroll the timeline to a frame.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_view`
 - `zoom`: integer, 1…600. Timeline zoom in pixels per second
@@ -822,6 +822,7 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `reveal`: integer, ≥ 0. Scroll the timeline so this frame is visible
 - `inspector`: string, one of video, audio, text, color, speed. Inspector tab
 - `settingsSection`: string, one of general, agents, plugins, storage. Settings section (open Settings with ui.open settings)
+- `settingsSearch`: string. Settings search text: lists matching settings of every section; empty clears it
 - `knowledgeSection`: string, one of inbox, lessons, prefs, facts, notes, skills, history. Knowledge window section (open it with ui.open knowledge)
 - `pluginsTab`: string, one of installed, browse, updates, activity. Plugins sheet tab (open it with ui.open plugins)
 - `pluginsCategory`: string, one of all, agents, captions, voice, audio, color, effects, export, utilities. Category Plugins › Browse shows; all shows every one
@@ -1070,18 +1071,18 @@ Put an entry back to how it was before a change from knowledge history: a remove
 
 ### `bashcut skills list [--scope <scope>]`
 
-List skills: the agent kit's (read-only), the ones for every project (user) and this project's, with whether agents get them (enabled) and their description.
+List skills: this project's, the ones for every project (user), the ones trusted and enabled plugins ship (plugin, read-only, named <plugin-id>:<name>) and the agent kit's (read-only), with whether agents get them (enabled), their description and path.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_skills_list`
-- `scope`: string, one of kit, user, project. Only this scope
+- `scope`: string, one of project, user, plugin, kit. Only this scope
 
 ### `bashcut skills get <name> [--scope <scope>]`
 
-Read a skill's SKILL.md. Without scope, the project's skill wins over the one for every project, which wins over the kit's.
+Read a skill's SKILL.md. Without scope, the project's skill wins over the one for every project, then a plugin's (<plugin-id>:<name>; with scope plugin a bare name works when one plugin has it), then the kit's. To change a plugin's skill, save a copy with skills save.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_skills_get`
-- `name`: string, required. Skill name (lowercase, hyphenated)
-- `scope`: string, one of kit, user, project. Where to look
+- `name`: string, required. Skill name; a plugin's is <plugin-id>:<name>
+- `scope`: string, one of project, user, plugin, kit. Where to look
 
 ### `bashcut skills save <name> <text-file> [--scope <scope>] [--session <session>]`
 

@@ -19,6 +19,11 @@ Hard rules:
 - Never edit `project.bashcut.json` by hand while the app is open; never overwrite original footage.
 - Ask before downloading media or installing anything. Installing, trusting and setting up plugins is the
   user's job (`plugins search` tells them what to install).
+- Plugins can teach you. Before using a plugin's feature (its action, option or capability, such as
+  `captions generate` through a transcription plugin), check `bashcut skills list --scope plugin` and read the
+  plugin's skill (`bashcut skills get <plugin-id>:<name>`; your session's knowledge also lists them with their
+  paths). Its steps and limits win over general advice here. Plugin skills are read-only: put a correction in a
+  lesson or a project copy (`bc:self-learn`), never in the plugin's folder.
 - Read before you edit: `context get`, then `timeline get --format text`. Track IDs and roles come from the
   read, never from memory. Every edit needs the latest `--base-rev`.
 - Respect an attached scope. A request that starts with a `[Scope]` block, or a `scope` list in `context get`,

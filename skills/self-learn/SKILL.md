@@ -46,6 +46,7 @@ re-reading a memo.
 | A workflow the user repeats in every project | a skill for every project: `bashcut skills save NAME FILE --scope user` (needs the user's approval) |
 | A rule in this kit that is wrong, missing or too vague | a proposed change to the kit (step 3) |
 | A skill that should have loaded but didn't | the skill's `description` (add the user's real words), via step 3 |
+| A plugin's skill (`<plugin-id>:<name>`) is wrong or missing a step | a lesson tagged with the plugin ID, or a project copy: `bashcut skills get ID` then `skills save NAME FILE`; plugin skills are read-only and come back unchanged with the plugin |
 | A library item (preset, look, sound, sticker) that failed or was undone | improve or prune it (below) |
 | BashCut itself (a bug, a missing command or effect) | a note for the BashCut maintainers with the command, input and error |
 
