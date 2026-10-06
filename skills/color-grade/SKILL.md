@@ -5,7 +5,7 @@ description: Colour-grade a BashCut edit — pick a look (built-in, custom or a 
 
 # Colour grade
 
-Reply in the user's language.
+Reply in the user's language. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
 
 ## BashCut's colour tools
 

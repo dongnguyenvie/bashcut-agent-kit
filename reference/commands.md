@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 133 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 135 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -10,7 +10,7 @@ approval are explained in the [automation guide](../guides/automation.md#permiss
 
 ### `bashcut context get`
 
-Read the project path, revision, playhead and selection, and a summary of the agent knowledge: active lessons, preferences, project facts and the number of proposals.
+Read the project path, revision, playhead and selection, and a summary of the agent knowledge: active lessons, preferences, project facts and the number of proposals; scope lists the timeline items attached to the shown chat agent's request (edit only those).
 
 - Mode: read · Runs: immediately · MCP: `bashcut_context_get`
 
@@ -701,6 +701,22 @@ Send a message to a chat agent like typing it in its tab. Returns at once; poll 
 - `plugin`: string. Chat agent plugin ID; by default the one shown in the dock, else the first
 - `image`: string. PNG or JPEG to attach, such as a ui frame
 
+### `bashcut chat attach --items <items> [--plugin <plugin>]`
+
+Attach timeline items to a chat agent's request like Send to Agent on the clip menu: they show as chips in its input, and every message carries them with the rule to edit only these items until they are detached. Items already attached (or their linked partner) are skipped.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_chat_attach`
+- `items`: string, required. Item IDs, comma-separated
+- `plugin`: string. Chat agent plugin ID; by default the one shown in the dock, else the first
+
+### `bashcut chat detach [--items <items>] [--plugin <plugin>]`
+
+Remove attached timeline items from a chat agent's request, like the chip's ×; without --items, all of them.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_chat_detach`
+- `items`: string. Item IDs, comma-separated
+- `plugin`: string. Chat agent plugin ID; by default the one shown in the dock, else the first
+
 ### `bashcut chat stop [--plugin <plugin>]`
 
 Stop a chat agent's running turn.
@@ -710,7 +726,7 @@ Stop a chat agent's running turn.
 
 ### `bashcut chat commands [--plugin <plugin>]`
 
-The slash commands a chat agent's tab offers: the app's (new, clear, stop, settings, copy, export), the agent kit's skills (skill:<name>) and the plugin's own (for Director: compact, model, thinking, session), with their arguments and choices.
+The slash commands a chat agent's tab offers: the app's (new, clear, stop, settings, copy, export), the agent kit's skills (skill:<name>) and the plugin's own (for AI Editor: compact, model, thinking, session), with their arguments and choices.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_chat_commands`
 - `plugin`: string. Chat agent plugin ID; by default the one shown in the dock, else the first
@@ -761,12 +777,14 @@ Open a sheet or popover in the app.
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_open`
 - `dialog`: string, required, one of new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts, add-plugin. Dialog
 
-### `bashcut ui select [<item>] [--track <track>]`
+### `bashcut ui select [<item>] [--items <items>] [--add] [--track <track>]`
 
-Select a timeline item in the app (omit item to clear the selection), or a layer with --track.
+Select timeline items in the app (omit them to clear the selection), or a layer with --track. Several items: --items a,b,c; --add keeps the current selection.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_select`
 - `item`: string. Stable item ID
+- `items`: string. More item IDs, comma-separated
+- `add`: boolean. Add to the current selection
 - `track`: string. Layer (track) ID to select
 
 ### `bashcut ui actions`

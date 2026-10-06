@@ -6,7 +6,7 @@ description: Add captions and on-screen text in BashCut — transcribe speech in
 # Captions and on-screen text
 
 Reply in the user's language. BashCut draws all text itself (text layers with presets); never render text into
-a video with Pillow or ffmpeg.
+a video with Pillow or ffmpeg. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
 
 ## Captions from speech
 

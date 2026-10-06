@@ -5,7 +5,7 @@ description: Give a BashCut edit rhythm — cut picture on the music's beat grid
 
 # Beat cutting and punch-in reframes
 
-Reply in the user's language. The beat gives energy; punch-ins give variety. Use both.
+Reply in the user's language. The beat gives energy; punch-ins give variety. Use both. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
 
 ## 1. Choose what drives the cuts
 

@@ -5,7 +5,7 @@ description: Balance sound in a BashCut edit — clip gain, fades, music bed wit
 
 # Audio mix in BashCut
 
-Reply in the user's language. Mix inside BashCut; never bake a mix with ffmpeg.
+Reply in the user's language. Mix inside BashCut; never bake a mix with ffmpeg. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
 
 ## Tools
 

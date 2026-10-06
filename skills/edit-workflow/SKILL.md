@@ -21,6 +21,11 @@ Hard rules:
   user's job (`plugins search` tells them what to install).
 - Read before you edit: `context get`, then `timeline get --format text`. Track IDs and roles come from the
   read, never from memory. Every edit needs the latest `--base-rev`.
+- Respect an attached scope. A request that starts with a `[Scope]` block, or a `scope` list in `context get`,
+  names the timeline items the user picked with Send to Agent: change only those (their linked sound or picture
+  follows). New items such as a title or an adjustment layer are fine inside their frame range. Ask before
+  touching anything else, even a problem you noticed elsewhere. Attaching and removing items is the user's job:
+  never run `chat attach` or `chat detach`.
 - Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
   read it. You cannot hear: ask the user to listen where sound matters.
 - Name every folder and file you create in English, lowercase with hyphens (`survey/`, `renders/`,
