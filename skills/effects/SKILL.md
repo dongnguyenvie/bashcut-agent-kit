@@ -5,7 +5,7 @@ description: Pick the right editing effect for the moment and genre (food, trave
 
 # Effects: when, then how
 
-Reply in the user's language. Decide **when** first; most cuts should stay hard cuts.
+Reply in the user's language. Decide **when** first; most cuts should stay hard cuts. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
 
 ## When
 
