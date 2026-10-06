@@ -189,7 +189,7 @@ class LiveBashCut(unittest.TestCase):
         ffmpeg("-f", "lavfi", "-i", "color=c=0x00c000:s=1080x1920:r=30000/1001:d=6", "-c:v", "mpeg4", "-q:v", 2,
                t / "face.mov")
 
-    # ---------- bashcut-footage-survey: media sync ----------
+    # ---------- bc:footage-survey: media sync ----------
 
     def test_media_sync_camera_and_screen(self):
         self.need("media sync", "audio.sync")
@@ -220,7 +220,7 @@ class LiveBashCut(unittest.TestCase):
         r = self.app.job("media", "sync", "--media", cam, "--to", music)
         self.assertFalse(r["reliable"])
 
-    # ---------- bashcut-audio-mix: audio measure ----------
+    # ---------- bc:audio-mix: audio measure ----------
 
     def test_audio_measure_presence_share(self):
         self.need("audio measure", "audio.loudness")
@@ -235,7 +235,7 @@ class LiveBashCut(unittest.TestCase):
         self.assertGreater(bright["presenceShare"], 0.6)
         self.assertLess(dark["presenceShare"], bright["presenceShare"])
 
-    # ---------- bashcut-effects: clip motion --focus, crop ----------
+    # ---------- bc:effects: clip motion --focus, crop ----------
 
     def test_focus_frames_a_panel_and_moves_to_another(self):
         self.need("clip motion")
@@ -280,7 +280,7 @@ class LiveBashCut(unittest.TestCase):
         self.assertFalse(is_green(self.app.pixel(30, 0.9, 0.5)))
         self.app.apply([{"op": "delete", "item": "face"}])
 
-    # ---------- bashcut-captions-text: ranged transcription, loop review ----------
+    # ---------- bc:captions-text: ranged transcription, loop review ----------
 
     def test_captions_generate_one_stretch(self):
         self.need("captions generate", "captions.transcribe")

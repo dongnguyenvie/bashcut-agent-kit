@@ -1,5 +1,5 @@
 ---
-name: bashcut-footage-survey
+name: footage-survey
 description: Survey a footage folder before editing in BashCut — probe specs and build contact sheets to SEE which shots actually exist, catch missing coverage, silent audio, broken files and portrait/landscape mixes early, and pick sharp in-points. Use at the start of any edit from raw footage, when choosing clips or moments, or when the cut feels boring and it is unclear whether the problem is the shooting or the editing. Also syncs a camera with a screen recording of the same session by their sound (bashcut media sync). Triggers: "khảo sát footage", "xem footage", "contact sheet", "có những cảnh gì", "đồng bộ", "quay màn hình".
 ---
 
@@ -39,8 +39,8 @@ No editing technique creates shots that were never filmed. Real case: two 4-minu
 all nearly identical — 9 minutes of footage gave two shot sizes. Then:
 
 1. State the limit, with the contact sheet as evidence.
-2. Offer what can be saved: punch-in reframes (`bashcut-beat-cut`), stock or illustration images (`bashcut-stock-images`),
-   voiceover over b-roll (`bashcut-voiceover`).
+2. Offer what can be saved: punch-in reframes (`bc:beat-cut`), stock or illustration images (`bc:stock-images`),
+   voiceover over b-roll (`bc:voiceover`).
 3. Give a shot list for next time. Per location, 4 shots × 10 s: hands doing something (close, fill the
    frame); the shop front or sign before entering; the food or product right when it arrives; walking feet or a
    slow pan of the space.
@@ -76,7 +76,7 @@ gives it as `item.otherSourceIn` (frames of the screen media).
 ## Time and place from filenames
 
 Cameras put the time in the name: `DJI_20260808201922_0400_D.MP4` → 20:19:22 on 08/08. Use it for the order of
-the trip and for place or time labels (`bashcut-captions-text`). Subfolders may reuse the same clip numbers; the survey
+the trip and for place or time labels (`bc:captions-text`). Subfolders may reuse the same clip numbers; the survey
 keeps them apart by path.
 
 ## Picking in-points
@@ -92,6 +92,6 @@ keeps them apart by path.
 
 ## Into BashCut
 
-After the survey, link and import only the clips you will use (see `bashcut-edit-workflow`), and write what you found
+After the survey, link and import only the clips you will use (see `bc:edit-workflow`), and write what you found
 (coverage gaps, best moments, silent clips) as project facts so later sessions know, for example
 `bashcut knowledge set-fact coverage "no wide shot of the market; C0042 has silent audio"`.

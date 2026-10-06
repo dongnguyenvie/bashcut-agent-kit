@@ -1,5 +1,5 @@
 ---
-name: bashcut-captions-text
+name: captions-text
 description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, and place hook titles, place cards, keyword stickers and chapter cards with the right preset, size and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương".
 ---
 

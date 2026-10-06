@@ -1,5 +1,5 @@
 ---
-name: bashcut-self-learn
+name: self-learn
 description: Turn problems hit while editing in BashCut into lasting fixes — record a structured lesson (symptom, cause, fix) for this project or every project, the user's taste as preferences, project facts, a project skill for a repeated workflow, and draft a change to this skill kit when the lesson is general (a wrong rule, a missing step, a trigger that did not fire). Use right after a step failed or had to be redone, when the user corrected the approach, when a workaround was found, or at the end of an editing session. Triggers: "rút kinh nghiệm", "học từ lỗi này", "nhớ lần sau", "lần sau đừng", "cập nhật skill", "self-learn".
 ---
 
@@ -117,12 +117,15 @@ Installed skills are a copy managed by the plugin system; edits there are lost o
 3. Otherwise propose it so it is not lost:
 
    ```bash
-   bashcut skills propose bashcut-beat-cut SKILL.md --summary "close gaps before a transition" \
+   bashcut skills propose beat-cut SKILL.md --summary "close gaps before a transition" \
      --reason "whip refused twice on a 3-frame gap"
    ```
 
    BashCut stores the line diff against the kit's `SKILL.md` as a lesson for every project tagged `kit`, waiting in
    the Knowledge inbox. The installed kit is not changed.
+
+Kit 0.1.0 renamed the skills: `bashcut-beat-cut` is now `beat-cut` (shown as `bc:beat-cut`), and so on for every
+skill. When a project memo or project skill still names an old one, update the name.
 
 Keep skills short: a SKILL.md over ~250 lines moves detail into a `REFERENCE.md` next to it.
 

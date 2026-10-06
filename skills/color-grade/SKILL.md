@@ -1,5 +1,5 @@
 ---
-name: bashcut-color-grade
+name: color-grade
 description: Colour-grade a BashCut edit — pick a look (built-in, custom or a generated .cube LUT such as matte-cinematic, warm-film, faded-memory), match it to the footage, preview before/after on real frames, import the LUT and apply it with adjustment layers, saved looks and style kits. Use when the user says "tone màu", "chỉnh màu", "color grade", "LUT", "màu phim", "màu cinematic", "màu giống kênh X", "hình nhạt", "hình gắt", or when clips look flat, harsh or inconsistent.
 ---
 
@@ -63,7 +63,7 @@ Write your own look as a params JSON (keys in `grade.py -h`) and pass its path i
   matters.
 - Matching a reference channel: measure several of its frames with `grade.py measure` (from videos the user
   has the right to use), compare with your footage, and adjust a look's params toward its numbers; see
-  `bashcut-style-study`.
+  `bc:style-study`.
 
 ## Verify
 
