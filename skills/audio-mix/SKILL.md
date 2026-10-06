@@ -1,6 +1,6 @@
 ---
 name: audio-mix
-description: Balance sound in a BashCut edit — clip gain, fades, music bed with ducking under speech, sound effects, choosing and looping music, real speech vs voiceover, and the final loudness target — using BashCut's own volume, fade, ducking and normalization. Use when loud places drown quiet ones, music comes and goes, voices clash, SFX are needed at cuts, or before export. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc chỗ có chỗ không", "nhạc to quá", "thêm sfx", "âm thanh", "ẩn giọng desktop", "chọn nhạc phù hợp giọng".
+description: Balance sound in a BashCut edit — clip gain, fades, music bed with ducking under speech, sound effects, choosing and looping music, finding licensed music and SFX online (Mixkit, Openverse, Pixabay), real speech vs voiceover, and the final loudness target — using BashCut's own volume, fade, ducking and normalization. Use when loud places drown quiet ones, music comes and goes, voices clash, SFX are needed at cuts, or before export. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc chỗ có chỗ không", "nhạc to quá", "thêm sfx", "âm thanh", "ẩn giọng desktop", "chọn nhạc phù hợp giọng", "tìm nhạc", "nhạc không bản quyền", "nhạc miễn phí", "tải sfx", "meme sound".
 ---
 
 # Audio mix in BashCut
@@ -34,6 +34,9 @@ Ducking follows speech on the dialogue and voiceover layers; a muted layer stops
 
 Real sound from different cameras can differ by 15–20 dB: level each spoken clip with `volumeDb` first, then
 let normalization set the total.
+
+A quick three-tier check that matches the table (peaks while playing): voice −5 to −3 dB, SFX around −12 dB,
+music around −22 dB when nothing ducks it. If the music bed peaks above about −18 dB under speech, it is too loud.
 
 ## Two mixing styles
 
@@ -73,7 +76,35 @@ out), leave the most honest line with no music. Keep the music continuous across
   strings, LRA 2 LU) and 0.046 (lofi, LRA 5.3) against a voice at 0.063: the 0.006 track sat under a calm male
   voice ducked 8 dB with nothing to fix (−13.7 LUFS export). Compare shares between tracks; they are not exact
   fractions: the band edges fall 24 dB/octave (−6 dB at the edge), so tones at 2 and 3 kHz alone read 0.684.
-- Check the music's licence before using it in a published video.
+- Check the music's licence before using it in a published video (see "Finding music and SFX online").
+- Under speech use instrumental music; a song with lyrics masks the words. Never use songs from a platform's
+  library (TikTok and CapCut trending sounds): they are muted when the video is posted on another platform or
+  run as an ad.
+
+## Finding music and SFX online
+
+When the library has nothing that fits, try the sources in this order (tested October 2026 with `curl`):
+
+| # | Source | Access | Licence |
+|---|---|---|---|
+| 1 | **Mixkit** (music and SFX) | `curl` works, no key; pages respond in ~0.3 s and files download in < 0.5 s | Mixkit free licences: commercial use, no credit; not resold as stand-alone sound |
+| 2 | **Openverse API** (Freesound, Jamendo, …) | `curl`, no key, searchable, gives licence and duration | per file: CC0 is free; CC BY needs a credit line in the description; `license_type=commercial` filters out NC |
+| 3 | **Pixabay Music / Sound Effects** (290k+ tracks, many instrumental Lo-Fi, Upbeat, Cinematic) | blocks `curl` (403): use a browser tool or ask the user to download | Pixabay Content License: commercial use, no credit; a few tracks are registered with Content ID, so keep the track's page URL as proof |
+| 4 | **tiengdong.com** (Vietnamese meme sounds: "ting ting", "bụp bụp", "oh nooo") | `curl` works, direct mp3 links in the page | "All rights reserved", and many memes are clipped from shows: only when the user picks one, only for organic posts, never ads |
+
+- **Mixkit**: SFX by category `https://mixkit.co/free-sound-effects/<whoosh|pop|ding|click|swoosh|…>/`, music by
+  tag `https://mixkit.co/free-stock-music/tag/<lo-fi|chill|upbeat|cinematic|…>/` (redirects to the genre page).
+  The page HTML holds the files: `grep -oE 'https://assets\.mixkit\.co/[^"]+\.mp3'` (SFX `…-preview.mp3` is the
+  whole sound at ~300 kbps; music `music/<id>/<id>.mp3` is the whole track at 256 kbps). The site search finds
+  little; use categories and tags.
+- **Openverse**: `curl "https://api.openverse.org/v1/audio/?q=whoosh&license_type=commercial&page_size=20"` →
+  `results[]` with `title`, `license`, `license_version`, `source`, `duration` (ms), `url`. Freesound files come
+  from a slow CDN (~12 s for 1 MB); download only the ones you will use.
+- **Pixabay**: `https://pixabay.com/music/search/<q>/`, `https://pixabay.com/sound-effects/search/<q>/` (Vietnamese
+  pages under `/vi/`). Good keywords: "lofi chill", "upbeat corporate", "cinematic ambient", "meme".
+- Ask before downloading (list the files, source, licence, size). Save under the project's `media/audio/` with
+  source and licence in `media/audio/index.json`, then keep what worked:
+  `bashcut library add --kind audio --file /abs/media/audio/x.mp3 --name "Soft pop" --source URL --license "Mixkit SFX Free License" --tags pop`.
 
 ## Real speech vs voiceover
 
@@ -98,8 +129,8 @@ out), leave the most honest line with no music. Keep the music continuous across
 - Size the sound to the motion: soft whoosh for a slow move, short whoosh for a hard zoom, pop for stickers and
   labels, ding on a final number, hit on the shocking line. Never the same whoosh on every cut.
 - The loudest point of a whoosh lands on the cut; a riser ends on the reveal.
-- Use files the user owns or that are licensed (the user's SFX folder, the Audio panel). Ask before
-  downloading any.
+- Use files the user owns or that are licensed (the user's SFX folder, the Audio panel, the library, then the
+  sources above). Ask before downloading any.
 
 ## Verify
 

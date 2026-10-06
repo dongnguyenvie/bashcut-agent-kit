@@ -1,6 +1,6 @@
 ---
 name: stock-images
-description: Find, download (with permission) and place licensed stock photos and stock video (Pexels) in a BashCut edit as clearly labelled illustration, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "lấy ảnh trên mạng", "thêm hình mô tả".
+description: Find, download (with permission) and place licensed stock photos and stock video (Pexels) and vector icons (Iconify, as transparent PNG stickers) in a BashCut edit as clearly labelled illustration, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ".
 ---
 
 # Stock photos and video
@@ -54,6 +54,28 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
   `place-card` text item), placed where it doesn't collide with other labels.
 - Tie each picture to the words it illustrates ("nồi đất" → clay pot); 1.4–2 s each, a soft pop sound.
 - 2–3 illustrations per video at most, off faces.
+
+## Icons (Iconify)
+
+For a small illustration (money, location pin, clock, check mark, arrow), an icon reads better than a photo and
+needs no "minh hoạ" label. Iconify serves 200k+ vector icons through a free API (no key, ~0.2 s per call, tested
+October 2026):
+
+```sh
+curl -s "https://api.iconify.design/search?query=cash&limit=20"           # → icons ["mdi:cash", "solar:wallet-bold", …]
+curl -s "https://api.iconify.design/collections?prefixes=mdi,solar"       # → each set's licence
+curl -s -o cash.svg "https://api.iconify.design/mdi/cash.svg?color=%23FFD400&height=512"
+rsvg-convert -w 512 -h 512 cash.svg -o cash.png    # transparent PNG; or: magick -background none -density 1536 cash.svg -resize 512x512 cash.png
+```
+
+- BashCut imports PNG, not SVG: convert first. Never use `qlmanage` for this: it paints a white background.
+- Prefer filled sets (names with `solid`, `fill`, `bold`, or `fluent-emoji-flat` for colour emoji): thin outline
+  icons disappear on a phone. `?color=` recolours one-colour icons; colour emoji keep their own colours.
+- Licence per set: MIT, Apache 2.0, CC0 and OFL need nothing in the video; CC BY needs a credit line in the
+  description; avoid CC BY-SA and GPL sets for stickers. Record the set and licence.
+- Ask before downloading, like photos. Save under `media/stock/icons/`, place like a still
+  (`media import … --place --track OVERLAY`), 512 px, small (`transform` zoom ~0.25–0.4), with a pop sound, and
+  keep the good ones: `bashcut library add --kind sticker --name "Cash" --file /abs/media/stock/icons/cash.png --source "https://icon-sets.iconify.design/mdi/cash/" --license "Apache-2.0" --tags money`.
 
 ## Free fallback: blurred own footage
 
