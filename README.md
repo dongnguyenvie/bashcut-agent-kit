@@ -83,7 +83,7 @@ scripts/check.py                  checks every skill's frontmatter, size and ref
 ## Verification
 
 CI runs skill checks, checker unit tests and explicit CLI example validation against the generated BashCut
-command reference in `reference/commands.md`. Its source commit is recorded in `reference/source.json`; it is
+command reference in `reference/commands.md`. Its source commit and sha256 are recorded in `reference/source.json` (CI fails when they do not match); it is
 vended here because the app repository is private and the public kit's CI cannot check it out. Refresh both
 files when adopting app command changes. In a sibling checkout, validate directly against the app with:
 

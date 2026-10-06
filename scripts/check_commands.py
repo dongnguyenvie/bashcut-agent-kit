@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Validate explicit bashcut CLI examples against the app's generated command reference."""
 import argparse
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -51,13 +53,28 @@ def validate(text, commands):
     return problems
 
 
+def check_source(reference):
+    """A vendored reference has source.json beside it naming the app commit it was copied from, with the file's
+    sha256: copying a new commands.md without recording its commit fails here. A reference read straight from an
+    app checkout has no source.json and is not checked."""
+    source = reference.with_name("source.json")
+    if not source.is_file():
+        return []
+    recorded = json.loads(source.read_text())
+    digest = hashlib.sha256(reference.read_bytes()).hexdigest()
+    if recorded.get("sha256") != digest:
+        return [f"{reference.name} changed but {source} was not updated: set commit to the BashCut commit it came "
+                f"from and sha256 to {digest}"]
+    return []
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference", required=True, type=Path)
     parser.add_argument("--skills", type=Path, default=Path(__file__).resolve().parents[1] / "skills")
     args = parser.parse_args()
     commands = catalog(args.reference.read_text())
-    errors = []
+    errors = check_source(args.reference)
     count = 0
     for path in sorted(args.skills.rglob("*.md")):
         text = path.read_text()
