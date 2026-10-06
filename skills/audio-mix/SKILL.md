@@ -134,6 +134,7 @@ When the library has nothing that fits, try the sources in this order (tested Oc
 
 ## Verify
 
-You cannot listen, so: `review run` (voices too close, speech coverage), list the joins and voiceover windows
-for the user to play (`ui seek` takes them there), and read the loudness in
-the export receipt (`export status`: `lufs`, `truePeakDbTP`).
+You cannot listen, so: `review run` (voices too close, music not ducked under speech, dead air, a music bed that
+drops out, speech coverage), list the joins and voiceover windows for the user to play (`ui seek` takes them there),
+and after a normalized export read the loudness in the export receipt (`export status`: `lufs`, `truePeakDbTP`);
+`review run` then checks it against the target (-14 LUFS ±2, true peak ≤ -1 dBTP).

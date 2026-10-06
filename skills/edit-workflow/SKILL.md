@@ -71,7 +71,7 @@ Hard rules:
 8. bc:color-grade           one look for the video, fixes per clip, faded look for flashbacks
 9. bc:effects               only where a moment needs it (transition, speed ramp, freeze, sticker)
    bc:stock-images          pictures the footage lacks; bc:style-study to copy a reference style
-10. review + export         `review run`, look at frames, `export start` (the user approves)
+10. review → fix → export   measure, review, apply fixes, repeat (at most 3 rounds); export only with no error
 11. bc:library              harvest: propose what to keep (a grade, an effect, a sound) for the next video
 12. bc:self-learn           write down what went wrong so it does not happen again
 ```
@@ -129,19 +129,60 @@ The first cut opened on the presenter's "hello"; the user sent it back: "end use
 
 ## Review before export
 
+Every edit ends with a review loop. Do not export, and do not tell the user the video is done, while the review
+has an error.
+
 ```sh
-bashcut review run                        # structure, gaps, speech coverage
-bashcut ui frame 120                      # PNG of the edit at frame 120: read it
+bashcut review measure                    # a job: renders the picture checks, runs plugin review checks
+bashcut jobs status <job>                 # wait until completed; measure again after every edit
+bashcut review run --summary --min-severity warning
+```
+
+`review run --summary` returns `{issues, summary: {errors, warnings, infos, passed}}`; `passed` means no error.
+Issues come errors first; each has `severity`, `frame` (and `endFrame` for a stretch), `source` when a plugin found
+it, and usually a `fix`:
+
+| `fix` | What to do |
+|---|---|
+| `command: timeline.apply` | write `fix.arguments.ops` to a file and run `timeline apply ops.json --base-rev N --label "<fix.arguments.label or the issue title>"` |
+| `command: timeline.close-gap` | `timeline close-gap --at-frame <atFrame> --base-rev N` (with `--track` when given) |
+| `command: review.measure` | the picture (or plugin checks) were not measured for this revision: measure, then review again |
+| `command: export.start` | loudness is measured from a normalized export: do it last (see below) |
+| `command: fonts.import`, `captions.generate` | run it as the issue says (`bc:captions-text`) |
+| `hint` only | do what it says with the skill for that area (the table below), or ask the user when it is a choice of taste |
+
+One round: fix every error, then the warnings that are clearly wrong (a caption under the platform's buttons, a
+jump cut, music not ducked); a fix is one labelled edit, so the user can undo it. Then measure and review again: the
+revision changed, so earlier measurements no longer count. Stop after 3 rounds, or when a round fixes nothing, and
+tell the user what is left and why (a warning that is a deliberate choice, such as a long still title the user asked
+for, stays).
+
+| Issue | Skill |
+|---|---|
+| gap, repeated framing, jump cut, very short or long static shot, frozen picture | `bc:beat-cut` (punch-in, cutaway, trim), `bc:effects` (Ken Burns, slow punch-in) |
+| black picture | offline media or a layer hiding the picture: `media list`, `timeline get`, `ui frame` |
+| text in the caption bar or side buttons, too small, too many lines, overlap, missing font, no hook | `bc:captions-text` |
+| loudness, true peak, music not ducked, dead air, music drops out, voiceover near speech | `bc:audio-mix` |
+| a plugin's issue (`source`) | read that plugin's skill first (`skills list --scope plugin`); its `fix` works like the built-in ones |
+
+Loudness is measured from the last normalized export of the same revision, so it comes last: when the rest passes,
+make the draft with normalization, then review once more:
+
+```sh
 bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio
 bashcut export status
+bashcut review run --summary --min-severity warning     # now includes loudness and true peak
+bashcut ui frame 120                                    # PNG of the edit at frame 120: read it
 python3 <footage-survey skill>/survey.py /abs/draft-v1.mp4 --every 2 --out /abs/project/survey/draft-v1
 ```
 
 The last line puts the whole draft on one labelled sheet (a frame every 2 s): read it to check the pace,
-repeated shots and where text sits before asking the user to watch.
+repeated shots and where text sits before asking the user to watch. Exports wait for the user's approval in the app
+unless `agentPermissions.autoApprove` is on.
 
-Check: no unintended gaps on the main layer, no two voices at once, captions inside the safe area
-(`ui view --safe-area on`), loudness normalised. Exports wait for the user's approval in the app unless `agentPermissions.autoApprove` is on.
+Report the loop to the user in a few lines: the rounds, what was fixed (issue → edit), and what is left with the
+reason. Example: "Review: 2 rounds. Fixed a 1.2 s black gap at 0:41 (closed), raised the caption out of the bottom
+bar, punched in on the jump cut at 1:05. Left: one 9 s shot at 0:12, kept because it is the hook you chose."
 
 ## Taste of the user
 
