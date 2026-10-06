@@ -28,6 +28,22 @@ Reply in the user's language. Decide **when** first; most cuts should stay hard 
 | Real estate | slow speed, keyword stickers for price and area |
 | Event / MV | beat cuts, flash, blink, speed ramps |
 
+## Library first
+
+- `bashcut library list --kind effect-preset` (also `transition-preset`, `sticker`). Built-ins: `ken-burns-in`,
+  `ken-burns-out`, `zoom-punch-in`, `punch-in`, `speed-ramp`, `slow-motion`; transitions `soft-dissolve`,
+  `quick-whip`, `zoom-punch`; emoji stickers.
+- Effect preset: `bashcut library apply ID --item CLIP --set zoom=1.4 --from F --to T --base-rev N` (every step in
+  one undo; `library get ID` shows its parameters and ranges).
+- Transition preset: `bashcut library apply ID --item CLIP --base-rev N` sets kind, duration, easing and its sound
+  at the cut beside the clip.
+- Sticker: `bashcut library place ID --at-frame F --position top-right --size 0.25 --base-rev N`.
+- An effect the user liked: `bashcut library save-selection --kind effect-preset --name "Food reveal" --item CLIP`
+  (or `transition-preset`, `sticker`). A correction: `library update ID --params '{...}'`, or `--as NEW_ID` for a
+  built-in or plugin preset.
+- A sticker or sound the library lacks: `bashcut library search "fire" --kind sticker` (or `library generate`)
+  when a plugin provides it; a job, then `library add --from-result JOB:N`.
+
 ## How, in BashCut
 
 | Effect | Make it with |
@@ -41,7 +57,7 @@ Reply in the user's language. Decide **when** first; most cuts should stay hard 
 | Picture in picture, split moment | the second clip on an overlay layer with `transform` zoom below 1 and pan/tilt |
 | Black-and-white moment | `adjustment add --look black-white` over the range |
 | Pop text, labels, prices | text items with `hook-title`, `keyword-sticker`, `place-card` (`bc:captions-text`) |
-| Stickers | Stickers panel (emoji text items) |
+| Stickers | `library place ID --position top-right --size 0.25` (image, alpha movie or emoji; see Library first) |
 | Fade from/to black | `dissolve` against a black clip, or audio `fadeIn`/`fadeOut` for sound |
 | Ken Burns on a photo, slow push-in | `clip motion ITEM --preset zoom-in` (also zoom-out, pan-left, pan-right, pan-up, pan-down) |
 | Animated title or label | `clip motion TEXT_ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch) |

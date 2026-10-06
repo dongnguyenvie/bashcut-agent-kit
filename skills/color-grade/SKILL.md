@@ -22,6 +22,18 @@ and saturation 0…4 (1 = unchanged), lutStrength 0…1. A `color` patch replace
 you keep. Grade picture layers only; adjustment items never touch the text layers above them when placed under
 them.
 
+## Library first
+
+- `bashcut library list --kind look` lists looks from the project, this Mac, plugins and built-ins (`original`,
+  `vivid`, `muted-film`, `black-white`, `bright-airy`, `moody`). A look is a whole filter stack, LUT included.
+- `bashcut library place ID --at-frame 0 --duration TOTAL_FRAMES --base-rev N` adds it as an adjustment;
+  `bashcut library apply ID --item ITEM --base-rev N` replaces one clip's grade. Either copies its LUT into the
+  project in the same undo step.
+- Once the user approves a grade, save it for the next video:
+  `bashcut library save-selection --kind look --name "Matte cinematic" --item ADJUSTMENT`, or straight from a LUT:
+  `bashcut library add --kind look --name "Matte" --file /abs/matte.cube`.
+- A correction: `library update ID --params '{"color": {...}}'`, or `--as NEW_ID` for a built-in or plugin look.
+
 ## Generated looks (`grade.py`)
 
 ```sh

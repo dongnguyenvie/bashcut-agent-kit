@@ -7,6 +7,12 @@ description: Find, download (with permission) and place licensed stock photos an
 
 Reply in the user's language.
 
+## 0. Library first
+
+`bashcut library list --kind sticker --query "pot"` may already hold the picture (with its source and licence). A
+plugin may search stock for you: `bashcut library search "clay pot" --kind sticker` (job; candidates carry source
+and licence). Place a library picture with `bashcut library place ID --at-frame F --size 0.6 --base-rev N`.
+
 ## 1. Search
 
 - **Pexels API** (free key at pexels.com/api, 200 requests/hour): with `PEXELS_API_KEY` set,
@@ -22,7 +28,14 @@ Reply in the user's language.
 
 State the files, the source and the size (photos ~100–250 KB at 1080 px; vertical stock video 15–60 MB) and
 wait for a yes. Save under the project's `media/stock/` with the source and licence in `media/stock/index.json`.
-Pexels License: free, no attribution required, don't sell unaltered copies. Avoid identifiable people.
+Pexels License: free, no attribution required, don't sell unaltered copies. Avoid identifiable people. A
+picture worth reusing goes to the library with its licence:
+
+```sh
+bashcut library add --kind sticker --name "Clay pot" --file /abs/media/stock/x.jpg --source URL --license "Pexels License" --tags food
+```
+
+Save the label as a text preset too (`bashcut library save-selection --kind text-preset --name "Stock label"`).
 
 ## 3. Place
 

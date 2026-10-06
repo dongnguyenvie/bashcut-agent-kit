@@ -45,6 +45,20 @@ spoken. No whoosh on ordinary cuts. SFX only with a reason (shutter on a photo c
 montage cut). Silence is a tool: drop the music 1.5–3 s before the punchline (split the music clip and fade
 out), leave the most honest line with no music. Keep the music continuous across section changes.
 
+## Library first
+
+- `bashcut library list --kind audio --tag calm` shows music, SFX and ambience saved in the project, on this Mac or
+  in plugin packs, with role, length, BPM, LUFS and loop flag. `bashcut library preview ID` plays one for the user
+  (you cannot hear it).
+- `bashcut library place ID --at-frame F --duration N --base-rev N` puts it on the Music or SFX layer (added when
+  missing); a `loopable` sound fills a longer duration back to back, another plays once.
+- Missing BPM or loudness: `bashcut library analyze ID` (job).
+- A track or SFX that worked:
+  `bashcut library save-selection --kind audio --name "Lofi bed" --item CLIP --tags calm,lofi` (or `--media ID`).
+  Fix wrong tags or flags with `library update ID --tags ...` or `--params '{"loopable": false}'`.
+- Nothing fits: `bashcut library search "soft whoosh" --kind audio` (or `library generate`) when a plugin provides
+  it; check each candidate's licence, then `library add --from-result JOB:N`.
+
 ## Choosing music
 
 - Prefer **one structured track** at least as long as the video (intro → build → drop → break) and align the

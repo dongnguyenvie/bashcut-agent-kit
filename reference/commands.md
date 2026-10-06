@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 135 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 139 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -332,7 +332,7 @@ List installed plugins with a newer compatible version in the registry.
 
 ### `bashcut plugins validate [<path>] [--url <url>] [--ref <ref>] [--sha256 <sha256>]`
 
-Check a plugin that is not in the registry (a folder, its plugin.json, a .zip or .bashcutplugin archive, or a link) without installing or running it: its id, version and capabilities, every problem with the field and the fix, and for a link the commit or release it resolved to.
+Check a plugin that is not in the registry (a folder, its plugin.json, a .zip or .bashcutplugin archive, or a link) without installing or running it: its id, version and capabilities, every problem with the field and the fix (library packs included: each pack.json and the files it names, inside the plugin), and for a link the commit or release it resolved to.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_plugins_validate`
 - `path`: string, path. Plugin folder, plugin.json, or .zip / .bashcutplugin file (or use url)
@@ -775,7 +775,7 @@ Answer the topmost dialog like the user: choose an option ID or title, or give a
 Open a sheet or popover in the app.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_open`
-- `dialog`: string, required, one of new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts, add-plugin. Dialog
+- `dialog`: string, required, one of new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts, add-plugin, library-search, library-generate. Dialog
 
 ### `bashcut ui select [<item>] [--items <items>] [--add] [--track <track>]`
 
@@ -1153,19 +1153,20 @@ Usage of every library item, the saved items nobody used, and groups of duplicat
 - `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
 - `panel`: string, one of audio, text, stickers, effects, transitions, filters, voice. Only items the library panel shows
 
-### `bashcut library add --kind <kind> --name <name> [--id <id>] [--scope <scope>] [--tags <tags>] [--pack <pack>] [--params <params>] [--file <file>] [--preview <preview>] [--source <source>] [--license <license>]`
+### `bashcut library add [--kind <kind>] [--name <name>] [--from-result <fromResult>] [--id <id>] [--scope <scope>] [--tags <tags>] [--pack <pack>] [--params <params>] [--file <file>] [--preview <preview>] [--source <source>] [--license <license>]`
 
-Save a new library item in the project or on this Mac. Files are copied in. Agents saving to the user scope wait for approval. To improve an existing item, use library update.
+Save a new library item in the project or on this Mac. Files are copied in. Agents saving to the user scope wait for approval. To improve an existing item, use library update. fromResult saves a candidate of a finished library search or library generate job instead (its kind, name, files, source and license; the other fields here override them).
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_library_add`
-- `kind`: string, required, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
-- `name`: string, required. Display name
+- `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind (required unless fromResult)
+- `name`: string. Display name (required unless fromResult)
+- `fromResult`: string. A library search or generate candidate as <job>:<index> (index from 0, as the job result lists it)
 - `id`: string. Item ID: lowercase letters, digits and hyphens; from the name by default
 - `scope`: string, one of project, user, default "project". project (the open project's .bashcut/library; the default) or user (this Mac; agents need approval)
 - `tags`: string. Comma-separated tags (mood, use, genre…)
 - `pack`: string. Pack or collection name the panel groups it under
-- `params`: object. What the kind needs (JSON): text-preset {textPreset, text}; sticker {emoji, textPreset} or a file; effect-preset {patch: item properties}; transition-preset {kind, duration}; look {color}
-- `file`: string, path. File to copy in (audio, image sticker…)
+- `params`: object. What the kind needs (JSON): text-preset {textPreset, text}; sticker {emoji, textPreset} or a file (PNG, JPEG, HEIC, WebP, GIF, APNG, or a .mov/.mp4 with alpha; not Lottie) with {stickerKind: emoji|image|animated|video-alpha (from the file by default), size: width as 0.01–1 of the frame, position: center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right or {x, y} in 0–1, animation: a clip motion preset, seconds}, all optional; effect-preset (a recipe) {steps: [{op: motion|keyframes|speed|speedCurve|reverse|freeze|patch|sfx|text, …}], parameters: {name: {default, min, max}}} or the older {patch: item properties}, with its own sound as file; transition-preset {kind, duration, easing: linear|in|out|inOut, sfx: audio item ID} (or its own sound as file); look (a filter stack) {color: {exposure, contrast, saturation, lutStrength}, lutName} with an optional .cube LUT as file; audio (its file required) {role: music|sfx|ambience, seconds, bpm, loopable, lufs, truePeak}, all optional (library add measures seconds and picks a role by length; library analyze fills the rest), with mood and genre as tags
+- `file`: string, path. File to copy in (audio, image or alpha-movie sticker, a look's .cube LUT…)
 - `preview`: string, path. Preview image, GIF or audio snippet to copy in
 - `source`: string. Where it came from (URL or note)
 - `license`: string. License or terms of use
@@ -1180,8 +1181,8 @@ Improve a library item: saves a new version (the old one stays in its history). 
 - `name`: string. New display name
 - `tags`: string. Comma-separated tags (mood, use, genre…)
 - `pack`: string. Pack or collection name the panel groups it under
-- `params`: object. What the kind needs (JSON): text-preset {textPreset, text}; sticker {emoji, textPreset} or a file; effect-preset {patch: item properties}; transition-preset {kind, duration}; look {color}
-- `file`: string, path. File to copy in (audio, image sticker…)
+- `params`: object. What the kind needs (JSON): text-preset {textPreset, text}; sticker {emoji, textPreset} or a file (PNG, JPEG, HEIC, WebP, GIF, APNG, or a .mov/.mp4 with alpha; not Lottie) with {stickerKind: emoji|image|animated|video-alpha (from the file by default), size: width as 0.01–1 of the frame, position: center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right or {x, y} in 0–1, animation: a clip motion preset, seconds}, all optional; effect-preset (a recipe) {steps: [{op: motion|keyframes|speed|speedCurve|reverse|freeze|patch|sfx|text, …}], parameters: {name: {default, min, max}}} or the older {patch: item properties}, with its own sound as file; transition-preset {kind, duration, easing: linear|in|out|inOut, sfx: audio item ID} (or its own sound as file); look (a filter stack) {color: {exposure, contrast, saturation, lutStrength}, lutName} with an optional .cube LUT as file; audio (its file required) {role: music|sfx|ambience, seconds, bpm, loopable, lufs, truePeak}, all optional (library add measures seconds and picks a role by length; library analyze fills the rest), with mood and genre as tags
+- `file`: string, path. File to copy in (audio, image or alpha-movie sticker, a look's .cube LUT…)
 - `preview`: string, path. Preview image, GIF or audio snippet to copy in
 - `source`: string. Where it came from (URL or note)
 - `license`: string. License or terms of use
@@ -1196,15 +1197,16 @@ Remove a project or user library item and its files. Built-in and plugin items c
 - `id`: string, required. Item ID, or scope:id to pick one scope
 - `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
 
-### `bashcut library save-selection --kind <kind> --name <name> [--id <id>] [--item <item>] [--scope <scope>] [--tags <tags>] [--pack <pack>]`
+### `bashcut library save-selection --kind <kind> --name <name> [--id <id>] [--item <item>] [--media <media>] [--scope <scope>] [--tags <tags>] [--pack <pack>]`
 
-Save what is selected on the timeline as a new library item (the panels' Save selection as…): a text item's style, a clip's framing and keyframes, the transition at the selected clip, or a grade.
+Save what is selected on the timeline as a new library item (the panels' Save selection as…): a text item's style, a clip's effect as a recipe (reverse, speed or speed ramp, framing, keyframes scaled to the clip's length, and the sound effect at its start; a still of the clip as its preview), the transition at the selected clip (kind, duration, easing and the sound a preset placed there), or a grade as a look: the full filter stack, with the project LUT it uses copied in as the look's file, or an audio clip (or project audio media) as an audio item: its file copied in, its length, and music or sfx from its layer, or an overlay item as a sticker: an image or alpha movie with its file, size, position and length, or an emoji text item with its text preset.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_library_save-selection`
-- `kind`: string, required, one of text-preset, effect-preset, transition-preset, look. What to save
+- `kind`: string, required, one of text-preset, effect-preset, transition-preset, look, audio, sticker. What to save
 - `name`: string, required. Display name
 - `id`: string. Item ID; from the name by default
 - `item`: string. Timeline item ID; the selection by default
+- `media`: string. Audio: project audio media ID instead of a timeline clip
 - `scope`: string, one of project, user, default "project". project (the open project's .bashcut/library; the default) or user (this Mac; agents need approval)
 - `tags`: string. Comma-separated tags (mood, use, genre…)
 - `pack`: string. Pack or collection name the panel groups it under
@@ -1218,28 +1220,77 @@ Move a saved item between the project and this Mac, with its versions, files and
 - `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
 - `to`: string, required, one of project, user. Destination
 
-### `bashcut library apply <id> [--scope <scope>] [--item <item>] --base-rev <baseRev>`
+### `bashcut library apply <id> [--scope <scope>] [--item <item>] [--set <set>] [--from <from>] [--to <to>] --base-rev <baseRev>`
 
-Use a library item on an existing timeline item: a text preset on a text item, an effect preset's properties, a look's grade, or a transition preset at the cut beside a video clip. Defaults to the selected item.
+Use a library item on an existing timeline item: a text preset on a text item, an effect preset's recipe on a clip (every step, its sounds and text, and a split for a from/to range, as one undo step; set overrides its parameters; when a reverse step needs a new reversed copy it runs as a job), a look's grade (adding its LUT to the project when it has one, in the same undo step), or a transition preset at the cut beside a video clip (its kind, duration and easing, plus its sound on an SFX layer, as one undo step). Defaults to the selected item.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_library_apply`
 - `id`: string, required. Item ID, or scope:id to pick one scope
 - `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
 - `item`: string. Timeline item ID; the selection by default
+- `set`: string. Effect preset parameters: name=value pairs (strength=1.5,frames=12) or a JSON object
+- `from`: integer, ≥ 0. Effect preset: first timeline frame of the part of the clip to change
+- `to`: integer, ≥ 1. Effect preset: timeline frame after that part (the clip's end by default)
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
-### `bashcut library place <id> [--scope <scope>] [--at-frame <atFrame>] [--duration <duration>] [--track <track>] [--text <text>] --base-rev <baseRev>`
+### `bashcut library place <id> [--scope <scope>] [--at-frame <atFrame>] [--duration <duration>] [--track <track>] [--position <position>] [--size <size>] [--text <text>] --base-rev <baseRev>`
 
-Add a library item to the timeline as a new item: a text preset or emoji sticker as text, a look as an adjustment. At the playhead by default.
+Add a library item to the timeline as a new item: a text preset or emoji sticker as text, an image, animated or video-alpha sticker (its file copied into the project's stickers/ folder once per content, imported and placed on the Overlay layer, added when missing, at size and position, as one undo step; an animated sticker shows its first frame for now and the result says so), a look as an adjustment (with its LUT added to the project in the same undo step), or audio: its file copied into the project's music/ or sfx/ folder (once per content), imported and placed on the Music layer (music, ambience) or SFX layer (sfx), the layer added when missing, as one undo step. duration trims a sound; longer than the file, a loopable sound repeats back to back and another plays once (the result says so). At the playhead by default.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_library_place`
 - `id`: string, required. Item ID, or scope:id to pick one scope
 - `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
 - `atFrame`: integer, ≥ 0. First timeline frame
 - `duration`: integer, ≥ 1. Length in timeline frames
-- `track`: string. Layer ID
+- `track`: string. Layer ID; for audio, the Music or SFX layer by its role by default; for a sticker, the Overlay layer
+- `position`: string. Sticker: center, top, bottom, left, right, top-left, top-right, bottom-left or bottom-right (inside the safe area), or x,y in 0–1 (its centre, from the top left); the sticker's default otherwise
+- `size`: number, 0.01…1. Sticker: width as a fraction of the frame width (0.3 by default)
 - `text`: string. Text for a text preset instead of its sample
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut library analyze <id> [--scope <scope>] [--provider <provider>]`
+
+Measure an audio library item's file and save the values as a new version: its length, integrated loudness and true peak (an audio.loudness provider, as audio measure) and, unless it is a sound effect, its tempo in BPM (an audio.beats provider, as beats detect). Runs as a job; a missing provider leaves that value and says why in notes. Agents saving to the user scope wait for approval. Tag mood and genre with library update --tags after listening or reading the analysis.
+
+- Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_library_analyze`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `provider`: string. audio.loudness provider ID; the project's choice by default
+
+### `bashcut library preview [<id>] [--scope <scope>] [--stop]`
+
+Play a library item's sound in BashCut (the Audio panel's play button), stopping any other; stop, or no id, stops it.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_library_preview`
+- `id`: string. Item ID, or scope:id
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `stop`: boolean, default false. Stop the sound playing
+
+### `bashcut library search <query> --kind <kind> [--provider <provider>] [--limit <limit>] [--save <save>] [--scope <scope>] [--page <page>]`
+
+Ask an installed plugin that provides library.search (sounds, stickers, GIFs… from Freesound, Giphy or another source) for candidate items of a kind. Runs as a job; its result lists candidates with their fields, downloaded file and preview paths, source and license. Nothing is saved until library add --from-result <job>:<index> (or save here) copies one into the library. Network use is the plugin's.
+
+- Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_library_search`
+- `query`: string, required. What to look for
+- `kind`: string, required, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
+- `provider`: string. Plugin or provider ID; the first available provider that serves the kind by default
+- `limit`: integer, 1…50, default 12. Most candidates to return
+- `save`: integer, ≥ 0. Also save the candidate with this index (from 0) when the job finishes
+- `scope`: string, one of project, user, default "project". Where save puts it: project (the default) or user (agents need approval)
+- `page`: integer, 1…1000, default 1. Result page, from 1
+
+### `bashcut library generate <prompt> --kind <kind> [--provider <provider>] [--limit <limit>] [--save <save>] [--scope <scope>] [--params <params>]`
+
+Ask an installed plugin that provides library.generate (AI music, stickers…) to make candidate items of a kind from a prompt. Runs as a job; its result lists candidates like library search. Nothing is saved until library add --from-result <job>:<index> (or save here) copies one into the library.
+
+- Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_library_generate`
+- `prompt`: string, required. What to make
+- `kind`: string, required, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice. Item kind
+- `provider`: string. Plugin or provider ID; the first available provider that serves the kind by default
+- `limit`: integer, 1…50, default 4. Most candidates to return
+- `save`: integer, ≥ 0. Also save the candidate with this index (from 0) when the job finishes
+- `scope`: string, one of project, user, default "project". Where save puts it: project (the default) or user (agents need approval)
+- `params`: object. Hints for the provider (JSON), such as {"seconds": 30}
 
 ### `bashcut library import-pack <path> [--scope <scope>] [--replace]`
 

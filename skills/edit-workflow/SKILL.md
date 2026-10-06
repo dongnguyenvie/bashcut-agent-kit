@@ -26,6 +26,11 @@ Hard rules:
   follows). New items such as a title or an adjustment layer are fine inside their frame range. Ask before
   touching anything else, even a problem you noticed elsewhere. Attaching and removing items is the user's job:
   never run `chat attach` or `chat detach`.
+- Library first. Before building a text style, effect, transition, look, sound or sticker, check
+  `bashcut library list --kind K` (the project, this Mac, plugin packs, built-ins) and reuse a fit with
+  `library place` or `library apply`. Save a result the user liked with `library save-selection` (project scope
+  by default; `--scope user` waits for the user's approval). When the user corrects a saved item,
+  `library update ID` saves a new version; built-in and plugin items are read-only, so save a copy with `--as NEW_ID`.
 - Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
   read it. You cannot hear: ask the user to listen where sound matters.
 - Name every folder and file you create in English, lowercase with hyphens (`survey/`, `renders/`,

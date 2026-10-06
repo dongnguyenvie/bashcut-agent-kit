@@ -46,6 +46,7 @@ re-reading a memo.
 | A workflow the user repeats in every project | a skill for every project: `bashcut skills save NAME FILE --scope user` (needs the user's approval) |
 | A rule in this kit that is wrong, missing or too vague | a proposed change to the kit (step 3) |
 | A skill that should have loaded but didn't | the skill's `description` (add the user's real words), via step 3 |
+| A library item (preset, look, sound, sticker) that failed or was undone | improve or prune it (below) |
 | BashCut itself (a bug, a missing command or effect) | a note for the BashCut maintainers with the command, input and error |
 
 A lesson:
@@ -105,6 +106,16 @@ bashcut knowledge split-memo notes.json --scope user  # the notes for every proj
 (a Vietnamese memo gives Vietnamese titles, fixes and values; keys and tags stay English). Long notes such as style
 measurements stay in the memo; do not edit it. Everything waits in the Knowledge inbox, and existing entries are
 skipped. `--keep` keeps the memo as notes and stops offering the split.
+
+**Library items.** When a saved preset, look, sound or sticker failed, was undone right after `library apply` or
+`library place`, or the user corrected it, propose a fix; never remove without a yes:
+
+- Wrong values: `bashcut library update ID --params '{...}'` (a new version; the old one stays in history).
+  Built-in and plugin items are read-only: `bashcut library update ID --as NEW_ID`, then record a preference to
+  use the copy.
+- Not wanted: `bashcut library remove ID` (project or user items; the user scope waits for approval).
+- `bashcut library stats` lists saved items nobody used and duplicates (same kind and content): offer to remove
+  them or merge into one at the end of a session.
 
 ## 3. Changing the kit
 
