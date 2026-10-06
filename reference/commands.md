@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 139 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 140 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -10,7 +10,7 @@ approval are explained in the [automation guide](../guides/automation.md#permiss
 
 ### `bashcut context get`
 
-Read the project path, revision, playhead and selection, and a summary of the agent knowledge: active lessons, preferences, project facts and the number of proposals; scope lists the timeline items attached to the shown chat agent's request (edit only those).
+Read the project path, revision, playhead and selection, and a summary of the agent knowledge: active lessons, preferences, project facts and the number of proposals; scope lists the timeline items attached to your tab's request (edit only those), with the scope guard's mode, a held edit and the user's answer to the last one (last); agentPermissions tells what you may do without asking.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_context_get`
 
@@ -669,6 +669,13 @@ Open a terminal tab in the agent dock like its + menu: claude, codex, shell or a
 - Mode: ui · Runs: immediately · MCP: `bashcut_agent_open`
 - `terminal`: string, required. claude, codex, shell or a plugin ID (agent terminals)
 - `new`: boolean, default false. Start a new conversation instead of continuing the last one
+
+### `bashcut agent detach [--items <items>]`
+
+Remove timeline items sent to the shown terminal tab with Send to Agent (ui action clip.send-to-agent), like the chip's ×; without --items, all of them. While items are attached, the scope guard checks that tab's edits against them.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_agent_detach`
+- `items`: string. Item IDs, comma-separated
 
 ## app
 

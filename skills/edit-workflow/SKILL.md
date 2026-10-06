@@ -26,6 +26,20 @@ Hard rules:
   follows). New items such as a title or an adjustment layer are fine inside their frame range. Ask before
   touching anything else, even a problem you noticed elsewhere. Attaching and removing items is the user's job:
   never run `chat attach` or `chat detach`.
+- BashCut may enforce the scope (the scope guard, `scope.mode` in `context get`). An edit outside it fails with
+  `-32004` (`data.outOfScope` item IDs, `data.projectWide` changes). Never retry it or work around it:
+  - `held: true`: the user is being asked in the app. Tell them what the edit does and wait; `context get` shows
+    it as `scope.held`, then `scope.last.outcome` is `applied`, `rejected` or `failed`. `applied`: re-read and go
+    on. `rejected`: leave it and ask what they want instead. `failed` with a stale revision (the project changed
+    while it waited): re-read, and send it again only if it is still wanted.
+  - No `held`: the user rejected it or the guard blocks such edits. Stop and ask.
+  - `-32003` while an edit is held: wait for the user's answer first.
+  - `-32002` (stale revision) is checked before the scope: re-read the timeline and retry with the new `--base-rev`.
+- What you may do without asking is in `context get` `agentPermissions`: `edits` (false: you cannot edit; tell the
+  user), `autoApprove` (exports, kit setup, library items and preferences for every project run at once instead of
+  waiting for the user), `scopeGuard` (`ask`, `block` or `off`) and `allowAll` (the user's "Dangerously allow all
+  agent actions"). Even with `allowAll`, keep to the scope and say what you changed outside it. Only the user can
+  change these switches.
 - Library first. Before building a text style, effect, transition, look, sound or sticker, check
   `bashcut library list --kind K` (the project, this Mac, plugin packs, built-ins) and reuse a fit with
   `library place` or `library apply`. Save a result the user liked with `library save-selection` (project scope
@@ -122,7 +136,7 @@ The last line puts the whole draft on one labelled sheet (a frame every 2 s): re
 repeated shots and where text sits before asking the user to watch.
 
 Check: no unintended gaps on the main layer, no two voices at once, captions inside the safe area
-(`ui view --safe-area on`), loudness normalised. Exports wait for the user's approval in the app.
+(`ui view --safe-area on`), loudness normalised. Exports wait for the user's approval in the app unless `agentPermissions.autoApprove` is on.
 
 ## Taste of the user
 
