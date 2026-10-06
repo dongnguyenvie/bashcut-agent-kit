@@ -88,11 +88,8 @@ class Live:
             os.unlink(f.name)
 
     def import_media(self, path):
-        before = {m["id"] for m in self.json("media", "list")}
-        self.raw("media", "import", path, "--base-rev", self.rev())
-        new = [m for m in self.json("media", "list") if m["id"] not in before]
-        assert len(new) == 1, new
-        return new[0]["id"]
+        # Importing a file the project already has returns its media (existing: true) instead of a copy.
+        return self.json("media", "import", path, "--base-rev", self.rev())["media"]
 
     def pixel(self, frame, x, y):
         """RGB of the edit at a timeline frame; x, y as fractions of the picture."""
