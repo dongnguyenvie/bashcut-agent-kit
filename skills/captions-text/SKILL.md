@@ -1,6 +1,6 @@
 ---
 name: captions-text
-description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, and place hook titles, place cards, keyword stickers and chapter cards with the right preset, size and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương".
+description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, Vietnamese-safe fonts and text colour, and place hook titles, place cards, keyword stickers and chapter cards with the right preset, size and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
 ---
 
 # Captions and on-screen text
@@ -73,6 +73,27 @@ size, position and outline (`textStyle`) and a `clip motion` preset; colour and 
 preset looks the same in portrait and landscape), and a line wider than 90% of the frame shrinks to fit. Patches
 replace the whole `textStyle`: send every key you want to keep. Add a text layer with
 `layers add --kind text --role overlay` when the captions layer is busy.
+
+## Fonts and colour
+
+`textStyle` also takes `font` (a PostScript name such as `Montserrat-ExtraBold`), `fill`, `stroke` and
+`highlight` (`#RRGGBB`). The presets use Arial Bold and Times, which have every Vietnamese glyph.
+
+- A font that is not installed on this Mac falls back to Helvetica **without an error**. Check the name first:
+  `fc-list :postscriptname=Montserrat-ExtraBold postscriptname` (Homebrew fontconfig), or render one frame and look.
+- Vietnamese-safe free fonts come from Google Fonts (`https://fonts.google.com/?subset=vietnamese`). Common
+  picks for short vertical videos: **Montserrat ExtraBold** for hook titles, **Be Vietnam Pro** (SemiBold or
+  Medium) for captions, which stays readable on a phone.
+- Download the static files from the family's list (JSON after a 4-character prefix, ~0.1 s):
+  `curl -s "https://fonts.google.com/download/list?family=Be%20Vietnam%20Pro" | tail -c +5` →
+  `manifest.fileRefs[]` with `filename` (`static/BeVietnamPro-SemiBold.ttf`) and `url`. The file name without
+  `.ttf` is usually the PostScript name (check it as above). Licence: SIL Open Font License, free in videos.
+- Installing a font changes the user's Mac: ask, then copy the `.ttf` to `~/Library/Fonts/`. The font must be
+  installed on every Mac that exports the project; the project does not carry it.
+- Fast-reading captions: yellow fill with a thin black outline
+  (`{"fill": "#FFD400", "stroke": "#000000", "strokeWidth": 2}`).
+- Library text presets keep neither font nor colour (above): note the font and colours in the project memo
+  (`bc:self-learn`) and set them again after `library place`.
 
 ## Placement rules
 
