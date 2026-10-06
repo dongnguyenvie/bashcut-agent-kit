@@ -1,5 +1,5 @@
 ---
-name: bashcut-voiceover
+name: voiceover
 description: Write and produce voiceover in BashCut — prepare the text so text-to-speech reads it right, synthesize several takes with a voice.synthesize provider (for example VieNeu-TTS for Vietnamese, preset or cloned voices), check every take, place it on the Voiceover layer and fit it to the picture. Use for narration, voiceover, fixing a flubbed line without re-recording, or when the user says "lồng tiếng", "thuyết minh", "đọc lời", "giọng AI", "clone giọng", "text to speech", "TTS".
 ---
 
@@ -55,8 +55,8 @@ and compare with the text; regenerate or reword failures. Recognition also mishe
 
 ## 4. Fit to picture
 
-- Never over real speech; keep ≥ 0.3 s from real voices (`bashcut-audio-mix`).
+- Never over real speech; keep ≥ 0.3 s from real voices (`bc:audio-mix`).
 - Give each voiceover section b-roll that is longer than the line; a too-short source clip made the voiceover
   run into the next spoken cut.
-- Captions for voiceover: write them from your text (`bashcut-captions-text`).
+- Captions for voiceover: write them from your text (`bc:captions-text`).
 - Level ~−16 LUFS with music 12–18 dB under (ducking on the music layer).

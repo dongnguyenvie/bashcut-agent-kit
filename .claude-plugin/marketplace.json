@@ -6,7 +6,7 @@
   },
   "plugins": [
     {
-      "name": "bashcut",
+      "name": "bc",
       "source": "./",
       "description": "Editing skills and the MCP server for the BashCut video editor."
     }

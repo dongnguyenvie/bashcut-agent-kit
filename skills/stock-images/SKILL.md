@@ -1,5 +1,5 @@
 ---
-name: bashcut-stock-images
+name: stock-images
 description: Find, download (with permission) and place licensed stock photos and stock video (Pexels) in a BashCut edit as clearly labelled illustration, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "lấy ảnh trên mạng", "thêm hình mô tả".
 ---
 

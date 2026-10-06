@@ -1,5 +1,5 @@
 ---
-name: bashcut-beat-cut
+name: beat-cut
 description: Give a BashCut edit rhythm — cut picture on the music's beat grid or on sentence boundaries, vary the cut rate by section, and fake extra shot sizes with punch-in reframes when the footage lacks coverage. Use when editing a vlog or montage to music, when the cut feels flat, slow or boring, or when consecutive cuts look the same because the camera was locked off. Triggers: "cắt theo nhịp", "cắt theo beat", "bản dựng phẳng", "nhàm", "punch-in".
 ---
 
@@ -72,9 +72,9 @@ that worked, as (zoom, pan, tilt): (1.00,0,0) (1.28,60,−25) (1.14,−50,15) (1
 ## 6. Structure that worked
 
 Cold open ~8 s with three shots: the ending shot, the loudest shot, the quietest shot. Then chronological, a
-section marker (`upsertSection`) and a place label (`bashcut-captions-text`) at each location change.
+section marker (`upsertSection`) and a place label (`bc:captions-text`) at each location change.
 
 ## Verify
 
 Render three consecutive cuts in one scene with `ui frame F` and read the PNGs: three different shot sizes? Then
-`review run` for gaps. Lock the cut before `bashcut-audio-mix`.
+`review run` for gaps. Lock the cut before `bc:audio-mix`.

@@ -1,5 +1,5 @@
 ---
-name: bashcut-audio-mix
+name: audio-mix
 description: Balance sound in a BashCut edit — clip gain, fades, music bed with ducking under speech, sound effects, choosing and looping music, real speech vs voiceover, and the final loudness target — using BashCut's own volume, fade, ducking and normalization. Use when loud places drown quiet ones, music comes and goes, voices clash, SFX are needed at cuts, or before export. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc chỗ có chỗ không", "nhạc to quá", "thêm sfx", "âm thanh", "ẩn giọng desktop", "chọn nhạc phù hợp giọng".
 ---
 
@@ -17,7 +17,7 @@ Reply in the user's language. Mix inside BashCut; never bake a mix with ffmpeg.
 | Silence a clip / a layer | `{"muted": true}` / `layers set TRACK --muted on` |
 | Music under speech | music layer: `setTrackProperties` `{"duckingEnabled": true, "duckUnderSpeechDb": -12, "duckAttackFrames": 6, "duckReleaseFrames": 15}` |
 | Final loudness | `setProjectProperties` `{"audio": {"targetLUFS": -14, "normalizeEnabled": true}}`, export with `--normalize-audio` (needs `audio.loudness`, core audio-analysis) |
-| New layers | `layers add --kind audio --role music` (or `sfx`, `bashcut-voiceover`) |
+| New layers | `layers add --kind audio --role music` (or `sfx`; voiceover layers: `bc:voiceover`) |
 
 Ducking follows speech on the dialogue and voiceover layers; a muted layer stops ducking music.
 
@@ -77,7 +77,7 @@ out), leave the most honest line with no music. Keep the music continuous across
 - The camera mic also hears the laptop speaker: when the demo plays the tool's output, drop those sentences;
   they are lines of the output's script, not the presenter's.
 - When the output's sound is wanted (a hook showing the result), place the output file itself on an audio layer
-  at the offset `media sync` gives (`bashcut-footage-survey`), never the speaker leak. Start the music bed after it.
+  at the offset `media sync` gives (`bc:footage-survey`), never the speaker leak. Start the music bed after it.
 
 ## SFX
 

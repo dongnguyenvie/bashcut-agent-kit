@@ -1,5 +1,5 @@
 ---
-name: bashcut-edit-workflow
+name: edit-workflow
 description: Plan and run a whole edit in BashCut from raw footage to export — survey, story, rough cut, rhythm, sound, captions and text, colour, effects, review — and pick the right skill for each step. Use when the user asks to edit/cut a video, make a vlog, review, short or montage from a folder of footage, or asks "where do I start". Also tool demos and tutorials from a screen recording plus a presenter camera. Triggers: "dựng video", "cắt video", "làm vlog", "dựng giúp", "edit this", "bắt đầu từ đâu", "video giới thiệu tool", "video desktop làm nền", "người đọc ở trên video".
 ---
 
@@ -31,18 +31,18 @@ Hard rules:
 ## The order
 
 ```
-1. bashcut-footage-survey   look at what was actually shot; say plainly what coverage is missing
+1. bc:footage-survey        look at what was actually shot; say plainly what coverage is missing
 2. story                    decide the hook, the sections and what is said (real lines first, then voiceover)
 3. rough cut                place clips, trim to the story — lock it before step 5
-4. bashcut-beat-cut         rhythm: cut on beats or on sentences, punch-in reframes for variety
-5. bashcut-audio-mix        levels, fades, music bed with ducking, SFX, loudness target
-6. bashcut-voiceover        (when needed) synthesize lines, check every take, place them
-7. bashcut-captions-text    captions from speech, hook title, place cards, chapter cards
-8. bashcut-color-grade      one look for the video, fixes per clip, faded look for flashbacks
-9. bashcut-effects          only where a moment needs it (transition, speed ramp, freeze, sticker)
-   bashcut-stock-images     pictures the footage lacks; bashcut-style-study to copy a reference style
+4. bc:beat-cut              rhythm: cut on beats or on sentences, punch-in reframes for variety
+5. bc:audio-mix             levels, fades, music bed with ducking, SFX, loudness target
+6. bc:voiceover             (when needed) synthesize lines, check every take, place them
+7. bc:captions-text         captions from speech, hook title, place cards, chapter cards
+8. bc:color-grade           one look for the video, fixes per clip, faded look for flashbacks
+9. bc:effects               only where a moment needs it (transition, speed ramp, freeze, sticker)
+   bc:stock-images          pictures the footage lacks; bc:style-study to copy a reference style
 10. review + export         `review run`, look at frames, `export start` (the user approves)
-11. bashcut-self-learn      write down what went wrong so it does not happen again
+11. bc:self-learn           write down what went wrong so it does not happen again
 ```
 
 Lock the cut (steps 3–4) before laying music and SFX: changing clip lengths afterwards breaks every sync point.
@@ -75,7 +75,7 @@ paths against its own working directory, so pass absolute paths.
   "Screen recording with a presenter").
 - Sections in time order after the hook; mark them with `upsertSection` so the user sees the structure.
 - Talking videos: build the timeline as a **chain of spoken lines** (real speech + voiceover, ~0.14 s gaps) and
-  cut picture to what is being said. Music-led montages: cut on the beat grid (`bashcut-beat-cut`).
+  cut picture to what is being said. Music-led montages: cut on the beat grid (`bc:beat-cut`).
 - Find lines with `captions generate --media ID` on each talking clip (needs a `captions.transcribe` plugin),
   then `captions export` to read them with timings.
 
@@ -86,11 +86,11 @@ Users describe this layout in their own words; map each phrase to the edit:
 | The user says | Build |
 |---|---|
 | "video giới thiệu tool", "demo phần mềm", "tutorial", "N phút" | hook = the tool's output (5–7 s, its own sound, a label like "VIDEO NÀY DO AI DỰNG"), then the presenter: prompt → tool working (fast-forward) → how it works, one panel per sentence → limits and next steps |
-| "video desktop làm nền", "màn hình làm nền" | screen recording on the main layer, cut to the same moments as the speech (offset from `media sync`, `bashcut-footage-survey`); on a portrait canvas a blurred copy below fills the bars (`bashcut-stock-images`) |
+| "video desktop làm nền", "màn hình làm nền" | screen recording on the main layer, cut to the same moments as the speech (offset from `media sync`, `bc:footage-survey`); on a portrait canvas a blurred copy below fills the bars (`bc:stock-images`) |
 | "người đọc / người nói ở trên video", "khung mặt" | presenter camera on an overlay layer *in front of* the screen, zoom ~0.37 (a 9:16 camera becomes ~400 px wide), at the bottom centre; captions between screen and face. "Ở trên" can mean the layer order or the top of the frame: bottom centre was kept without complaint; ask when unsure |
-| "ẩn giọng desktop", "tắt tiếng màn hình" | mute the screen clips; speech comes from the camera (`bashcut-audio-mix`, "Screen recordings") |
-| "chọn nhạc phù hợp giọng" | measure candidates against the voice (`audio measure`, `bashcut-audio-mix`) |
-| (unsaid, always) | zoom onto the panel being talked about, fast-forward waiting and typing (`bashcut-effects`) |
+| "ẩn giọng desktop", "tắt tiếng màn hình" | mute the screen clips; speech comes from the camera (`bc:audio-mix`, "Screen recordings") |
+| "chọn nhạc phù hợp giọng" | measure candidates against the voice (`audio measure`, `bc:audio-mix`) |
+| (unsaid, always) | zoom onto the panel being talked about, fast-forward waiting and typing (`bc:effects`) |
 
 Real case: a 5 min session (camera + screen) became a 2:00 intro with speech over 92% of the time; dropped:
 fillers, muddled lines, reactions to bugs, and sentences where the camera mic heard the laptop playing the output.
@@ -118,4 +118,4 @@ Preferences (length, pace, voice, style) live in BashCut, not in this kit. `cont
 lessons, preferences and project facts: follow them. At the start of every edit also run `knowledge get`:
 `userMemo` holds the free-text notes for every project, `memo` and `skills` are this project's own (stored in the
 project folder). Record taste with `knowledge set-pref`, project facts with `knowledge set-fact` and lessons with
-`knowledge add-lesson` (see bashcut-self-learn).
+`knowledge add-lesson` (see bc:self-learn).

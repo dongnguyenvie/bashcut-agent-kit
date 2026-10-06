@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 131 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 133 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -152,7 +152,7 @@ Add a media file (path relative to the project or absolute): video, audio or a s
 - `path`: string, required, path. Media file path
 - `kind`: string, one of video, audio, image. Media kind; from the file type by default
 - `place`: boolean, default false. Also place it on a layer
-- `track`: string. Layer ID for place; defaults to the main layer
+- `track`: string. Layer ID for place; defaults to the main layer (music for audio)
 - `atFrame`: integer, ≥ 0. Timeline frame for place
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
@@ -166,11 +166,11 @@ Queue preview proxies (smaller, quick-to-seek copies in .bashcut/cache/proxies; 
 
 ### `bashcut media place --media <media> [--track <track>] [--at-frame <atFrame>] --base-rev <baseRev>`
 
-Place project media on a layer (main by default), with linked sound on a dialogue layer; an occupied range spills onto a free or new layer.
+Place project media on a layer (main by default, music for audio), with linked sound on a dialogue layer; an occupied range spills onto a free or new layer.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_media_place`
 - `media`: string, required. Project media ID
-- `track`: string. Layer ID; defaults to the main layer
+- `track`: string. Layer ID; defaults to the main layer (music for audio)
 - `atFrame`: integer, ≥ 0. Timeline frame; defaults to the playhead or the end of the main layer
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
@@ -782,9 +782,9 @@ Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, pla
 - Mode: edit · Runs: immediately · MCP: `bashcut_ui_action`
 - `action`: string, required. Action ID or shortcut
 
-### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>]`
+### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>] [--library-query <libraryQuery>] [--library-pack <libraryPack>] [--library-tag <libraryTag>] [--library-scope <libraryScope>]`
 
-Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, Knowledge section, Plugins tab and Browse category, and scroll the timeline to a frame.
+Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section, Knowledge section, Plugins tab and Browse category, the open library panel's search and filters, and scroll the timeline to a frame.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_view`
 - `zoom`: integer, 1…600. Timeline zoom in pixels per second
@@ -800,6 +800,10 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `knowledgeSection`: string, one of inbox, lessons, prefs, facts, notes, skills, history. Knowledge window section (open it with ui.open knowledge)
 - `pluginsTab`: string, one of installed, browse, updates, activity. Plugins sheet tab (open it with ui.open plugins)
 - `pluginsCategory`: string, one of all, agents, captions, voice, audio, color, effects, export, utilities. Category Plugins › Browse shows; all shows every one
+- `libraryQuery`: string. Search text of the open library panel; empty clears it
+- `libraryPack`: string. Pack the open library panel shows; empty shows all
+- `libraryTag`: string. Tag the open library panel shows; empty shows all
+- `libraryScope`: string, one of all, built-in, user, project, plugin. Scope the open library panel shows
 
 ### `bashcut ui source <media> [--in <in>] [--out <out>]`
 
@@ -876,12 +880,13 @@ Read the project memo and skills (stored in the project folder), the notes for e
 
 - Mode: read · Runs: immediately · MCP: `bashcut_knowledge_get`
 
-### `bashcut knowledge memo <text-file> [--scope <scope>]`
+### `bashcut knowledge memo [<text-file>] [--clear] [--scope <scope>]`
 
-Replace a memo: the project memo (.bashcut/agent-memory.md in the project) or, with scope user, the notes every project reads (Application Support/BashCut/Knowledge). Agents need approval for scope user.
+Replace a memo: the project memo (.bashcut/agent-memory.md in the project) or, with scope user, the notes every project reads (Application Support/BashCut/Knowledge). clear empties it. Agents need approval for scope user.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_knowledge_memo`
-- `text`: string, required. Memo text (CLI: path to a text file)
+- `text`: string. Memo text (CLI: path to a text file); omit it with clear
+- `clear`: boolean. Empty the memo instead of replacing its text
 - `scope`: string, one of project, user. project (default) or user
 
 ### `bashcut knowledge migrate [--to <to>]`
@@ -1173,9 +1178,31 @@ Remove a project or user library item and its files. Built-in and plugin items c
 - `id`: string, required. Item ID, or scope:id to pick one scope
 - `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
 
+### `bashcut library save-selection --kind <kind> --name <name> [--id <id>] [--item <item>] [--scope <scope>] [--tags <tags>] [--pack <pack>]`
+
+Save what is selected on the timeline as a new library item (the panels' Save selection as…): a text item's style, a clip's framing and keyframes, the transition at the selected clip, or a grade.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_save-selection`
+- `kind`: string, required, one of text-preset, effect-preset, transition-preset, look. What to save
+- `name`: string, required. Display name
+- `id`: string. Item ID; from the name by default
+- `item`: string. Timeline item ID; the selection by default
+- `scope`: string, one of project, user, default "project". project (the open project's .bashcut/library; the default) or user (this Mac; agents need approval)
+- `tags`: string. Comma-separated tags (mood, use, genre…)
+- `pack`: string. Pack or collection name the panel groups it under
+
+### `bashcut library move <id> [--scope <scope>] --to <to>`
+
+Move a saved item between the project and this Mac, with its versions, files and use count. Agents moving into or out of the user scope wait for approval.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_move`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `to`: string, required, one of project, user. Destination
+
 ### `bashcut library apply <id> [--scope <scope>] [--item <item>] --base-rev <baseRev>`
 
-Use a library item on an existing timeline item: a text preset on a text item, an effect preset's properties, or a look's grade. Defaults to the selected item.
+Use a library item on an existing timeline item: a text preset on a text item, an effect preset's properties, a look's grade, or a transition preset at the cut beside a video clip. Defaults to the selected item.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_library_apply`
 - `id`: string, required. Item ID, or scope:id to pick one scope
