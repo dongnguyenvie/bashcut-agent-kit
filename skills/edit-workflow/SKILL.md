@@ -31,6 +31,7 @@ Hard rules:
   `library place` or `library apply`. Save a result the user liked with `library save-selection` (project scope
   by default; `--scope user` waits for the user's approval). When the user corrects a saved item,
   `library update ID` saves a new version; built-in and plugin items are read-only, so save a copy with `--as NEW_ID`.
+  Nothing fits and the user wants one: make it with `bc:library`.
 - Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
   read it. You cannot hear: ask the user to listen where sound matters.
 - Name every folder and file you create in English, lowercase with hyphens (`survey/`, `renders/`,
@@ -52,7 +53,8 @@ Hard rules:
 9. bc:effects               only where a moment needs it (transition, speed ramp, freeze, sticker)
    bc:stock-images          pictures the footage lacks; bc:style-study to copy a reference style
 10. review + export         `review run`, look at frames, `export start` (the user approves)
-11. bc:self-learn           write down what went wrong so it does not happen again
+11. bc:library              harvest: propose what to keep (a grade, an effect, a sound) for the next video
+12. bc:self-learn           write down what went wrong so it does not happen again
 ```
 
 Lock the cut (steps 3–4) before laying music and SFX: changing clip lengths afterwards breaks every sync point.
