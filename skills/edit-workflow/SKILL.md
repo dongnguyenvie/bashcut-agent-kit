@@ -121,7 +121,8 @@ paths against its own working directory, so pass absolute paths.
 - Talking videos: build the timeline as a **chain of spoken lines** (real speech + voiceover, ~0.14 s gaps) and
   cut picture to what is being said. Music-led montages: cut on the beat grid (`bc:beat-cut`).
 - Find lines with `captions generate --media ID` on each talking clip (needs a `captions.transcribe` plugin),
-  then `captions export` to read them with timings.
+  then `captions export --as text --format text` to read them with timings, or `transcript words` for each word's
+  frames (time a graphic, an SFX or a cut to a word from one read).
 
 ## Screen recording with a presenter
 
@@ -172,6 +173,7 @@ bashcut review picture --samples false     # per hard cut: difference across it 
 bashcut review picture --from F --to G     # per sample: luma, spread, change, peak (fractions of full scale)
 bashcut review shots --summary             # per shot: seconds, source, zoom, speed, motion; count, median, cuts/min
 bashcut review layout --frame F            # per text item: rendered bounds, font share, margin to each edge + zones
+bashcut transcript words --from F --to G   # per spoken word: frames, gap before, source seconds of its clip
 ```
 
 `review picture` and `review shots` motion come from the last `review measure` (`current` / `pictureMeasured`
