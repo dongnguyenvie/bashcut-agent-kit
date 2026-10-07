@@ -66,6 +66,10 @@ Write your own look as a params JSON (keys in `grade.py -h`) and pass its path i
 
 ## Rules
 
+- **Measure before you grade.** The same numbers make dark footage good and bright footage blown out. Run
+  `grade.py measure` on the brightest and darkest clips first, then pick or `match` a look to the footage. A recipe
+  (`recipe.skill` in `project get`) gives an *intent* such as "bright, warm, skies kept" — never apply a look's or a
+  recipe's values blind.
 - **A LUT is half the look.** The other half is light when shooting: golden hour, backlight, shade, slight
   under-exposure, muted wardrobe. Harsh noon sun stays harsh after a LUT: say so instead of pushing the grade
   until skin breaks.
