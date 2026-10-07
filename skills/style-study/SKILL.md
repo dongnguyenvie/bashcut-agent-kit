@@ -1,6 +1,6 @@
 ---
 name: style-study
-description: Learn a creator's or channel's editing style by measurement — cut pacing and rhythm, shot sizes, hook, on-screen text, colour (black/white point, saturation, split-tone tint), sound (music under voice, SFX on cuts, silences), speaking rate — from reference videos or the creator's own channel, check the numbers on frames, write a profile with tolerances and a learn / don't-take note per reference, then turn it into a project memo, a saved BashCut look and style kit, and rules for the other skills, without copying their text, music or graphics. Use when the user shares reference videos or a channel and says "học style", "phân tích kênh", "làm giống kênh X", "dựng theo phong cách này", "phân tích video của tôi", "kênh của tôi".
+description: Learn a creator's or channel's editing style by measurement — cut pacing and rhythm, shot sizes, hook, on-screen text, colour (black/white point, saturation, split-tone tint), sound (music under voice, SFX on cuts, silences), speaking rate — from reference videos or the creator's own channel, check the numbers on frames, write a profile with tolerances and a learn / don't-take note per reference, then turn it into a project memo, a saved BashCut library look and text presets, and rules for the other skills, without copying their text, music or graphics. Use when the user shares reference videos or a channel and says "học style", "phân tích kênh", "làm giống kênh X", "dựng theo phong cách này", "phân tích video của tôi", "kênh của tôi".
 ---
 
 # Study a style
@@ -100,8 +100,8 @@ pattern to test, with its confidence tier. Without view counts, the profile is s
    source file and date), the learn / don't-take notes, the differences list and 5–10 rules, each with the number
    behind it.
 2. **Look**: start from the closest look in `bc:color-grade`, move its params toward the measured values, preview,
-   import the LUT and `looks save`; then `style save ID --title T --look ID --caption-preset P` so
-   `style apply ID` gives the whole style in one step.
+   import the LUT and grade an adjustment with it; save the look in step 3. The whole style is that look plus
+   one `patchItems` caption restyle (`bc:captions-text`).
 3. **Library pack**: build each piece once on the timeline, then `bashcut library save-selection --kind look --name
    "Channel X look" --item ADJUSTMENT --pack "Channel X"` (also `text-preset` for its captions and titles,
    `transition-preset` and `effect-preset` for its signature moves, `audio` for SFX you have the rights to). Add

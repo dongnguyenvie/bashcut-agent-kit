@@ -1,6 +1,6 @@
 ---
 name: color-grade
-description: Colour-grade a BashCut edit — measure the footage, pick a look (built-in, custom or a generated .cube LUT such as matte-cinematic, warm-film, faded-memory), try candidates on real frames, check the graded picture for damage against the source and back off, then import the LUT and apply it with adjustment layers, saved looks and style kits. Use when the user says "tone màu", "chỉnh màu", "color grade", "LUT", "màu phim", "màu cinematic", "màu giống kênh X", "hình nhạt", "hình gắt", or when clips look flat, harsh or inconsistent.
+description: Colour-grade a BashCut edit — measure the footage, pick a look (built-in, custom or a generated .cube LUT such as matte-cinematic, warm-film, faded-memory), try candidates on real frames, check the graded picture for damage against the source and back off, then import the LUT and apply it with adjustment layers and library looks. Use when the user says "tone màu", "chỉnh màu", "color grade", "LUT", "màu phim", "màu cinematic", "màu giống kênh X", "hình nhạt", "hình gắt", or when clips look flat, harsh or inconsistent.
 ---
 
 # Colour grade
@@ -19,13 +19,13 @@ source, not a target: you choose what to change and by how much, from the footag
 | Before/after on several frames | `ui frames --compare graded --frames F1,F2,F3` (or `--items A,B`), one PNG grid |
 | One frame at phone size | `ui frame F --phone` |
 | Transfer of a file (SDR, HLG, PQ, log) | `media analysis --media ID` › `tech.transferKind` (after `media analyze`) |
-| A whole-video style (look + caption preset) | `style apply cinematic` / `food-review` / custom kit |
+| A whole-video grade | `library place LOOK --at-frame 0 --duration TOTAL_FRAMES` (adds a full-length adjustment) |
 | A grade on a range (grades every layer below) | `adjustment add --look matte-cinematic --at-frame F --duration D` |
 | Fix one clip | `setProperties` patch `{"color": {"exposure": 0.3, "contrast": 1.1, "saturation": 0.9, "lut": null}}` |
-| Reuse a grade | `looks save ID --title T [--item ITEM]`, `style save ID --title T --look ID --caption-preset P` |
+| Reuse a grade | `library save-selection --kind look --name T --item ITEM` (with its LUT); `library list --kind look` |
 | Bring in a LUT | `luts import /abs/look.cube --name "Matte" --base-rev N` → its ID in `timeline get` `luts` |
 
-Built-in looks: `original`, `vivid`, `muted-film`, `black-white`. Ranges: exposure −10…10 (stops), contrast
+Built-in looks: `original`, `vivid`, `muted-film`, `black-white`, `bright-airy`, `moody`. Ranges: exposure −10…10 (stops), contrast
 and saturation 0…4 (1 = unchanged), lutStrength 0…1. A `color` patch replaces the whole object: send every key
 you keep. Grade picture layers only; adjustment items never touch the text layers above them when placed under
 them. There is no white balance or black/white point control yet: those need a generated LUT (`grade.py`).
@@ -107,8 +107,8 @@ Write your own look as a params JSON (keys in `grade.py -h`) and pass its path i
 
 ```sh
 bashcut luts import /abs/project/luts-src/matte.cube --name "Matte cinematic" --base-rev N
-bashcut looks save matte --title "Matte cinematic" --lut LUT_ID --lut-strength 0.8 --base-rev N
-bashcut adjustment add --look matte --at-frame 0 --duration TOTAL_FRAMES --base-rev N
+bashcut adjustment add --lut LUT_ID --lut-strength 0.8 --at-frame 0 --duration TOTAL_FRAMES --base-rev N
+bashcut library save-selection --kind look --name "Matte cinematic" --item ADJUSTMENT   # reuse it later
 ```
 
 ## 4. Check

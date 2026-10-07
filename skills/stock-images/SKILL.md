@@ -41,8 +41,10 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
 
 - **Credits are optional.** Never write a licence, source or credit onto the video or into its description unless
   the user asks. When the user wants credits tracked, import with `--origin stock --license "Pexels License"
-  --source URL --author "Name"` (stored structured; a second `media import` adds them to a file already in), and
-  `project credits` gives the lines when they ask for them.
+  --source URL --author "Name"` (stored as given; pass a JSON object such as `{"text":"Pexels License",
+  "redistribute":false}` to record what it allows; a second `media import` adds them to a file already in).
+  `project credits` gives the raw facts per used media (licence, provenance, frames on top, AI share): write the
+  credit lines from them when the user asks.
 - **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --base-rev N`, then `media place`
   on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
 - **Still photos** import directly: `media import /abs/media/stock/photo.jpg --place --track OVERLAY --at-frame F

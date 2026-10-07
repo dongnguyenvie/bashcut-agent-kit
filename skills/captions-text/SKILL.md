@@ -35,7 +35,8 @@ Before grouping, read: the language, the lowest-`confidence` words (names, words
   "cảm ơn các bạn đã theo dõi", repeated phrases). Delete those cues; trust a clip with only that text as
   having no speech.
 - A cue longer than ~10 s, or one word repeated many times ("à à à …"), is a recognition loop: its word timings
-  are smeared (one 5 min talk lost 128–237 s to three such cues). `review run` flags them. Don't cut on them;
+  are smeared (one 5 min talk lost 128–237 s to three such cues). Look for them in `captions export` (long cues,
+  repeated words); `review run` does not judge text. Don't cut on them;
   transcribe that stretch again in ~20 s pieces (`--from/--to` with `--replace`), which gave clean sentences in
   that project. Whole clip first, then the pieces with `--replace`; a whole-clip run without `--replace` after a
   ranged one added every line of the range a second time.
@@ -120,12 +121,16 @@ restyle a text item with `bashcut library apply ID --item ITEM --base-rev N`. Wh
 title or label, save it: `bashcut library save-selection --kind text-preset --name "Price tag" --item ITEM`; when
 they correct it, `library update ID` (or `--as NEW_ID` for a built-in) (`bc:library`).
 
-`style apply food-review` or `style apply cinematic` sets the caption preset and look together. Single items:
+A whole-video style is a look (`bc:color-grade`) plus one restyle of every caption: one `patchItems` op with
+`"select": {"trackRole": "captions"}` and the preset or `textStyle` (see below). Single items:
 
 ```json
 {"op":"insert","track":"TEXT_TRACK","item":{"id":"hook-1","at":0,"dur":45,"text":"QUÁN NÀY KHÔNG NÊN ĂN","textPreset":"hook-title"}}
 {"op":"setProperties","item":"hook-1","patch":{"textStyle":{"size":0.07,"positionY":0.62,"strokeWidth":6}}}
+{"op":"patchItems","select":{"trackRole":"captions"},"patch":{"textPreset":"bold-outline","textStyle":{"fill":"#FFD400","background":{"color":"#000000","opacity":0.5,"padding":0.3}}}}
 ```
+
+`setProperties` replaces each field it names; `patchItems` merges objects key by key (`null` deletes a key).
 
 `textStyle.positionY` is the baseline from the bottom (0–1); `size` is a fraction of the frame's short side, and a
 line wider than 90% of the frame shrinks to fit. Patches replace the whole `textStyle`: send every key you keep.

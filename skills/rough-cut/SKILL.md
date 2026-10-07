@@ -73,8 +73,8 @@ when the story order differs from the recording order. The user sees the selects
 can keep, reject or reorder them there: before placing, read `selects list` again and follow their choices. Never
 undo a user's rejection; ask instead.
 
-Keep and reject with a reason: `selects mark S1,S4 --status kept --reason "hook and payoff" --base-rev N`. Mark the
-lines the edit cannot lose: `selects mark S2 --must-keep true --base-rev N`; a must-keep select that no clip plays
+Keep and reject with a reason: `selects set` with `[{"id":"S1","status":"kept","reason":"hook and payoff"},{"id":"S4","status":"kept","reason":"hook and payoff"}]`. Mark the
+lines the edit cannot lose: `selects set` with `[{"id":"S2","mustKeep":true}]`; a must-keep select that no clip plays
 becomes a review warning after every later change.
 
 ## Blind second pass (long → short, or many candidates)

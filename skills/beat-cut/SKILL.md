@@ -45,7 +45,7 @@ Place the music on its layer first, then:
 bashcut beats detect --media MUSIC_MEDIA_ID     # job; needs an audio.beats provider (core audio-analysis)
 bashcut jobs wait JOB_ID --timeout 25         # bpm and beat frames; stored as the media's grid
 bashcut beats grid --media MUSIC_MEDIA_ID       # strengths, downbeats, confidence, fit, half/double alternates
-bashcut audio energy --media MUSIC_MEDIA_ID     # job: level, onset, fullness per step; lift/drop/breath candidates
+bashcut audio energy --media MUSIC_MEDIA_ID     # job: the curve — levelDb, onset, fullness per step
 ```
 
 Judge the grid before cutting on it. You cannot listen, so a weak grid means: ask the user, or cut on phrases.
@@ -53,14 +53,17 @@ Judge the grid before cutting on it. You cannot listen, so a weak grid means: as
 | Fact | Reads strong | Reads weak → do |
 |---|---|---|
 | `fit.rmsErrorMs` | small next to a frame (33 ms at 30 fps); other kits gate at mean <10 ms (shotcraft) or median <15 ms (jianshuo) (T07 §3) | tempo drifts or changes: detect per song or section, cut on phrases |
-| `confidence` | the tempo stands out; no published threshold, so compare with the alternates | rubato, ambient or speech-heavy: use `audio energy` candidates and phrases |
+| `confidence` | the tempo stands out; no published threshold, so compare with the alternates | rubato, ambient or speech-heavy: use `audio energy` lifts and drops and phrases |
 | `alternates` (half, double) | one tempo clearly stronger | similar strength: pick by how fast the music moves, ask the user. One example: 58.7 BPM detected, truth 117 (the bar, not the beat) |
 | `downbeats`, `beatsPerBar`, `phaseScores` | one phase clearly highest | close scores: phase is uncertain; a full-band grid can lock onto hi-hats and put every cut half a beat late (hyperframes; T07 §4). Ask the user to check that a downbeat lands on an audible hit (`ui seek F`) |
 | `strengths` | — | a candidate pool, not a cut list: "the hit table is a candidate pool, not a trigger" (shotcraft; T07 §2) |
 
 A mix of several songs has several tempos: detect each media; `beats grid` reads each one.
 
-`audio energy` candidates are pointers to listen to, not cut points. Use them to plan a section's shape: build →
+Find the moments in the `audio energy` curve yourself: a **lift** is levelDb or fullness rising several dB over
+~2 s against the 2 s before (onset density usually rises with it), a **drop** the reverse, a **breath** a short dip
+(0.5–2 s) before a lift. Snap each to the nearest beat or downbeat (`beats grid`), and place it with `timeline`
+(`at` + (second − `fromSeconds`) × fps). They are pointers, not cut points. Use them to plan a section's shape: build →
 breath → hit on a downbeat → hold (reelmimic; T07 §2). One breath of 0.5–2 s before the main hit, a payoff hold of
 at least 1 s (T07 §7).
 

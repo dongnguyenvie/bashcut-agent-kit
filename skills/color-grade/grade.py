@@ -16,7 +16,7 @@ and white balance you pass) and reports both against the look's reference ranges
 exposure/wb from that report and pass them to `lut`. `--exposure` is added to the look's exposure (stops);
 `--wb` multiplies the look's white balance. Scale 0-100, the same as `bashcut color measure`.
 
-Apply the result in BashCut with `bashcut luts import OUT.cube`, then an adjustment item or `looks save`.
+Apply the result in BashCut with `bashcut luts import OUT.cube`, then an adjustment item; save it as a library look with `library save-selection --kind look`.
 Needs ffmpeg/ffprobe on PATH. Run with `uv run grade.py ...` (uv installs numpy and Pillow on first run).
 
 Parameters (all optional; 0 / 1 = unchanged):

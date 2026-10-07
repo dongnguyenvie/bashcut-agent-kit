@@ -44,11 +44,11 @@ with their source, and you choose within them for this footage.
     send again only if still wanted).
   - No `held`: the user rejected it or the guard blocks such edits. Stop and ask. `-32003` while an edit is held: wait.
   - `-32002` (stale revision) comes before the scope: re-read the timeline and retry with the new `--base-rev`.
-- Errors say what to do in `error.data`: `category`, `retryable` and `remediation` (a command and a hint). Retry only
+- Errors say what to do in `error.data`: `category`, `retryable` and sometimes `remediation.command` (the read that explains it). Retry only
   a `retryable` one, after its remediation (`stale_revision`: re-read; `busy_dialog`: `ui dialog`, then answer it;
   `busy_approval` or `busy_running`: wait). Never resend an `invalid_arguments` call unchanged. `unsupported_media`:
   this Mac cannot decode that file (`data.media` names it and its frames); the black picture there is not the footage,
-  so do not judge it; ask the user to convert it (the hint has the command) and import the converted file.
+  so do not judge it; ask the user to convert it to H.264 or HEVC and import the converted file (never render with ffmpeg yourself).
   `context get` › `recentFailures.repeated` of 2 or more means the same call keeps failing the same way: stop,
   rethink or ask.
 - **Plugin capabilities.** Before work that needs a plugin (transcripts, beats, loudness, voice, library search or
