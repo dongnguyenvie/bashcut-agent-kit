@@ -19,14 +19,17 @@ For each reference video (10–30 is enough):
 
 | What | How | Read it as |
 |---|---|---|
-| Cuts per minute, shot length | `ffmpeg -i v.mp4 -vf "select='gt(scene,0.28)',showinfo" -an -f null - 2>&1 \| grep pts_time` | food-review TikTok ≈ 30–40 cuts/min (1.4–1.8 s); cinematic vlog ≈ 12–20 (3–5 s) |
+| Cuts per minute, shot length | `media import` the video into a study project, `media analyze --media ID`, then `media analysis --media ID`: `picture.summary` (cutsPerMinute, median, histogram, cutCurve per 10 s) | food-review TikTok ≈ 30–40 cuts/min (1.4–1.8 s); cinematic vlog ≈ 12–20 (3–5 s) |
 | Shot sizes, hook, text | contact sheet: `python3 <skill_dir>/../footage-survey/survey.py DIR --frames 10`, then look | what the first 3 s show; where and how text appears |
 | Colour | `uv run <skill_dir>/../color-grade/grade.py measure v.mp4` | black > 3 = matte; white < 90 = rolled highlights; sat < 30 muted, > 45 punchy; shadow tint R−B < 0 with highlight R−B > 0 = teal-orange |
-| Speech vs music | transcribe in BashCut or listen | music buried (−20 dB), bed (−10), present (−6), leading (> 0) |
+| Speech vs music | transcribe in BashCut or listen; `media analysis --curve` gives the level per second | music buried (−20 dB), bed (−10), present (−6), leading (> 0) |
 | SFX on cuts | listen at 5–10 cuts | hits on most cuts = SFX-driven style; random = none |
 
-Scene detection merges cuts under ~0.25 s and misses dissolves and whips: look at the frames, don't trust the
-count alone. Speech recognition invents text over music: trust your ears over a transcript.
+The summary uses the same statistics as `review shots --summary` on your own timeline, so the two compare directly.
+Cut detection finds hard cuts to the frame but misses dissolves and whips, and fast camera moves can score like
+cuts: look at the frames at a few cuts (`--samples`, or a contact sheet), lower `--min-score` when cuts are missing,
+and fix the list with `media cuts` before counting. Keep reference videos in a separate study project, not the one
+you will publish. Speech recognition invents text over music: trust your ears over a transcript.
 
 ## Turn it into BashCut
 
