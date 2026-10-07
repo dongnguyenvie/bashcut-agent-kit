@@ -22,7 +22,7 @@ For each reference video (10–30 is enough):
 | Cuts per minute, shot length | `media import` the video into a study project, `media analyze --media ID`, then `media analysis --media ID`: `picture.summary` (cutsPerMinute, median, histogram, cutCurve per 10 s) | food-review TikTok ≈ 30–40 cuts/min (1.4–1.8 s); cinematic vlog ≈ 12–20 (3–5 s) |
 | Shot sizes, hook, text | contact sheet: `python3 <skill_dir>/../footage-survey/survey.py DIR --frames 10`, then look | what the first 3 s show; where and how text appears |
 | Colour | `uv run <skill_dir>/../color-grade/grade.py measure v.mp4` | black > 3 = matte; white < 90 = rolled highlights; sat < 30 muted, > 45 punchy; shadow tint R−B < 0 with highlight R−B > 0 = teal-orange |
-| Speech vs music | transcribe in BashCut or listen; `media analysis --curve` gives the level per second | music buried (−20 dB), bed (−10), present (−6), leading (> 0) |
+| Speech vs music | `media transcribe --media ID`, then `media speech-map --media ID` (word spans vs loud spans: `levelCoveredByWords`, the gaps between lines) or listen; `media analysis --curve` gives the level per second | music buried (−20 dB), bed (−10), present (−6), leading (> 0) |
 | SFX on cuts | listen at 5–10 cuts | hits on most cuts = SFX-driven style; random = none |
 
 The summary uses the same statistics as `review shots --summary` on your own timeline, so the two compare directly.

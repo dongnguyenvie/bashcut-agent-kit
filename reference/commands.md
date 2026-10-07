@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 155 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 158 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -141,10 +141,10 @@ Delete an empty gap on a layer (the main layer by default): later clips on that 
 
 ### `bashcut media list [--analysis]`
 
-List project media. With analysis, each media also has analysis: measured false, or {measured, key, measuredAt, picture, sound, shots at the default cut limit, corrected} from media.analyze.
+List project media. With analysis, each media also has analysis: measured false, or {measured, key, measuredAt, picture, sound, shots at the default cut limit, corrected} from media.analyze, and transcript: transcribed false, or the media.transcript overview from media.transcribe.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_media_list`
-- `analysis`: boolean. Add what media.analyze measured for each media
+- `analysis`: boolean. Add what media.analyze measured and media.transcribe heard
 
 ### `bashcut media import <path> [--kind <kind>] [--place] [--track <track>] [--at-frame <atFrame>] --base-rev <baseRev>`
 
@@ -207,6 +207,17 @@ Read the media.analyze record of one media without measuring: tech (file facts, 
 - `samples`: boolean. Include every picture sample
 - `curve`: boolean. Include the sound level per second (dBFS)
 
+### `bashcut media speech-map --media <media> [--threshold-db <thresholdDb>] [--bridge <bridgeSeconds>] [--min-speech <minSpeechSeconds>] [--min-separation-db <minSeparationDb>]`
+
+Map where an analysed media has sound that may be speech, and the gaps, with the calibration used: the media.analyze level windows (broadband RMS per 0.1 s; digital silence counts as quiet and is left out) are split into quiet and loud by Otsu's method unless thresholdDb is given. calibration {method otsu/given, floorDb, speechDb, separationDb, eta (share of level variance the split explains), otsuThresholdDb, thresholdDb, minSeparationDb, separation clear/weak/none/given}. When the classes are closer than minSeparationDb (noise, music under the voice) separation is none and spans/gaps are null with a reason, instead of made-up silences. Otherwise spans and gaps [{start, end, seconds}] in source seconds, speechSeconds, speechShare, gapStats. With a stored transcript (media.transcribe), transcript {words, spans, gaps, speechSeconds, levelCoveredByWords, wordsCoveredByLevel}. Spans are sound, not proof of speech.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_media_speech-map`
+- `media`: string, required. Project media ID
+- `thresholdDb`: number, -120…0. dBFS that counts as sound, instead of calibrating
+- `bridgeSeconds`: number, 0…10. Gaps bridged inside a span (default 0.3)
+- `minSpeechSeconds`: number, 0…10. Shortest span kept (default 0.2)
+- `minSeparationDb`: number, 0…60. Classes closer than this do not separate (default 6)
+
 ### `bashcut media cuts --media <media> [--add <add>] [--remove <remove>] [--clear]`
 
 Correct the cut list of an analysed media: add cuts or remove candidates at source seconds (a removal matches within one sample interval; removing an added cut takes it back). Shots and statistics in media.analysis follow. Corrections live in the record and are dropped when the file is measured again. Returns the corrected cuts.
@@ -216,6 +227,25 @@ Correct the cut list of an analysed media: add cuts or remove candidates at sour
 - `add`: string. Source seconds to cut at, comma separated
 - `remove`: string. Source seconds of cuts to drop, comma separated
 - `clear`: boolean. Drop earlier corrections first
+
+### `bashcut media transcribe [--media <media>] [--force] [--provider <provider>]`
+
+Transcribe whole source media once with a captions.transcribe provider and keep the transcript (by file content, in .bashcut/cache/transcripts), without placing anything on the timeline. Read it with media.transcript; captions.generate places captions from it without transcribing again, and transcript.words --heard maps its words through the clips. A transcript in the project's content language (by the given provider) is reused unless force. The job's result lists each media with status transcribed, reused or failed and its overview.
+
+- Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_media_transcribe`
+- `media`: string. Project media ID; every video and audio media by default
+- `force`: boolean. Transcribe again even when a transcript exists
+- `provider`: string. Provider ID overriding the project preference for one request
+
+### `bashcut media transcript --media <media> [--as <as>] [--from <from>] [--to <to>]`
+
+Read the stored transcript of one media in its own seconds: language, provider, transcribedAt, speechSeconds, firstSpeech/lastSpeech, precision (wordTimes provider or none, and whether words carry confidence, speakers, events, noSpeechProb), then as words: wordList [{index, text, start, end, gapBefore, confidence?, speaker?, event?, noSpeechProb?}]; phrases (default): phraseList [{index, start, end, seconds, text, words, confidence (mean), gapBefore}]; json: both; text: one line per phrase (#index start–end seconds | text; print it with --format text). from/to keep what overlaps.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_media_transcript`
+- `media`: string, required. Project media ID
+- `as`: string, one of words, phrases, json, text. phrases (default), words, json or text
+- `from`: number, 0…86400. Only from this source second
+- `to`: number, 0…86400. Only up to this source second
 
 ## review
 
@@ -515,9 +545,9 @@ Show caption words as they are spoken (Inspector › Text › Word by word): hig
 - `color`: string. Highlight colour, #RRGGBB (default #FFD400)
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
-### `bashcut captions generate --media <media> [--replace] [--word-style <wordStyle>] [--from <from>] [--to <to>] [--provider <provider>]`
+### `bashcut captions generate --media <media> [--replace] [--word-style <wordStyle>] [--from <from>] [--to <to>] [--provider <provider>] [--fresh]`
 
-Transcribe project media with a captions.transcribe provider and import the captions as one undoable edit. Captions follow the clips where the media is heard (trim, position, speed): place the clips first.
+Place captions of project media as one undoable edit, from its stored transcript (media.transcribe) or by transcribing it with a captions.transcribe provider (the whole file is kept as its transcript). Captions follow the clips where the media is heard (trim, position, speed): place the clips first. The job's result says transcript: stored, transcribed or range (only from/to transcribed).
 
 - Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_captions_generate`
 - `media`: string, required. Project media ID
@@ -526,17 +556,19 @@ Transcribe project media with a captions.transcribe provider and import the capt
 - `from`: number, 0…86400. Transcribe only from this source second of the media (with replace, only this media's captions heard in the range are replaced)
 - `to`: number, 0…86400. Transcribe only up to this source second of the media
 - `provider`: string. Provider ID overriding the project preference for one request
+- `fresh`: boolean. Transcribe again instead of using the media's stored transcript
 
 ## transcript
 
-### `bashcut transcript words [--from <from>] [--to <to>] [--media <media>]`
+### `bashcut transcript words [--from <from>] [--to <to>] [--media <media>] [--heard]`
 
-Read every word on the caption layers in timeline order: index, text, at/end (frames), atSeconds, endSeconds, item and cue (captions export numbering), timing (transcribed or estimated from word length), gapBefore (frames since the previous word ended) and, for captions made from a media, source {media, clip, start, end} in that media's seconds through the clip heard there now (null when no clip of it plays there: captions do not move with their clips). No speaker or confidence is stored yet. count is the words returned, total the words on the caption layers.
+Read every word on the caption layers in timeline order: index, text, at/end (frames), atSeconds, endSeconds, item and cue (captions export numbering), timing (transcribed or estimated from word length), gapBefore (frames since the previous word ended) and, for captions made from a media, source {media, clip, start, end} in that media's seconds through the clip heard there now (null when no clip of it plays there: captions do not move with their clips). count is the words returned, total the words on the caption layers. With heard, the words come from the stored transcripts (media.transcribe) of the media the timeline plays instead: each word inside a clip that plays it, at that clip's frames (trim, speed), with item = the clip, timing source and the provider's confidence/speaker/event/noSpeechProb; transcribed and untranscribed list the media.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_transcript_words`
 - `from`: integer, ≥ 0. Only words ending after this timeline frame
 - `to`: integer, ≥ 0. Only words starting before this timeline frame
-- `media`: string. Only captions made from this media ID
+- `media`: string. Only captions made from (or with heard, words of) this media ID
+- `heard`: boolean. Words of the source transcripts heard through the clips now
 
 ## layers
 

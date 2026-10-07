@@ -12,13 +12,21 @@ a video with Pillow or ffmpeg. With a `[Scope]` (Send to Agent), work only on th
 
 ```sh
 bashcut captions generate --media MEDIA_ID [--replace]   # job; needs a captions.transcribe plugin
+bashcut captions generate --media MEDIA_ID --replace --fresh   # transcribe again (after changing the vocabulary)
 bashcut captions generate --media MEDIA_ID --from 128 --to 148 --replace   # one stretch again (source seconds)
 bashcut captions export --format text > /tmp/captions.srt # read and fix
 bashcut captions import /abs/captions.srt --base-rev N --replace
 bashcut captions export --as text --format text   # one line per cue: times, seconds, cps | text
 bashcut captions export --as json                 # per cue: frames, chars, cps, lines, gapBefore, words with frames
 bashcut transcript words --from F --to G          # each word: frames, transcribed/estimated, source seconds
+bashcut transcript words --heard --from F --to G  # words of the stored transcripts, through the clips as they are now
+bashcut media transcript --media MEDIA_ID --as words   # the file's own words, with confidence when the provider gives it
 ```
+
+The whole file is transcribed once and kept (`media transcribe` makes it without placing captions); `captions
+generate` places captions from it (its job result says `stored`, `transcribed` or `range`). Captions do not move
+when their clips move; `transcript words --heard` does, so time graphics and SFX to it after re-cutting. Check the
+words with the lowest `confidence` first: names and words said over noise are where recognition goes wrong.
 
 Reading speed is a measurement, not a rule: `cps` is characters (spaces included) per second on screen. Common
 subtitle guides allow up to about 17 cps for adults and 13 for children (Netflix); short-form captions read in a

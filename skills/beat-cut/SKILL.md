@@ -12,7 +12,7 @@ Reply in the user's language. The beat gives energy; punch-ins give variety. Use
 | Video | Cut on |
 |---|---|
 | Montage, travel teaser, music-led | the beat grid |
-| Talking, review, food with speech, tutorial | sentence and phrase boundaries; picture follows the words (`transcript words`: each word's frames and the gap before it, so a cut lands in the pause between sentences) |
+| Talking, review, food with speech, tutorial | sentence and phrase boundaries; picture follows the words (`transcript words --heard`: each word's frames through the clips as they are now and the gap before it, so a cut lands in the pause between sentences) |
 
 For speech-led videos, do **not** lay cuts on the grid first: one draft built on the grid had 10 silent gaps
 (21 s). Build the chain of spoken lines, then cut picture at phrase ends, then let music sit under it.

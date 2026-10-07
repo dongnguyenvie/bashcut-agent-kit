@@ -90,6 +90,9 @@ bashcut media list --analysis                   # which media are measured
 bashcut media analysis --media ID               # tech, cuts, shots, summary, sound
 bashcut media analysis --media ID --samples     # + every picture sample (4 a second)
 bashcut media cuts --media ID --add 12.4 --remove 30.1   # correct the cut list (source seconds)
+bashcut media speech-map --media ID             # sound spans and gaps, with the floor and separation used
+bashcut media transcribe [--media ID]           # job; what is said, kept per file (needs a captions.transcribe plugin)
+bashcut media transcript --media ID --as text --format text   # one line per phrase, source seconds
 ```
 
 What it gives, as numbers (no verdicts; you decide what they mean for this edit):
@@ -102,6 +105,10 @@ What it gives, as numbers (no verdicts; you decide what they mean for this edit)
   lower it when a soft cut is missing, check the frame, and fix the list with `media cuts`.
 - `sound`: `floorDb`, `medianDb`, `peakDb`, `silentShare`, and `active` spans over the floor (sound, not
   necessarily speech: transcribe to know). A clip whose `loudDb` stays near the floor has no usable sound.
+- `media speech-map`: the floor and the loud level found in this file, how far apart they are (`separationDb`) and
+  the spans and gaps that follow. `separation: none` means the floor and the sound over it do not separate (street
+  noise, music under the voice): there are no silences to cut by level there, so read the transcript spans it adds
+  (after `media transcribe`) or listen. `levelCoveredByWords` low = loud sound without words (music, wind, crowd).
 
 Use the record for the table's flags and in-points; use the sheet to see what the shots *are*. Only measure what
 you will use when the folder is large: `media analyze --media ID` per clip.
@@ -113,7 +120,9 @@ you will use when the folder is large: `media analyze --media ID` per clip.
   full size before committing to an in-point (`ffmpeg -ss SECONDS -i clip -frames:v 1 /tmp/f.jpg`, then read it;
   once placed, `ui frame F` shows it in the edit).
 - Long clips that change inside (timelapse, walks) need more frames: rerun with `--frames 10`.
-- Speech: transcribe in BashCut (`captions generate --media ID`). Speech recognition invents text over music,
+- Speech: transcribe in BashCut without touching the timeline (`media transcribe --media ID`, then `media
+  transcript --media ID --as text --format text`; `--as words` gives each word's `confidence` when the provider
+  has it). `captions generate` later reuses it. Speech recognition invents text over music,
   crowd noise and silence ("hãy subscribe kênh…", "cảm ơn các bạn đã theo dõi"): drop lines like that, and treat
   a clip whose only text is that as having no speech. If the speech is in another language than the project,
   say so before cutting on it.

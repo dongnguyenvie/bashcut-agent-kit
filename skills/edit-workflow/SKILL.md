@@ -120,9 +120,10 @@ paths against its own working directory, so pass absolute paths.
 - Sections in time order after the hook; mark them with `upsertSection` so the user sees the structure.
 - Talking videos: build the timeline as a **chain of spoken lines** (real speech + voiceover, ~0.14 s gaps) and
   cut picture to what is being said. Music-led montages: cut on the beat grid (`bc:beat-cut`).
-- Find lines with `captions generate --media ID` on each talking clip (needs a `captions.transcribe` plugin),
-  then `captions export --as text --format text` to read them with timings, or `transcript words` for each word's
-  frames (time a graphic, an SFX or a cut to a word from one read).
+- Find lines before cutting: `media transcribe` (a job, needs a `captions.transcribe` plugin) on the talking clips,
+  then `media transcript --media ID --as text --format text` to read each file's phrases in its own seconds. Once
+  cut, `transcript words --heard` gives each word's timeline frames through the clips as they are now (time a
+  graphic, an SFX or a cut to a word from one read); `captions generate` places captions from the same transcript.
 
 ## Screen recording with a presenter
 
@@ -175,6 +176,8 @@ bashcut review shots --summary             # per shot: seconds, source, zoom, sp
 bashcut review layout --frame F            # per text item: rendered bounds, font share, margin to each edge + zones
 bashcut transcript words --from F --to G   # per spoken word: frames, gap before, source seconds of its clip
 bashcut media analysis --media ID          # a source file: tech facts, its shots and motion, sound spans (media analyze first)
+bashcut media speech-map --media ID        # a source file's sound spans and gaps, with the floor and separation used
+bashcut transcript words --heard           # stored transcript words through the clips now (media transcribe first)
 ```
 
 `review picture` and `review shots` motion come from the last `review measure` (`current` / `pictureMeasured`
