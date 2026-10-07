@@ -17,6 +17,15 @@ Reply in the user's language. The beat gives energy; punch-ins give variety. Use
 For speech-led videos, do **not** lay cuts on the grid first: one draft built on the grid had 10 silent gaps
 (21 s). Build the chain of spoken lines, then cut picture at phrase ends, then let music sit under it.
 
+Long pauses in one talking clip: the Silence Markers plugin cuts them in one undoable edit (`bashcut plugins run
+bashcut.silence-markers.remove --params '{"detect":"auto","minSilenceMs":400,"paddingMs":100}'` with the clip
+selected; `mark` only adds section markers). `plugins actions silence` shows its parameters: an older version
+has no `detect` and refuses it, so leave it out there. With `detect: auto` it uses the clip's `media speech-map` when the file
+is measured and speech separates from the floor, and the dBFS threshold otherwise; `data.detection` says which and
+why. `data.removed` lists every cut span longest first with its source seconds: look at the long ones (`media strip
+--media ID --from S --to S`) before keeping the edit, since a long "pause" can be a reaction, a laugh or b-roll
+sound. The numbers are yours: shorter `minSilenceMs` for a fast talking head, more `paddingMs` for a slow one.
+
 ## 2. Beat grid
 
 Place the music on its layer first, then:
@@ -80,4 +89,6 @@ Render three consecutive cuts in one scene with `ui frame F` and read the PNGs: 
 `review measure`, then `review run`: gaps, jump cuts (a punch-in fix), very short shots, long static shots and frozen
 picture. Then `review shots --summary`: compare the median shot length and cuts per minute with the range you chose
 for this genre and section, and read each shot's `motion` (mean and peak change) and `zoom` to find runs of shots
-that look alike. Lock the cut before `bc:audio-mix`.
+that look alike. When the footage is described (`media describe`, `bc:footage-survey`), each shot also carries
+`described` {size, angle, move, direction, subjects}: a run of shots with the same size and move is a place to look
+(a deliberate motif or a locked-off talk can be fine; say which). Lock the cut before `bc:audio-mix`.

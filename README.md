@@ -12,7 +12,7 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 | Skill | Use it for |
 |---|---|
 | `edit-workflow` | The whole edit from footage to export, and which skill to use when |
-| `footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`); camera ↔ screen sync (`media sync`) |
+| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media inventory`, `media frames --sheet`, `media describe`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
 | `beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `voiceover` | Text-to-speech lines that read right, checked and placed |

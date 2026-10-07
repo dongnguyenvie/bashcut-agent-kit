@@ -106,10 +106,12 @@ a recipe sets them for you). The review checks the first one's platform — its 
 tallest, 20 %), smallest text and longest length (Reels and Shorts: 3 minutes) — and the Export sheet starts with
 it. Without outputs the review assumes TikTok for portrait and YouTube for landscape.
 
-`--footage` links the footage folder into the project (it is never modified). Then add the clips you chose
-after the survey, one file per call: `media import /abs/path/clip.mp4 --base-rev N` (add `--place` to also put
-it on the timeline, or place it later with `media place --media ID --at-frame F`). The CLI resolves relative
-paths against its own working directory, so pass absolute paths.
+`--footage` links the footage folder into the project (it is never modified). Import the clips before the survey,
+one file per call: `media import /abs/path/clip.mp4 --base-rev N` (it does not touch the timeline; `bc:footage-survey`
+needs them as project media), then place the ones you chose with `media place --media ID --at-frame F` (or import
+with `--place`). The CLI resolves relative paths against its own working directory, so pass absolute paths.
+Before planning, `context get` › `analysis` lists the media not yet measured, transcribed or described and the
+analysis jobs still running: wait for them or say what the plan does not know yet.
 
 ## Story first
 
@@ -172,11 +174,13 @@ measurements behind them, so you can judge against the plan and the genre's rang
 ```sh
 bashcut review picture --samples false     # per hard cut: difference across it (near 0 = the same picture)
 bashcut review picture --from F --to G     # per sample: luma, spread, change, peak (fractions of full scale)
-bashcut review shots --summary             # per shot: seconds, source, zoom, speed, motion; count, median, cuts/min
+bashcut review shots --summary             # per shot: seconds, source, zoom, speed, motion, described facts; count, median, cuts/min
 bashcut review layout --frame F            # per text item: rendered bounds, font share, margin to each edge + zones
 bashcut transcript words --from F --to G   # per spoken word: frames, gap before, source seconds of its clip
 bashcut media analysis --media ID          # a source file: tech facts, its shots and motion, sound spans (media analyze first)
 bashcut media speech-map --media ID        # a source file's sound spans and gaps, with the floor and separation used
+bashcut media inventory                    # every clip: capture time, place, orientation, speech, what is measured/described
+bashcut media frames --sheet --media ID    # a source file on a labelled contact sheet; media frame --at S for one frame
 bashcut transcript words --heard           # stored transcript words through the clips now (media transcribe first)
 ```
 
@@ -206,11 +210,10 @@ bashcut export start --preset quick-draft --name draft-v1 --include-srt --normal
 bashcut export status
 bashcut review run --summary --min-severity warning     # now includes loudness and true peak
 bashcut ui frame 120                                    # PNG of the edit at frame 120: read it
-python3 <footage-survey skill>/survey.py /abs/draft-v1.mp4 --every 2 --out /abs/project/survey/draft-v1
 ```
 
-The last line puts the whole draft on one labelled sheet (a frame every 2 s): read it to check the pace,
-repeated shots and where text sits before asking the user to watch. Exports wait for the user's approval in the app
+Look at frames across the whole draft (`ui frame F` every few seconds, and at each cut `review shots` lists) to
+check the pace, repeated shots and where text sits before asking the user to watch. Exports wait for the user's approval in the app
 unless `agentPermissions.autoApprove` is on.
 
 Report the loop to the user in a few lines: the rounds, what was fixed (issue → edit), and what is left with the
