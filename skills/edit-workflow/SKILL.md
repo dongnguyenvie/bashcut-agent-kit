@@ -58,6 +58,9 @@ Hard rules:
   Nothing fits and the user wants one: make it with `bc:library`.
 - Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
   read it. You cannot hear: ask the user to listen where sound matters.
+- The kit's Python scripts run with `uv` (`uv run`, `uvx`). Inside BashCut your terminal points uv at BashCut's
+  shared runtime folders (`UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, shared with its plugins): keep them, never run
+  `uv cache clean` or `pip install` into the system Python; the user clears them in Settings › Storage.
 - Name every folder and file you create in English, lowercase with hyphens (`survey/`, `renders/`,
   `voiceover/`, `subtitles/`, `draft-v1`), whatever language the chat is in. Only text the viewer sees
   (captions, titles, voiceover lines) follows the video's language.
