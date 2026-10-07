@@ -24,6 +24,11 @@ Hard rules:
   plugin's skill (`bashcut skills get <plugin-id>:<name>`; your session's knowledge also lists them with their
   paths). Its steps and limits win over general advice here. Plugin skills are read-only: put a correction in a
   lesson or a project copy (`bc:self-learn`), never in the plugin's folder.
+- Recipes. A vlog follows a recipe when the `bashcut.vlog` plugin is ready (`skills list --scope plugin`): start with
+  `bashcut.vlog:plan`, which picks the topic recipe, sets the project's outputs and review profile and plans the
+  hook and sections. A project set up that way has `recipe.skill` in `project get`: read that skill and use its
+  values (cut rate, caption and title presets, look intent, music level) wherever a kit skill gives a default. No
+  plugin: follow this kit's defaults and suggest installing it (`plugins search vlog`).
 - Read before you edit: `context get`, then `timeline get --format text`. Track IDs and roles come from the
   read, never from memory. Every edit needs the latest `--base-rev`.
 - Respect an attached scope. A request that starts with a `[Scope]` block, or a `scope` list in `context get`,
@@ -93,6 +98,11 @@ for YouTube and computers, `square` for feeds. Ask when it is not clear. It can 
 `project format --canvas landscape` (one undoable edit), but reframing and text placement must then be checked
 again with `ui frame`.
 
+Then name the platforms: `project format --outputs reels,tiktok --base-rev N` (export presets, first one primary;
+a recipe sets them for you). The review checks the first one's platform — its safe zones (Reels' caption bar is the
+tallest, 20 %), smallest text and longest length (Reels and Shorts: 3 minutes) — and the Export sheet starts with
+it. Without outputs the review assumes TikTok for portrait and YouTube for landscape.
+
 `--footage` links the footage folder into the project (it is never modified). Then add the clips you chose
 after the survey, one file per call: `media import /abs/path/clip.mp4 --base-rev N` (add `--place` to also put
 it on the timeline, or place it later with `media place --media ID --at-frame F`). The CLI resolves relative
@@ -139,7 +149,7 @@ bashcut review run --summary --min-severity warning
 ```
 
 `review run --summary` returns `{issues, summary: {errors, warnings, infos, passed}}`; `passed` means no error.
-Issues come errors first; each has `severity`, `frame` (and `endFrame` for a stretch), `source` when a plugin found
+Issues come errors first (a recipe's `review.severities` may have raised or lowered some checks on purpose); each has `severity`, `frame` (and `endFrame` for a stretch), `source` when a plugin found
 it, and usually a `fix`:
 
 | `fix` | What to do |
