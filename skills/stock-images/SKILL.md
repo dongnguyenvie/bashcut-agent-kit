@@ -39,11 +39,12 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
 
 ## 3. Place
 
-- **Record where it came from** on every downloaded file: `media import … --origin stock --license "Pexels License"
-  --source URL --author "Name"` (BashCut stores the licence structured with what it allows; `timeline get` › `media`
-  shows it, and credits are built from it). A file already imported takes them on a second `media import`.
-- **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --origin stock --license … --source URL
-  --base-rev N`, then `media place` on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
+- **Credits are optional.** Never write a licence, source or credit onto the video or into its description unless
+  the user asks. When the user wants credits tracked, import with `--origin stock --license "Pexels License"
+  --source URL --author "Name"` (stored structured; a second `media import` adds them to a file already in), and
+  `project credits` gives the lines when they ask for them.
+- **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --base-rev N`, then `media place`
+  on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
 - **Still photos** import directly: `media import /abs/media/stock/photo.jpg --place --track OVERLAY --at-frame F
   --base-rev N` (kind `image`; JPEG, PNG with transparency, HEIC). An image is placed for 3 s; trim it to the words
   it illustrates. Frame it with `transform` (zoom below 1 for a card, pan/tilt to place it), and give it life with
