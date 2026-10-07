@@ -40,6 +40,9 @@ It returns `from`/`to` seconds, in and out frames, the matched text, and for eac
 `alternatives`, in order, never ranked: pick by context. Instead of a quote you can give `--words FIRST-LAST`
 (indices from `media transcript --as words`) or rough `--from`/`--to` seconds, which snap outwards to the words.
 
+- `matched` is the share of the quote's words heard in place. Under 1, read `text`: a misheard word is fine, but a
+  range that holds only one or two of your words means the quote is not there; never place it.
+
 - An edge `midSentence` is allowed only when you mean it (a deliberate interruption). Otherwise move it to the
   nearest sentence edge the result gives and resolve again.
 - **Padding** (T06 §3): start 50–150 ms before the first word, end 80–300 ms after the last. Tighter for montage
