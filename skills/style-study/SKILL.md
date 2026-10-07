@@ -38,7 +38,8 @@ bashcut media transcribe                                    # job: words per fil
 | Speech | `bashcut speech rate --media REF`; `media speech-map --media REF` | rate p10/p50/p90 (syllables for Vietnamese), pauses (`gapStats`), speech share |
 | Sound | `bashcut audio measure --media REF --curve` (job) | integrated LUFS, LRA, true peak; short-term level during words vs in the speech-map gaps |
 | Colour | place the references on the study timeline (`media place`), then `bashcut color measure --by clip` | black, white, mid, saturation, tint per band (shadows, mids, highlights), per reference |
-| Text | contact sheets | where text sits, size, case, preset look; no OCR provider yet, so by eye |
+| Text | `bashcut media ocr --media REF --step 0.5` (job; built-in `vision.text`), then contact sheets | share of seconds with text, where it sits (box y), line height as a share of the frame, words per card, how long a card holds; case and preset look by eye |
+| Faces | `bashcut media subjects --media REF --step 1` (job; built-in `vision.faces`) | share of seconds with a face, face height (box height: a size proxy), where the face sits (box x, y) |
 
 A reference's sound is one mixed track: music under voice is read from the level in the gaps against the level
 under words, not as separate stems. `audio mix-measure` splits speech, music and SFX only on our own timeline.
@@ -54,6 +55,8 @@ Numbers flag, eyes decide (T15 §4).
   Shots and statistics follow the corrections.
 - Open the 3–5 longest shots and the opening on frames before writing anything about them.
 - Speech recognition invents text over music: check the words against the strip before counting speech.
+- OCR and face boxes are raw: a logo, a sign or a reflection reads as text, a poster as a face. Check boxes
+  against `media frame` at the reported `frame` before counting them; which text is a caption is yours to decide.
 - Mark anything you estimated (by eye, from a few frames) as `est.` (T15 §4).
 
 ## 3. Profile with tolerances

@@ -98,8 +98,10 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
    --frame F` lists the pictures on screen at F with their scale and coverage.
 2. **Look** at what matters at the start, middle, end and action peaks of each shot (nateherkai; T19 §2):
    `media frame --media ID --at S` (source size, so you can read a rectangle in source pixels), `ui frame F` for
-   the edit, `ui frames --compare source --items CLIP` for source next to edit. Face fields are null until a
-   `vision.faces` provider exists (`review layout` `faceOverlap` null means unknown, not "no face"); `media
+   the edit, `ui frames --compare source --items CLIP` for source next to edit. Faces and people come from
+   `bashcut media subjects --media ID --from S --to S2` (job): `box` `[x, y, w, h]` as shares of the source picture
+   from the top left, so multiply by the media's width and height for a rectangle in source pixels; check it on
+   `media frame` at that `frame`. `review layout` `faceOverlap` stays null (unknown, not "no face"); `media
    describe` subjects are your own tags.
 3. **Crop when what matters fits**: `clip motion ITEM --focus x,y,w,h` around the subject, locked for the shot
    ("don't move unless you must", hotclip; T19 §2). Leave 0.3–0.5 of the face size around a face, more for a
