@@ -1,52 +1,115 @@
 ---
 name: style-study
-description: Learn a creator's or channel's editing style by measurement — cut pacing, shot sizes, hook, on-screen text, colour (black/white point, saturation, split-tone tint), sound design (music under voice, SFX on cuts, silences) — from reference videos, then turn the findings into a project memo, a saved BashCut look and style kit, and rules for the other skills. Use when the user shares reference videos or a channel and says "học style", "phân tích kênh", "làm giống kênh X", "dựng theo phong cách này".
+description: Learn a creator's or channel's editing style by measurement — cut pacing and rhythm, shot sizes, hook, on-screen text, colour (black/white point, saturation, split-tone tint), sound (music under voice, SFX on cuts, silences), speaking rate — from reference videos or the creator's own channel, check the numbers on frames, write a profile with tolerances and a learn / don't-take note per reference, then turn it into a project memo, a saved BashCut look and style kit, and rules for the other skills, without copying their text, music or graphics. Use when the user shares reference videos or a channel and says "học style", "phân tích kênh", "làm giống kênh X", "dựng theo phong cách này", "phân tích video của tôi", "kênh của tôi".
 ---
 
 # Study a style
 
-Reply in the user's language.
+Reply in the user's language. The workflow is **measure → look at frames → profile with tolerances →
+differences**. BashCut measures (no ffmpeg, no scripts); the numbers in the profile come from the references, never
+from this skill. Sources are cited as (T15 §n) = style-reference study, (T01) = ideation, (T07) = pacing.
 
 ## Sources
 
 Work from videos the user provides or has the right to analyse. Downloading a channel (for example with
-`yt-dlp`) is the user's decision: ask first, keep the files in a private folder outside any project that will
-be published, and never re-upload them.
+`yt-dlp`) is the user's decision: ask first, keep the files in a private folder outside any project that will be
+published, and never re-upload them.
 
-## Measure
+How many (T15 §3, T01 §3): one video is enough to mimic that one clip; a channel style needs several, and the
+sources disagree (5–15 in one study, 10–30 in another). Label the profile's confidence by sample count: under 10
+low, 10–15 medium, above 15 higher (T01 §3, §7). Say the tier next to every number.
 
-For each reference video (10–30 is enough):
+## 1. Measure
 
-| What | How | Read it as |
+Keep references in a separate study project, never the one you will publish:
+
+```sh
+bashcut project create --name "Study - Channel X" --canvas portrait
+bashcut media import /abs/refs/ref01.mp4 --base-rev N      # one file per call
+bashcut media analyze                                       # job: cuts, picture, sound levels per file
+bashcut media transcribe                                    # job: words per file (needs captions.transcribe)
+```
+
+| Facet | Command | Record |
 |---|---|---|
-| Cuts per minute, shot length | `media import` the video into a study project, `media analyze --media ID`, then `media analysis --media ID`: `picture.summary` (cutsPerMinute, median, histogram, cutCurve per 10 s) | food-review TikTok ≈ 30–40 cuts/min (1.4–1.8 s); cinematic vlog ≈ 12–20 (3–5 s) |
-| Shot sizes, hook, text | contact sheet: `media frames --sheet --media ID --count 10` (`--from 0 --to 3 --count 6` for the hook), then look; write the shots with `media describe` (`bc:footage-survey`) | what the first 3 s show; where and how text appears |
-| Colour | `uv run <skill_dir>/../color-grade/grade.py measure v.mp4` | black > 3 = matte; white < 90 = rolled highlights; sat < 30 muted, > 45 punchy; shadow tint R−B < 0 with highlight R−B > 0 = teal-orange |
-| Speech vs music | `media transcribe --media ID`, then `media speech-map --media ID` (word spans vs loud spans: `levelCoveredByWords`, the gaps between lines) or listen; `media analysis --curve` gives the level per second | music buried (−20 dB), bed (−10), present (−6), leading (> 0) |
-| SFX on cuts | listen at 5–10 cuts | hits on most cuts = SFX-driven style; random = none |
+| Rhythm | `bashcut review shots --media REF --summary` | mean, median, cv, mode (bin and share), cuts per minute; cuts per 10 s and the shot-length histogram from `media analysis --media REF` |
+| Shot sizes, moves | `media describe` the shots you looked at (`bc:footage-survey`), then `review shots --media REF --summary` again | shares of each size, move, direction; runs of the same size and move |
+| Hook and close | `bashcut media frames --sheet --media REF --from 0 --to 3 --count 6`; `media transcript --media REF --as words --to 5` | first cut, first words (`firstSpeech`), first text on screen, the last seconds |
+| Speech | `bashcut speech rate --media REF`; `media speech-map --media REF` | rate p10/p50/p90 (syllables for Vietnamese), pauses (`gapStats`), speech share |
+| Sound | `bashcut audio measure --media REF --curve` (job) | integrated LUFS, LRA, true peak; short-term level during words vs in the speech-map gaps |
+| Colour | place the references on the study timeline (`media place`), then `bashcut color measure --by clip` | black, white, mid, saturation, tint per band (shadows, mids, highlights), per reference |
+| Text | contact sheets | where text sits, size, case, preset look; no OCR provider yet, so by eye |
 
-The summary uses the same statistics as `review shots --summary` on your own timeline, so the two compare directly.
-To compare pictures side by side, `media frames --media OURS_ID --reference REF_ID --count 6 [--reference-from S
---reference-to S]` puts a REF row from the reference above an OURS row from your clip, cell for cell.
-Cut detection finds hard cuts to the frame but misses dissolves and whips, and fast camera moves can score like
-cuts: look at the frames at a few cuts (`--samples`, or a contact sheet), lower `--min-score` when cuts are missing,
-and fix the list with `media cuts` before counting. Keep reference videos in a separate study project, not the one
-you will publish. Speech recognition invents text over music: trust your ears over a transcript.
+A reference's sound is one mixed track: music under voice is read from the level in the gaps against the level
+under words, not as separate stems. `audio mix-measure` splits speech, music and SFX only on our own timeline.
 
-## Turn it into BashCut
+## 2. Look before trusting a number
+
+Numbers flag, eyes decide (T15 §4).
+
+- Cut detection misses dissolves, whips and fades through black, fast camera moves score like cuts, and a hard cut
+  in a dark scene can score very low (T15 §2). Look at the cuts: `media frames --sheet --media REF --every 1`
+  for structure, `bashcut media strip --media REF --from S --to S2` around a suspect cut, `media analysis --media
+  REF --min-score X` for weaker candidates; fix the list with `bashcut media cuts --media REF --add S --remove S2`.
+  Shots and statistics follow the corrections.
+- Open the 3–5 longest shots and the opening on frames before writing anything about them.
+- Speech recognition invents text over music: check the words against the strip before counting speech.
+- Mark anything you estimated (by eye, from a few frames) as `est.` (T15 §4).
+
+## 3. Profile with tolerances
+
+Per facet, write the median and p25–p75 across the references (not only a mean), with n, the files and the date
+(T15 §3, §4). Then the tolerance:
+
+- ±20–40 % for shot length, cut rate and duration, framed as a **preference**, not a gate (T15 §3). The sources
+  contradict: one treats ±30 % as a must, another as ×0.7–1.3 "a preference, not a hard rule". Tighten when the user
+  says "exactly like X"; widen when our footage has less coverage than the reference or the length differs a lot.
+- Keep the cut **rate** per section type (hook, body, payoff), not the total number of cuts, when our video is
+  longer or shorter (T15 §3, T07 §7). Hand the band to the recipe or `bc:beat-cut` as a range.
+- Priority: the user's instruction > what our footage allows > the reference (T15 §2, §7).
+- Colour and sound are raw values (black/white point, saturation, tint; level under words and in gaps), not labels
+  like "matte" or "punchy" (T15 §3).
+
+## Own-channel mode
+
+When the references are the creator's own videos, their own history is the benchmark, not genre averages (T01 §2,
+§4). If the user gives view counts, rank each video by its **multiple over the channel's own median**, which needs at
+least 4 videos (T01 §2, §3); report the multiple and let the creator judge (one source flags 1.5–3×, T01 §3). The
+multiple says a video did well, not why: compare the measured profile of the outliers with the rest and say it is a
+pattern to test, with its confidence tier. Without view counts, the profile is simply "how you edit now".
+
+## 4. Differences, not a copy
+
+- Per reference, one learn / don't-take note: what to learn (rhythm, structure, transition type, camera idea,
+  where the hold is) and what not to take (T01 §2, T15 §2).
+- Never reproduce their text, music, graphics, logos or characters, their exact sequence of shots, or a look so
+  close it passes for theirs (T15 §2, §4).
+- Before planning, list 3–5 deliberate differences across structure, opening, signature move, look, music and
+  ending; one source asks that at least 4 of these 6 differ (T15 §3).
+- After the cut, measure ours with the same functions: `bashcut review shots --summary` against the reference's
+  `review shots --media REF --summary`, `bashcut color measure --graded` against the reference clips, `bashcut
+  audio mix-measure` against the reference's gap and word levels. Compare pictures with
+  `bashcut media frames --reference REF --media OURS --count 6` (REF row above OURS, cell for cell; OURS is a
+  source clip or an imported draft export). Then check the differences list: still there?
+
+## 5. Turn it into BashCut
 
 `bashcut library list --pack "Channel X"` first: the style may have been studied before.
 
-1. **Project memo** (`knowledge memo`): a short table of the numbers and 5–10 rules ("hard cuts only, one
-   special transition", "music 12 dB under voice", "captions small serif, lower third").
-2. **Look**: start from the closest look in `bc:color-grade`, adjust its params toward the measured numbers,
-   preview, import the LUT and `looks save`; then `style save ID --title T --look ID --caption-preset P` so
+1. **Project memo** (`knowledge memo`): the profile table (facet, median, p25–p75, tolerance, n, confidence,
+   source file and date), the learn / don't-take notes, the differences list and 5–10 rules, each with the number
+   behind it.
+2. **Look**: start from the closest look in `bc:color-grade`, move its params toward the measured values, preview,
+   import the LUT and `looks save`; then `style save ID --title T --look ID --caption-preset P` so
    `style apply ID` gives the whole style in one step.
-3. **Library pack**: save the pieces in one pack so other videos reuse them. Build each once on the timeline, then
-   `bashcut library save-selection --kind look --name "Channel X look" --item ADJUSTMENT --pack "Channel X"` (also
-   `text-preset` for its captions and titles, `transition-preset` and `effect-preset` for its signature moves,
-   `audio` for its SFX). Add `--scope user` for every project; it waits for the user's approval.
-4. **Rules for skills**: if a finding is general (true beyond this project), propose it as a change to this kit
+3. **Library pack**: build each piece once on the timeline, then `bashcut library save-selection --kind look --name
+   "Channel X look" --item ADJUSTMENT --pack "Channel X"` (also `text-preset` for its captions and titles,
+   `transition-preset` and `effect-preset` for its signature moves, `audio` for SFX you have the rights to). Add
+   `--scope user` for every project; it waits for the user's approval.
+4. **Review limits**: when the user wants the style checked, set the project's `review` keys (`minShotSeconds`,
+   `maxShotSeconds`, caption limits) from the profile's range (`bc:captions-text`, `bc:beat-cut`).
+5. **Rules for skills**: if a finding is general (true beyond this channel), propose it as a change to this kit
    with `bc:self-learn`.
 
-Tell the user which rules matter most, with the numbers behind them.
+Tell the user which rules matter most, with the numbers, n and confidence behind them, and the differences you
+will keep.

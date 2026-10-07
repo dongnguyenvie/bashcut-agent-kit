@@ -26,6 +26,46 @@ to its media ID, exact source frame and second.
 
 **Then actually look at every sheet** with the image reader. That is the whole value of this skill.
 
+## Run reading
+
+Read in this order:
+
+1. `context get` › `analysis`: jobs still running and media not measured, transcribed or described. Wait for the
+   jobs, or carry the gaps into the plan as unknowns.
+2. `media inventory`: the totals first (length, speech, places, what is missing), then one line per clip. Run the
+   checklist below on it before looking at pictures.
+3. The sheets, one at a time, every cell. Clips that change inside need more cells: 3–6 per shot plus one every
+   10–15 s inside a long shot is the range other tools use (T05), fewer when the token budget is tight.
+4. `review shots --media ID --summary` and `media analysis --media ID` where the sheet and the numbers disagree (a
+   cut the sheet misses, a "static" clip that moves).
+5. Transcripts of the talking clips (`media transcript`, below).
+6. `media describe` every clip you may use **before planning**, so the plan cites shots, not file names.
+
+Numbers only point; the frame confirms (`media frame`, below).
+
+## Honesty and hygiene checklist
+
+Say each of these plainly before planning; each one has spoiled a real edit somewhere (T05):
+
+- **Broken files**: `media import` refuses a file it cannot read (camera cards hold ~1 KB stub `.MP4`s); a moved
+  file shows `fileMissing`. Leave them out.
+- **Variable frame rate** (`media analysis` › `tech.variableFrameRate`, measured from the real frame timing; phone
+  screen recordings often are): check sync and in-points on the frame, not by arithmetic.
+- **HDR or log** (`tech.transferKind`: `pq`/`hlg` = HDR, `log` = flat until graded, `unknown` = untagged): tell
+  `bc:color-grade` before anyone judges the colour.
+- **Truncated audio** (`tech.audioMinusVideoSeconds` well below 0; one tool flags a track 2 s short, T05): the
+  sound ends before the picture, so cut before it.
+- **Silent clips**: `hasAudio: false`, or a `media analysis` `sound` whose `loudDb` stays near `floorDb` (−91 dB =
+  no sound at all). Other tools put speech 10–15 dB over the clip's own floor (more margin in a quiet room, less on
+  a street, T05): a clip that never gets that far above its floor has no usable sound. Plan voiceover or music.
+- **Portrait and landscape mixed**: `orientation` is the picture as shown (rotation applied; phones often store
+  1920×1080 with rotation −90, which is portrait). Check it before choosing the project canvas.
+- **fps**: clips at another rate than the project play fine in BashCut, but true slow motion needs 50/60/120 fps
+  sources (`media list`: `fps`).
+- **Not measured, transcribed or described**: `totals.notMeasured`, `notTranscribed`, `notDescribed` list what
+  you have not looked at. Name them in the plan; never fill them with a guess ("no speech found" is not "silent"
+  unless the floor says so).
+
 ## Reading a contact sheet
 
 | You see | Conclusion |
@@ -43,22 +83,9 @@ all nearly identical — 9 minutes of footage gave two shot sizes. Then:
 1. State the limit, with the contact sheet as evidence.
 2. Offer what can be saved: punch-in reframes (`bc:beat-cut`), stock or illustration images (`bc:stock-images`),
    voiceover over b-roll (`bc:voiceover`).
-3. Give a shot list for next time. Per location, 4 shots × 10 s: hands doing something (close, fill the
+3. Give a shot list for next time. Per location a few shots of about 10 s (long enough to trim both ends): hands doing something (close, fill the
    frame); the shop front or sign before entering; the food or product right when it arrives; walking feet or a
    slow pan of the space.
-
-## Things the inventory flags
-
-- **Broken files**: `media import` refuses a file it cannot read (camera cards hold ~1 KB stub `.MP4`s); a moved
-  file shows `fileMissing`. Leave them out.
-- **Silent audio**: `hasAudio: false`, or a `media analysis` `sound` whose `loudDb` stays near `floorDb` (−91 dB
-  = no sound at all): plan voiceover or music for those clips; don't expect real speech.
-- **Portrait and landscape mixed**: `orientation` is the picture as shown (rotation applied; phones often store
-  1920×1080 with rotation −90, which is portrait). Check it before choosing the project canvas.
-- **fps**: clips at another rate than the project play fine in BashCut, but true slow motion needs 50/60/120 fps
-  sources (`media list`: `fps`).
-- **Not measured yet**: `totals.notMeasured`, `notTranscribed`, `notDescribed` (and `context get` › `analysis`)
-  list what you have not looked at. Say so instead of planning around it.
 
 ## Two recordings of one session (camera + screen)
 
@@ -126,6 +153,7 @@ bashcut media list --analysis                   # which media are measured
 bashcut media analysis --media ID               # tech, cuts, shots, summary, sound
 bashcut media analysis --media ID --samples     # + every picture sample (4 a second)
 bashcut media cuts --media ID --add 12.4 --remove 30.1   # correct the cut list (source seconds)
+bashcut review shots --media ID --summary       # its measured shots with seconds, motion and descriptions; runs, shares
 bashcut media speech-map --media ID             # sound spans and gaps, with the floor and separation used
 bashcut media transcribe [--media ID]           # job; what is said, kept per file (needs a captions.transcribe plugin)
 bashcut media transcript --media ID --as text --format text   # one line per phrase, source seconds
@@ -134,13 +162,14 @@ bashcut media transcript --media ID --as text --format text   # one line per phr
 What it gives, as numbers (no verdicts; you decide what they mean for this edit):
 - `tech`: codec, size, `rotation`, `variableFrameRate` (from the real frame timing; phone screen recordings often
   are), `transferKind` (`pq`/`hlg` = HDR, `log` = needs a grade before it looks right, `unknown` = untagged), bit
-  depth, `audioMinusVideoSeconds` (a truncated track).
+  depth, `audioMinusVideoSeconds` (a truncated track); see the checklist.
 - `picture.shots`: the camera's own cuts inside a file (a phone edit, a reference video), each with seconds,
   `cutDifference`, `motion` (as in `review shots`) and mean `luma`, `sharpness`, `colourfulness`. One long shot with
-  low motion = locked-off: one shot size, as the contact sheet shows. `minScore` (default 0.1) is the cut limit:
-  lower it when a soft cut is missing, check the frame, and fix the list with `media cuts`.
+  low motion = locked-off: one shot size, as the contact sheet shows. `minScore` (default 0.1) is the cut limit; cut
+  scores differ per detector and per footage (screen recordings, fast action and dissolves each need their own,
+  T05): lower it when a soft cut is missing, check the frame, and fix the list with `media cuts`.
 - `sound`: `floorDb`, `medianDb`, `peakDb`, `silentShare`, and `active` spans over the floor (sound, not
-  necessarily speech: transcribe to know). A clip whose `loudDb` stays near the floor has no usable sound.
+  necessarily speech: transcribe to know).
 - `media speech-map`: the floor and the loud level found in this file, how far apart they are (`separationDb`) and
   the spans and gaps that follow. `separation: none` means the floor and the sound over it do not separate (street
   noise, music under the voice): there are no silences to cut by level there, so read the transcript spans it adds
@@ -161,7 +190,8 @@ you will use when the folder is large: `media analyze --media ID` per clip.
   the speech-map gaps and the transcript's words on one image.
 - Speech: transcribe in BashCut without touching the timeline (`media transcribe --media ID`, then `media
   transcript --media ID --as text --format text`; `--as words` gives each word's `confidence` when the provider
-  has it). `captions generate` later reuses it. Speech recognition invents text over music,
+  has it; other tools re-transcribe, with a larger model or vocabulary hints, when the mean is under 0.7–0.85,
+  depending on the language and the noise, T05). `captions generate` later reuses it. Speech recognition invents text over music,
   crowd noise and silence ("hãy subscribe kênh…", "cảm ơn các bạn đã theo dõi"): drop lines like that, and treat
   a clip whose only text is that as having no speech. If the speech is in another language than the project,
   say so before cutting on it.

@@ -17,7 +17,7 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 | `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `voiceover` | Text-to-speech lines that read right, checked and placed |
 | `captions-text` | Captions from speech, hook titles, place and chapter cards |
-| `color-grade` | Looks, LUTs (`grade.py`: matte-cinematic, warm-film, faded-memory), adjustment layers, style kits |
+| `color-grade` | Measured grading: probe, `color measure`, candidate looks and LUTs with ranges (`grade.py` measures and reports), check and back off; style kits |
 | `effects` | Which effect for which moment, made with native transitions, speed ramps, freeze, reframe |
 | `stock-images` | Licensed stock photos and video, labelled as illustration; Iconify icons as transparent PNG stickers |
 | `style-study` | Measuring a reference style and turning it into a memo, look and style kit |

@@ -80,5 +80,8 @@ rsvg-convert -w 512 -h 512 cash.svg -o cash.png    # transparent PNG; or: magick
 ## Free fallback: blurred own footage
 
 For a background (a horizontal clip in a vertical frame, a split moment, an info card), put a copy of the same
-clip on the layer below, zoomed to fill (`transform` zoom ~1.8) and graded dark and soft with an adjustment
-(`exposure` −1, `saturation` 0.7). Same colours, no licence question.
+clip on the layer below, zoomed until it fills the frame, and darken and soften it with an adjustment until the
+subject in front reads clearly. There is no right value: footage, text and grade all change it. As an example
+only, zoom ~1.8 with `exposure` −1 and `saturation` 0.7 has worked; a bright, busy background needs more, a dark
+one less. Check with `ui frame F` and `ui frame F --phone` (text and edges at the size a viewer sees them) and
+adjust. Same colours, no licence question.

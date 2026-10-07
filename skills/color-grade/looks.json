@@ -1,27 +1,87 @@
 {
- "_note": "Parameters for grade.py apply(). Fitted on Rec709 (normal profile) drone/phone footage against reference measurements. target = median colour stats of the reference shots (0-100); mid_before_look = mid-grey target used by `match`.",
+ "_note": "Parameters for grade.py apply(). target describes the GRADED result on 0-100 (the scale of bashcut color measure and grade.py measure): ref = the fitted reference value, range = [low, high] that still reads as this look (null = open end), why = what the range means and its source. Ranges are readings for the agent, not corrections: grade.py applies nothing that is not in params or passed on the command line. Tints are [R-B, G-(R+B)/2]; a tint range is one per component.",
  "matte-cinematic": {
   "description": "Matte cinematic: lifted (matte) blacks, highlights rolled off near 84, slightly teal shadows, warm mids, peach highlights, low saturation (~28). Greens shift to olive, sky desaturated, skin kept. Good default for street, daytime and travel footage.",
+  "fitted": "Fitted on Rec709 (normal profile) phone and drone footage against reference shots; ref = median of those shots.",
   "target": {
-   "black": 7.0,
-   "p5": 8.9,
-   "mid": 36.0,
-   "p95": 77.1,
-   "white": 84.0,
-   "sat": 28.6,
-   "tint_shadow": [
-    -3.0,
-    0.8
-   ],
-   "tint_mid": [
-    3.9,
-    -0.4
-   ],
-   "tint_high": [
-    1.5,
-    -2.3
-   ],
-   "mid_before_look": 42
+   "black": {
+    "ref": 7.0,
+    "range": [
+     4,
+     9
+    ],
+    "why": "matte: lifted blacks, 4-9 (#475); black > 3 reads as matte (style-study, T15 §3); reference 7 (T12 §3)"
+   },
+   "p5": {
+    "ref": 8.9,
+    "range": null,
+    "why": "reference only"
+   },
+   "mid": {
+    "ref": 36.0,
+    "range": [
+     30,
+     50
+    ],
+    "why": "daylight vlog mid luma ~30-50; lower on purpose for night, low-key and silhouettes (T12 §3, §7)"
+   },
+   "p95": {
+    "ref": 77.1,
+    "range": null,
+    "why": "reference only"
+   },
+   "white": {
+    "ref": 84.0,
+    "range": [
+     null,
+     90
+    ],
+    "why": "rolled highlights: white < 90 (style-study, T15 §3); reference 84 (T12 §3)"
+   },
+   "sat": {
+    "ref": 28.6,
+    "range": [
+     null,
+     30
+    ],
+    "why": "muted: sat < 30 (style-study, T15 §3); reference 28.6"
+   },
+   "tint_shadow": {
+    "ref": [
+     -3.0,
+     0.8
+    ],
+    "range": [
+     [
+      null,
+      0
+     ],
+     null
+    ],
+    "why": "teal shadows: R-B < 0 with highlight R-B > 0 reads as teal-orange (style-study, T15 §3)"
+   },
+   "tint_mid": {
+    "ref": [
+     3.9,
+     -0.4
+    ],
+    "range": null,
+    "why": "reference only (warm mids)"
+   },
+   "tint_high": {
+    "ref": [
+     1.5,
+     -2.3
+    ],
+    "range": [
+     [
+      0,
+      null
+     ],
+     null
+    ],
+    "why": "peach highlights: R-B > 0 (style-study, T15 §3)"
+   }
   },
   "params": {
    "exposure": -0.1,
@@ -70,26 +130,92 @@
  },
  "warm-film": {
   "description": "Warm film: warm yellow across the frame, deep blacks, highlights compressed to ~66-76, saturation ~29, a touch of green. For warm indoor light, late afternoon and personal stories.",
+  "fitted": "Fitted on Rec709 (normal profile) phone and drone footage against reference shots; ref = median of those shots.",
   "target": {
-   "black": 2.6,
-   "p5": 4.5,
-   "mid": 31.2,
-   "p95": 64.2,
-   "white": 75.9,
-   "sat": 29.4,
-   "tint_shadow": [
-    2.1,
-    1.2
-   ],
-   "tint_mid": [
-    10.6,
-    1.4
-   ],
-   "tint_high": [
-    10.4,
-    1.7
-   ],
-   "mid_before_look": 42
+   "black": {
+    "ref": 2.6,
+    "range": [
+     null,
+     3
+    ],
+    "why": "deep blacks: not matte, black <= 3 (style-study, T15 §3); reference 2.6"
+   },
+   "p5": {
+    "ref": 4.5,
+    "range": null,
+    "why": "reference only"
+   },
+   "mid": {
+    "ref": 31.2,
+    "range": [
+     30,
+     50
+    ],
+    "why": "daylight vlog mid luma ~30-50; lower on purpose for night, low-key and silhouettes (T12 §3, §7); reference 31.2 sits at the low end"
+   },
+   "p95": {
+    "ref": 64.2,
+    "range": null,
+    "why": "reference only"
+   },
+   "white": {
+    "ref": 75.9,
+    "range": [
+     66,
+     76
+    ],
+    "why": "highlights compressed to ~66-76 (look description); reference 75.9"
+   },
+   "sat": {
+    "ref": 29.4,
+    "range": [
+     null,
+     30
+    ],
+    "why": "muted: sat < 30 (style-study, T15 §3); reference 29.4"
+   },
+   "tint_shadow": {
+    "ref": [
+     2.1,
+     1.2
+    ],
+    "range": null,
+    "why": "reference only"
+   },
+   "tint_mid": {
+    "ref": [
+     10.6,
+     1.4
+    ],
+    "range": [
+     [
+      0,
+      null
+     ],
+     [
+      0,
+      null
+     ]
+    ],
+    "why": "warm yellow with a touch of green (look description): R-B > 0, G-M > 0"
+   },
+   "tint_high": {
+    "ref": [
+     10.4,
+     1.7
+    ],
+    "range": [
+     [
+      0,
+      null
+     ],
+     [
+      0,
+      null
+     ]
+    ],
+    "why": "warm yellow with a touch of green (look description): R-B > 0, G-M > 0"
+   }
   },
   "params": {
    "exposure": -0.453,
@@ -133,8 +259,29 @@
  },
  "faded-memory": {
   "description": "Faded memory: near black-and-white (sat 0.12), lifted blacks, rolled-off whites. For a hook, a flashback or an emotional low point; return to colour afterwards.",
+  "fitted": "No reference spread recorded: only a saturation reference.",
   "target": {
-   "sat": 12
+   "black": {
+    "ref": null,
+    "range": [
+     3,
+     null
+    ],
+    "why": "lifted blacks: black > 3 reads as matte (style-study, T15 §3)"
+   },
+   "white": {
+    "ref": null,
+    "range": [
+     null,
+     90
+    ],
+    "why": "rolled highlights: white < 90 (style-study, T15 §3)"
+   },
+   "sat": {
+    "ref": 12,
+    "range": null,
+    "why": "near black-and-white (sat param 0.12); reference only"
+   }
   },
   "params": {
    "exposure": -0.1,

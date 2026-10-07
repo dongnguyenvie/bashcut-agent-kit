@@ -56,8 +56,8 @@ Hard rules:
   by default; `--scope user` waits for the user's approval). When the user corrects a saved item,
   `library update ID` saves a new version; built-in and plugin items are read-only, so save a copy with `--as NEW_ID`.
   Nothing fits and the user wants one: make it with `bc:library`.
-- Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead);
-  read it. You cannot hear: ask the user to listen where sound matters.
+- Look at your work: `ui frame F` renders the edit at frame F to a PNG (without moving the user's playhead;
+  `--phone` at the width a viewer sees text); read it. You cannot hear: ask the user to listen where sound matters.
 - The kit's Python scripts run with `uv` (`uv run`, `uvx`). Inside BashCut your terminal points uv at BashCut's
   shared runtime folders (`UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, shared with its plugins): keep them, never run
   `uv cache clean` or `pip install` into the system Python; the user clears them in Settings › Storage.
@@ -79,7 +79,7 @@ Hard rules:
 8. bc:color-grade           one look for the video, fixes per clip, faded look for flashbacks
 9. bc:effects               only where a moment needs it (transition, speed ramp, freeze, sticker)
    bc:stock-images          pictures the footage lacks; bc:style-study to copy a reference style
-10. review → fix → export   measure, review, apply fixes, repeat (at most 3 rounds); export only with no error
+10. review → fix → export   measure, look, then fix or keep with a reason (1–3 rounds); explain what is left
 11. bc:library              harvest: propose what to keep (a grade, an effect, a sound) for the next video
 12. bc:self-learn           write down what went wrong so it does not happen again
 ```
@@ -102,9 +102,10 @@ for YouTube and computers, `square` for feeds. Ask when it is not clear. It can 
 again with `ui frame`.
 
 Then name the platforms: `project format --outputs reels,tiktok --base-rev N` (export presets, first one primary;
-a recipe sets them for you). The review checks the first one's platform — its safe zones (Reels' caption bar is the
-tallest, 20 %), smallest text and longest length (Reels and Shorts: 3 minutes) — and the Export sheet starts with
-it. Without outputs the review assumes TikTok for portrait and YouTube for landscape.
+a recipe sets them for you; the Export sheet starts with the first). `platforms list` gives each platform's facts —
+shape, longest length, safe zones, loudness target, true peak — and which are outputs. The review checks text
+against the zones of every output of the frame's shape (the strictest wins; with none, `layout` is null and zones
+are not checked), and each export is normalized to its own preset's loudness target.
 
 `--footage` links the footage folder into the project (it is never modified). Import the clips before the survey,
 one file per call: `media import /abs/path/clip.mp4 --base-rev N` (it does not touch the timeline; `bc:footage-survey`
@@ -146,8 +147,31 @@ The first cut opened on the presenter's "hello"; the user sent it back: "end use
 
 ## Review before export
 
-Every edit ends with a review loop. Do not export, and do not tell the user the video is done, while the review
-has an error.
+Every edit ends with a review loop: measure, **look**, then fix, adjust the profile or keep it with a reason.
+
+### The review profile
+
+Core has no editorial defaults. Editorial limits live in the project's `review` object: `minShotSeconds`,
+`maxShotSeconds`, `maxStillSeconds`, `stillMotion`, `jumpCutChange`, `blackMinSeconds`, `hookSeconds`,
+`maxSilenceSeconds`, `maxMusicGapSeconds`, `voiceoverMarginSeconds`, `captionLineChars`, `captionMaxLines`,
+`minTextSize`, `minSpeechCoverage`, `loudnessToleranceLU`, `severities` (check ID or prefix → error, warning, info,
+off) and `platform` (overrides when an app changes its interface). A check without its limit reports only the
+measured value, as info. So set a profile before the first review: a vlog recipe (`bashcut.vlog:plan`) writes one
+for its genre; otherwise choose values from the genre's ranges in the kit's skills and the survey, write them with
+`timeline apply` (`setProjectProperties` `{"review": {…}}`), and tell the user which values and why ("static
+shots up to 3 s: a fast food montage; the interview's long shots stay info").
+
+Ranges other review tools use, as starting points, not defaults (T16; platform facts come from the outputs):
+
+| Limit | Range | What moves it |
+|---|---|---|
+| `blackMinSeconds` | 0.1–0.5 s | intended dips to black (a fade-through, an end card) |
+| `maxStillSeconds` (exact freeze) | 0.8–1 s | a frozen picture is usually a decode or render fault |
+| `maxShotSeconds` with `stillMotion` (static shot) | 3–6 s | genre: a calm daily vlog keeps long stills, a montage does not |
+| `maxSilenceSeconds` (dead air) | 2–5 s | ASMR or a calm vlog tolerates more |
+| `loudnessToleranceLU` | 1–2 LU | the platform and the delivery file |
+
+### The loop
 
 ```sh
 bashcut review measure                    # a job: renders the picture checks, runs plugin review checks
@@ -156,69 +180,66 @@ bashcut review run --summary --min-severity warning
 ```
 
 `review run --summary` returns `{issues, summary: {errors, warnings, infos, passed}}`; `passed` means no error.
-Issues come errors first (a recipe's `review.severities` may have raised or lowered some checks on purpose); each has `severity`, `frame` (and `endFrame` for a stretch), `source` when a plugin found
-it, and usually a `fix`:
+Each issue has `severity`, `frame` (and `endFrame` for a stretch), `source` when a plugin found it, and usually a
+`fix`. An issue is a number held against your profile, not proof: a 0.004 picture change can be a deliberate
+locked-off interview. **For each issue, look before fixing:**
 
-| `fix` | What to do |
-|---|---|
-| `command: timeline.apply` | write `fix.arguments.ops` to a file and run `timeline apply ops.json --base-rev N --label "<fix.arguments.label or the issue title>"` |
-| `command: timeline.close-gap` | `timeline close-gap --at-frame <atFrame> --base-rev N` (with `--track` when given) |
-| `command: review.measure` | the picture (or plugin checks) were not measured for this revision: measure, then review again |
-| `command: export.start` | loudness is measured from a normalized export: do it last (see below) |
-| `command: fonts.import`, `captions.generate` | run it as the issue says (`bc:captions-text`) |
-| `hint` only | do what it says with the skill for that area (the table below), or ask the user when it is a choice of taste |
+1. Look at the moment and read the measurement behind it (table below): `ui frame F` (`--phone` for text), or
+   `review window F` for the frames around a cut or a stretch with the cuts, the sound level and the words.
+2. Is it a real problem **for this footage and this profile**? Would a viewer notice it at normal speed on a phone?
+3. Fix it (one labelled edit), adjust the profile when the limit is wrong for this video (say so), or keep it and
+   note why (a long still title the user asked for, a deliberate locked-off shot).
 
-Read the numbers, not only the issues. The issues are verdicts with built-in limits; these commands return the
-measurements behind them, so you can judge against the plan and the genre's range:
+| Issue | Look and measure | Fix with |
+|---|---|---|
+| black, frozen picture, long static shot | `ui frame F`, `review picture --from F --to G`, `review shots --summary` | `bc:beat-cut`, `bc:effects` (Ken Burns, slow punch-in); black: offline media or a hiding layer (`media list`, `timeline get`) |
+| jump cut, repeated framing, gap | `review window F`, `review cuts`, `review shots --summary` | `bc:beat-cut` (punch-in, cutaway, trim) |
+| cut or text off the beat or the word | `review window F`, `review sync --events cuts,text` | `bc:beat-cut`, `bc:captions-text` |
+| text in a zone, too small, too many lines, overlap, contrast | `ui frame F --phone`, `review layout --frame F --contrast`, `timeline sheet --text --outputs all` | `bc:captions-text` |
+| no hook, slow opening | `review hook`, `ui frame` on its first seconds | story, `bc:captions-text` |
+| dead air, music drops out or not ducked, voiceover near speech | `review window F`, `audio mix-measure` (a job) | `bc:audio-mix` |
+| loudness, true peak | the normalized draft (below), `platforms list` | `bc:audio-mix` |
+| colour jumps between clips | `color measure --by clip`, `ui frame F` | `bc:color-grade` |
+| a plugin's issue (`source`) | that plugin's skill (`skills list --scope plugin`) | its `fix`, like the built-in ones |
+
+Applying a `fix`: `timeline.apply` → write `fix.arguments.ops` to a file and run `timeline apply ops.json --base-rev
+N --label "<fix.arguments.label or the issue title>"`; `timeline.close-gap` → `timeline close-gap --at-frame <atFrame>
+--base-rev N` (`--track` when given); `review.measure` → not measured for this revision: measure, then review again;
+`export.start` → loudness comes from a normalized export, last (below); `fonts.import`, `captions.generate` → run it
+(`bc:captions-text`); a `hint` only → do it with that area's skill, or ask the user when it is a matter of taste.
+
+After a round's edits, measure and review again: the revision changed, so earlier measurements no longer count.
+Run 1–3 rounds (1 when the user is waiting and nothing blocks, up to 3 when working alone); stop when a round
+fixes nothing. From round 2 on, only a new problem a viewer would notice is worth another round; new nitpicks are
+not. Passing checks is not proof of a good video: one tool's edit had every cut on the beat and still had cramped
+frames, small text and titles over the icons (T16).
+
+### See the whole edit, then the draft
 
 ```sh
-bashcut review picture --samples false     # per hard cut: difference across it (near 0 = the same picture)
-bashcut review picture --from F --to G     # per sample: luma, spread, change, peak (fractions of full scale)
-bashcut review shots --summary             # per shot: seconds, source, zoom, speed, motion, described facts; count, median, cuts/min
-bashcut review layout --frame F            # per text item: rendered bounds, font share, margin to each edge + zones
-bashcut transcript words --from F --to G   # per spoken word: frames, gap before, source seconds of its clip
-bashcut media analysis --media ID          # a source file: tech facts, its shots and motion, sound spans (media analyze first)
-bashcut media speech-map --media ID        # a source file's sound spans and gaps, with the floor and separation used
-bashcut media inventory                    # every clip: capture time, place, orientation, speech, what is measured/described
-bashcut media frames --sheet --media ID    # a source file on a labelled contact sheet; media frame --at S for one frame
-bashcut transcript words --heard           # stored transcript words through the clips now (media transcribe first)
+bashcut timeline sheet --cuts --text              # contact sheets of the composed edit: a cell at every cut and title
+bashcut timeline sheet --every 2 --outputs all    # a cell every 2 s, plus one set per output with its zones shaded
 ```
 
-`review picture` and `review shots` motion come from the last `review measure` (`current` / `pictureMeasured`
-false: measure again). Values are facts, not verdicts: a 0.004 change can be a deliberate locked-off interview. Look
-at the frame (`ui frame F`) before fixing anything the numbers point to.
-
-One round: fix every error, then the warnings that are clearly wrong (a caption under the platform's buttons, a
-jump cut, music not ducked); a fix is one labelled edit, so the user can undo it. Then measure and review again: the
-revision changed, so earlier measurements no longer count. Stop after 3 rounds, or when a round fixes nothing, and
-tell the user what is left and why (a warning that is a deliberate choice, such as a long still title the user asked
-for, stays).
-
-| Issue | Skill |
-|---|---|
-| gap, repeated framing, jump cut, very short or long static shot, frozen picture | `bc:beat-cut` (punch-in, cutaway, trim), `bc:effects` (Ken Burns, slow punch-in) |
-| black picture | offline media or a layer hiding the picture: `media list`, `timeline get`, `ui frame` |
-| text in the caption bar or side buttons, too small, too many lines, overlap, missing font, no hook | `bc:captions-text` |
-| loudness, true peak, music not ducked, dead air, music drops out, voiceover near speech | `bc:audio-mix` |
-| a plugin's issue (`source`) | read that plugin's skill first (`skills list --scope plugin`); its `fix` works like the built-in ones |
-
-Loudness is measured from the last normalized export of the same revision, so it comes last: when the rest passes,
-make the draft with normalization, then review once more:
+No export needed; `cells` maps each `<cell> <m:ss.s>` label to its frame, items and text. Read every sheet for pace,
+repeated shots and where text sits (a cell every 0.5–2 s, shorter for fast cuts, T16), then `ui frame` the cells
+that look wrong. Loudness comes from the last normalized export of this revision, so make the draft last:
 
 ```sh
 bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio
 bashcut export status
 bashcut review run --summary --min-severity warning     # now includes loudness and true peak
-bashcut ui frame 120                                    # PNG of the edit at frame 120: read it
 ```
 
-Look at frames across the whole draft (`ui frame F` every few seconds, and at each cut `review shots` lists) to
-check the pace, repeated shots and where text sits before asking the user to watch. Exports wait for the user's approval in the app
-unless `agentPermissions.autoApprove` is on.
+The export waits for the user's approval in the app unless `agentPermissions.autoApprove` is on.
 
-Report the loop to the user in a few lines: the rounds, what was fixed (issue → edit), and what is left with the
-reason. Example: "Review: 2 rounds. Fixed a 1.2 s black gap at 0:41 (closed), raised the caption out of the bottom
-bar, punched in on the jump cut at 1:05. Left: one 9 s shot at 0:12, kept because it is the hook you chose."
+### Report
+
+Never call the video done while an error is unexplained: explain every remaining error to the user. Report the
+loop in a few lines: the rounds, what was fixed (issue → edit), profile changes with the reason, every kept issue
+with its reason, and what was not checked (sound not listened to). Example: "Review: 2 rounds. Closed a 1.2 s black gap
+at 0:41, raised the caption out of the Reels bar. Profile: static shots up to 6 s, a calm travel vlog. Kept: the
+9 s shot at 0:12, the hook you chose. Not listened to: the music under your voice."
 
 ## Taste of the user
 
