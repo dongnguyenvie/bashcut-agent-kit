@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 186 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 212 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -76,7 +76,7 @@ Change the open project's canvas like the format menu in the toolbar: portrait 9
 - `canvas`: string, one of portrait, landscape, square. Canvas
 - `clips`: string, one of fit, fill. How clips meet the frame by default
 - `resolution`: string, one of 720, 1080, 2160. Short-side resolution; the current one by default
-- `outputs`: string. Comma-separated export presets (tiktok, reels, shorts, youtube-1080, youtube-4k, quick-draft, prores); none clears them
+- `outputs`: string. Comma-separated export presets (tiktok, reels, shorts, feed-4x5, square, portrait-3x4, youtube-1080, youtube-4k, quick-draft, prores); none clears them
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
 ### `bashcut project brief`
@@ -93,6 +93,14 @@ Set the brief as one undoable edit (validated: fields {value, status, source?}, 
 - `value`: object, required. The brief (CLI: path to brief.json)
 - `merge`: boolean. Change only the given fields
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut project derive [--ids <ids>] [--dir <directory>]`
+
+Write a sibling project per select (the kept ones, or ids): same canvas, outputs, review profile, brief and layers, only that media (paths made absolute) and the select's range on Main, with derivedFrom. Several shorts from one long recording; the open project does not change and nothing opens.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_project_derive`
+- `ids`: string. Select IDs instead of the kept ones
+- `directory`: string, path. Parent folder; defaults to the one holding this project's folder
 
 ### `bashcut project recents`
 
@@ -117,7 +125,7 @@ Atomically apply validated timeline operations as one undoable edit; returns cha
 - `ops`: array, required. Operations array (CLI: path to ops.json)
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 - `label`: string, default "Agent edit". Short description of the edit
-- `dryRun`: boolean, default false. Validate without editing; return projected duration and changed IDs
+- `dryRun`: boolean, default false. Validate without editing; return projected duration, changed IDs and cutsInsideWord (clip edges the edit leaves inside a transcribed word)
 
 ### `bashcut timeline undo --base-rev <baseRev>`
 
@@ -195,12 +203,14 @@ Queue preview proxies (smaller, quick-to-seek copies in .bashcut/cache/proxies; 
 - `media`: string. Project media ID; all video media by default
 - `force`: boolean, default false. Make proxies even for light footage, replacing existing ones
 
-### `bashcut media place --media <media> [--track <track>] [--at-frame <atFrame>] --base-rev <baseRev>`
+### `bashcut media place --media <media> [--from <from>] [--to <to>] [--track <track>] [--at-frame <atFrame>] --base-rev <baseRev>`
 
-Place project media on a layer (main by default, music for audio), with linked sound on a dialogue layer; an occupied range spills onto a free or new layer.
+Place project media on a layer (main by default, music for audio), with linked sound on a dialogue layer; an occupied range spills onto a free or new layer. With from and to (source seconds, such as media resolve-range gives), only that part is placed.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_media_place`
 - `media`: string, required. Project media ID
+- `from`: number, 0…86400. Source start in seconds
+- `to`: number, 0…86400. Source end in seconds
 - `track`: string. Layer ID; defaults to the main layer (music for audio)
 - `atFrame`: integer, ≥ 0. Timeline frame; defaults to the playhead or the end of the main layer
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
@@ -214,6 +224,17 @@ Find the time offset between two recordings of the same moment (a camera and a s
 - `to`: string, required. Project media ID of the second recording
 - `item`: string. A timeline item of the first media whose in-point to map
 - `provider`: string. Provider ID overriding the project preference for one request
+
+### `bashcut media resolve-range <media> [--quote <quote>] [--words <words>] [--from <from>] [--to <to>]`
+
+A source range from what was said, in the media's stored transcript: a quote (the place its words match best; equal places listed in alternatives, in order, never ranked), word indices FIRST-LAST, or rough from/to seconds snapped outwards to the words they cut into (snap gives how far each edge moved). Returns from/to seconds and in/out frames for media place, the text, and per edge midWord, midSentence (inside a transcript phrase) and the nearest word and sentence edges before and after.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_media_resolve-range`
+- `media`: string, required. Project media ID
+- `quote`: string. Words as said
+- `words`: string. Word indices FIRST-LAST
+- `from`: number, 0…86400. Rough start, seconds
+- `to`: number, 0…86400. Rough end, seconds
 
 ### `bashcut media analyze [--media <media>] [--force] [--rate <rate>]`
 
@@ -344,11 +365,12 @@ What the footage holds, from one call (read only; capture facts are read once pe
 
 ## review
 
-### `bashcut review run [--min-severity <minSeverity>] [--summary]`
+### `bashcut review run [--since-rev <sinceRev>] [--min-severity <minSeverity>] [--summary]`
 
-Review the timeline before export. Each issue has a severity (error: spoils the export, warning: hurts it, info: a note) and, when one exists, a fix: a command with arguments, or a hint. Errors come first. With summary, the result is {issues, summary: {errors, warnings, infos, passed}}; passed means no error. Loudness is checked from the last normalized export of this revision, black and frozen picture, jump cuts and plugin checks from the last review.measure of this revision. Issues over a stretch carry endFrame. Pacing (shot length, still picture) follows the project's review object (minShotSeconds, maxShotSeconds, maxStillSeconds) when set.
+Review the timeline before export. Each issue has a severity (error: spoils the export, warning: hurts it, info: a note) and, when one exists, a fix: a command with arguments, or a hint. Errors come first. With summary, the result is {issues, summary: {errors, warnings, infos, passed}}; passed means no error. Loudness is checked from the last normalized export of this revision, black and frozen picture, jump cuts and plugin checks from the last review.measure of this revision. Issues over a stretch carry endFrame. Pacing (shot length, still picture) follows the project's review object (minShotSeconds, maxShotSeconds, maxStillSeconds) when set. With no review settings only invariants are errors: gaps and black picture on Main, a clip edge inside a transcribed word (cut-in-word), a missing font or characters the font cannot draw (glyph), and the outputs' length and shape; the rest is info unless the project raises it. Issue IDs are anchored to clips, so they survive edits elsewhere. Each run is a round: with sinceRev, the result also has diff {fixed, new, persisting} against the review of that revision and the round number. Issues accepted with review accept carry accepted.reason and are not counted. With summary, checks lists what this run looked at: measured, stale (an older revision), notChecked (with how to measure), failed plugin checks (timedOut), unreliable (picture that barely changes: not a pass) and the review limits the project has not set.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_review_run`
+- `sinceRev`: integer, ≥ 0. Compare with the review of this revision (this session)
 - `minSeverity`: string, one of error, warning, info. Leave out issues less severe than this
 - `summary`: boolean. Wrap the issues with counts and a pass flag
 
@@ -359,6 +381,37 @@ Run the measured review for this revision and keep it, so review.run includes it
 - Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_review_measure`
 - `picture`: boolean. Measure the picture (default true)
 - `plugins`: boolean. Run plugin review checks (default true)
+
+### `bashcut review accept <id> [--reason <reason>] [--remove] --base-rev <baseRev>`
+
+Keep a warning or note on purpose, with the reason, as one undoable edit (review.accepted); later runs show it with accepted.reason, leave it out of the counts, and the export report lists it. Errors cannot be accepted: fix them, or change their severity in review.severities with a reason. With remove, the issue counts again.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_review_accept`
+- `id`: string, required. Issue ID from review run
+- `reason`: string. Why it stays
+- `remove`: boolean. Count the issue again
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut review verify <id>`
+
+Prove a fix: the issue as an earlier review of this session saw it (before, beforeRev) against now, measured over the issue's own range and a second around it (picture issues re-sample just that range; others re-run the review), status fixed or persisting, other issues nearby, and window: a still strip of the range with the cuts, words and levels. Loudness needs a normalized export of the revision.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_verify`
+- `id`: string, required. Issue ID
+
+### `bashcut review packet`
+
+Write an evidence folder for a fresh critic (a sub-agent with only this folder and bc:review): README, plan.json (brief, plan, review profile, outputs), digest.json (what changed since the last review round), issues.json (with the round diff), cuts.json, word-landing.json (words against cuts and titles), hook.json, coverage.json (planned shots and beats), measured.json (what was and was not measured) and a contact sheet of every cut and title. No editor reasons are included.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_packet`
+
+### `bashcut review compare --reference <reference> --ours <ours>`
+
+A reference and our render, both imported and measured (media analyze), side by side by the same functions: duration, shots and shot-length median/p25/p75, cuts per minute, picture medians (luma, spread, change, colourfulness, sharpness), sound level median/p10/p90/range and peak, each with ours − reference. No verdict; a metric gets within only when the project's review.compare sets its tolerance.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_compare`
+- `reference`: string, required. Reference media ID
+- `ours`: string, required. Our render's media ID
 
 ### `bashcut review picture [--from <from>] [--to <to>] [--samples <samples>] [--cuts <cuts>]`
 
@@ -406,7 +459,7 @@ Read every cut on Main: index, frame/seconds, from/to item IDs, kind (hard, or t
 Time events against the beat grid and the spoken words: per event (cuts on Main by default; text items and sfx items on request) the nearest beat and the nearest word edge (start or end, its text, whether the event falls inside the word) with offsetFrames and offsetMs (positive = after it), and for beats and words the distribution: count, mean, median, p10, p90 and counts per offset from −6 to +6 frames. Words are the stored transcripts heard through the clips (media.transcribe), else the caption words. With rendered: rendered {windows [{at, lagMs, correlation}], driftMsPerMinute, lagStartMs, lagEndMs} from matching the last export's sound to the timeline's mix every 10 s (positive lag = the render is later); the export must show this revision.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_review_sync`
-- `events`: string. cuts, text, sfx (comma separated; default cuts)
+- `events`: string. cuts, text, sfx, captions (comma separated; default cuts)
 - `rendered`: boolean. Also measure the last export's timing against the timeline
 
 ### `bashcut review window <frame> [--span <span>] [--step <step>] [--width <width>]`
@@ -419,32 +472,64 @@ Look across a moment of the edit without exporting: one PNG with the composed fr
 - `step`: integer, 1…60. Frames between pictures (default 1)
 - `width`: integer, 400…8192. Image width in pixels (default 1600)
 
+### `bashcut review coverage`
+
+The plan's shot rows against the footage: per planned shot the described shots that fit it (size, and every mustShow name among the described subjects), the clips that place it (a clip's planShot field, or the described shot it plays fits), and a status placed, found, missing or undescribed (no media described yet: media describe). Facts only; what is enough is the plan's.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_coverage`
+
 ## platforms
 
-### `bashcut platforms list`
+### `bashcut platforms list [--facts]`
 
-Read the platform facts review uses: per platform (TikTok, Reels, Shorts, YouTube) shape, maxSeconds, targetLUFS, maxTruePeakDbTP and safeArea (zones the app covers, as fractions), with the project's review.platform overrides applied, whether it is one of the project's outputs and whether it was overridden; layout: the zones text is checked against (the strictest of the outputs of the frame's shape, null when none); targets: each output preset's loudness target (output.targets, else the platform's).
+Read the platform facts review uses: per platform (TikTok, Reels, Shorts, YouTube) shape, maxSeconds, targetLUFS, maxTruePeakDbTP and safeArea (zones the app covers, as fractions), with the project's review.platform overrides applied, whether it is one of the project's outputs and whether it was overridden; layout: the zones text is checked against (the strictest of the outputs of the frame's shape, null when none); targets: each output preset's loudness target (output.targets, else the platform's); data: the platform table's version and origin (built-in or the plugin that shipped a newer one). With facts, every field with {value, kind hard|recommended|info, source, checked, confidence}, including bitrateMbps, title and cover facts, chapter and disclosure rules where known.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_platforms_list`
+- `facts`: boolean. Include each field's provenance
+
+### `bashcut platforms get <id>`
+
+One platform's facts with the project's overrides applied and every field's provenance (value, kind, source, checked, confidence): length, loudness, safe zones, recompression bit rate, shape, title and cover facts, chapter and disclosure rules.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_platforms_get`
+- `id`: string, required. tiktok, reels, shorts, youtube
 
 ## export
 
 ### `bashcut export status`
 
-Read the export state: while one runs, its job, step, preset and path (last receipt under lastExport); otherwise the most recent receipt. Includes the queue (job IDs for jobs.cancel).
+Read the export state: while one runs, its job, step, preset and path (last receipt under lastExport); otherwise the most recent receipt. Includes the queue (job IDs for jobs.cancel) and delivered: each exported file of this session measured (stream starts and drift, fps and size against the preset, black and silent stretches), which review run reads (P1-E6).
 
 - Mode: read · Runs: immediately · MCP: `bashcut_export_status`
 
-### `bashcut export start --preset <preset> --name <name> [--output-dir <directory>] [--include-srt] [--normalize-audio]`
+### `bashcut export cover <frame> [--aspect <aspect>] [--size <size>]`
 
-Request a background video export; the user approves it in the app first. Approved exports queue behind a running one.
+Write a still of the composed frame for each cover aspect into render/: the asked aspects (W:H, comma separated), else each output's cover aspect from platforms get (cover.aspect, else its shape), cropped from the centre. Pick the frame from real frames (timeline sheet); look at the result.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_export_cover`
+- `frame`: integer, required, ≥ 0. Timeline frame
+- `aspect`: string. Aspects such as 16:9,9:16
+- `size`: integer, 160…3840. Long edge in pixels
+
+### `bashcut export chapters [--platform <platform>] [--write]`
+
+A chapter list from the section markers (00:00 first; an Intro at 0 when no marker is there) and each rule of the platform's chapter fact (first at 00:00, the least count, the shortest chapter) with whether it holds. With write, saves render/chapters-<platform>.txt. Caption mode per output is output.captions (preset → {mode burn|sidecar|both|none, format srt|vtt, track}); the export follows it.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_export_chapters`
+- `platform`: string. Platform whose rule applies (default youtube)
+- `write`: boolean. Save the list in render/
+
+### `bashcut export start --preset <preset> --name <name> [--output-dir <directory>] [--include-srt] [--normalize-audio] [--bitrate <bitrate>]`
+
+Request a background video export; the user approves it in the app first. Approved exports queue behind a running one. Vertical presets default under the platform's recompression line (platforms list: bitrateMbps); bitrate overrides it. Feed shapes: feed-4x5 (1080×1350), square, portrait-3x4 (1080×1440). The export status reports the bitrate written.
 
 - Mode: privileged · Runs: after the user approves in the app · MCP: `bashcut_export_start`
-- `preset`: string, required, one of tiktok, reels, shorts, youtube-1080, youtube-4k, quick-draft, prores. Export preset
+- `preset`: string, required, one of tiktok, reels, shorts, feed-4x5, square, portrait-3x4, youtube-1080, youtube-4k, quick-draft, prores. Export preset
 - `name`: string, required. Output base name without an extension
 - `directory`: string. Output folder, relative to the project; defaults to its render folder
 - `includeSRT`: boolean, default false. Also write a SubRip file
 - `normalizeAudio`: boolean, default false. Run two-pass LUFS normalization with a plugin
+- `bitrate`: number, 0.5…200. Video bit rate in Mbps instead of the preset's
 
 ### `bashcut export otio --name <name> [--output-dir <directory>]`
 
@@ -696,6 +781,13 @@ Place captions of project media as one undoable edit, from its stored transcript
 - `provider`: string. Provider ID overriding the project preference for one request
 - `fresh`: boolean. Transcribe again instead of using the media's stored transcript
 
+### `bashcut captions find <text>`
+
+Where words are said on the timeline: every place the text's words come in order (stored transcripts heard through the clips, else caption words), with at/end frames.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_captions_find`
+- `text`: string, required. Words to find
+
 ### `bashcut captions group [<groups.json>] [--source <source>] [--max-chars <maxChars>] [--max-seconds <maxSeconds>] [--break-gap <breakGapSeconds>] [--from <from>] [--to <to>] --base-rev <baseRev>`
 
 Re-cut captions from word groups you choose, as one undoable edit: groups is a list of runs of word indices (from transcript words, or with source heard from transcript words --heard), each becoming one caption from its first word's start to its last word's end with its words timed; the captions those words fall in are replaced (their style kept). Rule mode instead (maxChars, maxSeconds and breakGapSeconds, all required; from/to limit it) joins words greedily. Returns rev and facts: cues [{frames, seconds, chars, cps, text}], gaps and overlaps between cues in frames. No default grouping.
@@ -745,15 +837,16 @@ Add an empty layer: text goes to the front of the picture stack, video and adjus
 - `name`: string. Display name
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
-### `bashcut layers set <track> [--hidden <hidden>] [--muted <muted>] [--locked <locked>] --base-rev <baseRev>`
+### `bashcut layers set <track> [--hidden <hidden>] [--muted <muted>] [--locked <locked>] [--language <language>] --base-rev <baseRev>`
 
-Change a layer's header switches like the timeline header: hide a visual layer, mute an audio layer, lock any layer (a locked layer refuses edits until unlocked).
+Change a layer's header switches like the timeline header: hide a visual layer, mute an audio layer, lock any layer (a locked layer refuses edits until unlocked); set a caption layer's language (P1-F4), which output.captions picks a layer by.
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_layers_set`
 - `track`: string, required. Layer ID
 - `hidden`: boolean. Hidden (visual layers)
 - `muted`: boolean. Muted (audio layers)
 - `locked`: boolean. Locked
+- `language`: string. Language tag such as vi or en; none clears it
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
 ## adjustment
@@ -969,6 +1062,145 @@ Set the edit plan as one undoable edit (validated shape); with merge, only the g
 - `value`: object, required. The plan (CLI: path to plan.json)
 - `merge`: boolean. Change only the given fields
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+## workflow
+
+### `bashcut workflow gates`
+
+The user's workflow gates: G1 brief, G2 strategy, G3 roughCut (rough-cut sheet), G4 script (before speech is made), G5 draft (before export), each ask, notify or skip (ask unless the user changed it), and maxReviewRounds. Request each gate with checkpoint request; never decide one is approved yourself.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_workflow_gates`
+
+### `bashcut workflow set-gates [--gate <gate>] [--mode <mode>] [--max-review-rounds <maxReviewRounds>]`
+
+Change a gate or the review round limit. Agents may only make a gate ask more (skip → notify → ask); loosening a gate or changing the round limit is the user's (Settings → Agents → Workflow gates).
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_workflow_set-gates`
+- `gate`: string. G1…G5 or brief, strategy, roughCut, script, draft
+- `mode`: string, one of ask, notify, skip. Gate mode
+- `maxReviewRounds`: integer, 1…10. Review round limit (user only)
+
+## checkpoint
+
+### `bashcut checkpoint request <gate> --summary <summary> [--attach <attach>]`
+
+Stop at a gate: with ask, the user sees the summary and attachments in BashCut and answers approved, changes (with a note) or rejected; poll checkpoint status until it is not awaiting_user. With notify the user is told and the run goes on; with skip nothing is shown. The answer is bound to the current revision and written to the run log; only the user can answer.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_checkpoint_request`
+- `gate`: string, required. G1…G5 or brief, strategy, roughCut, script, draft
+- `summary`: string, required. What the user is asked to approve
+- `attach`: string. Comma-separated files to show (sheets, stills); relative to the project
+
+### `bashcut checkpoint status [<id>]`
+
+A checkpoint of this session (default the last): status awaiting_user, approved, changes, rejected, skipped, notified or withdrawn, the user's note, the revision it covers and stale when the project has changed since.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_checkpoint_status`
+- `id`: string. Checkpoint ID
+
+## run
+
+### `bashcut run log [--run <run>] [--kind <kind>] [--limit <limit>]`
+
+The run log (.bashcut/run-log.jsonl, append-only): starts, stages, gates with the user's answers, review rounds (fixed, left), what was measured and not measured, notes. Read it for the hand-off report and self-learn instead of the chat.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_run_log`
+- `run`: string. current (default), all or a run number
+- `kind`: string. Only this kind
+- `limit`: integer, 1…10000. Last N entries
+
+### `bashcut run append <kind> [--stage <stage>] [--text <text>] [--round <round>] [--fixed <fixed>] [--left <left>] [--measured <measured>] [--not-measured <notMeasured>]`
+
+Append to the run log: start (opens a run), stage, round, measured, note or end. Gate entries come only from checkpoints. The revision, author and time are added.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_run_append`
+- `kind`: string, required, one of start, stage, round, measured, note, end. Entry kind
+- `stage`: string. Stage name
+- `text`: string. What happened
+- `round`: integer, 1…100. Review round
+- `fixed`: integer, ≥ 0. Issues fixed this round
+- `left`: integer, ≥ 0. Issues left
+- `measured`: string. Comma-separated checks measured
+- `notMeasured`: string. Comma-separated checks not measured
+
+## script
+
+### `bashcut script check`
+
+The plan's script beats against the words heard on the timeline (stored transcripts, else caption words): per beat the share of its words heard as written, the unmatched words, where it was heard and the section marker it starts in against the planned section; overall similarity and extra heard words.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_script_check`
+
+## selects
+
+### `bashcut selects list [--status <status>]`
+
+The project's selects: source ranges {id, media, from, to (seconds), status candidate|kept|rejected, quote, reason, evidence, mustKeep, order} and counts per status. The user sees and overrides them in the Media panel (Selects).
+
+- Mode: read · Runs: immediately · MCP: `bashcut_selects_list`
+- `status`: string, one of candidate, kept, rejected. Only this status
+
+### `bashcut selects set <value.json> --base-rev <baseRev>`
+
+Add or update selects (by id; a new one without id gets one, status candidate) as one undoable edit. Give the quote, the reason and the evidence (what was measured) with each; media resolve-range gives from/to.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_selects_set`
+- `value`: array, required. Selects (CLI: path to selects.json)
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut selects mark <ids> [--status <status>] [--must-keep <mustKeep>] [--reason <reason>] --base-rev <baseRev>`
+
+Change the status or mustKeep of selects (comma-separated IDs), with an optional reason, as one edit. A must-keep select no clip plays is a review warning.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_selects_mark`
+- `ids`: string, required. Select IDs
+- `status`: string, one of candidate, kept, rejected. New status
+- `mustKeep`: boolean. Must the edit keep it
+- `reason`: string. Why
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut selects remove <ids> --base-rev <baseRev>`
+
+Remove selects (comma-separated IDs) as one edit.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_selects_remove`
+- `ids`: string, required. Select IDs
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut selects place [--ids <ids>] [--at-frame <atFrame>] --base-rev <baseRev>`
+
+Lay the kept selects (or the given IDs) on Main in order (order, else source start), from atFrame or Main's end, as one undoable edit; returns the new item IDs.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_selects_place`
+- `ids`: string. Select IDs instead of the kept ones
+- `atFrame`: integer, ≥ 0. Timeline frame
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+## variants
+
+### `bashcut variants create <name> --changed <changed> [--dir <directory>]`
+
+Write a full copy of the project next to it as a variant that records what it changes (one thing per variant), for example an ad with another hook. Open it to make the change; diff compares them.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_variants_create`
+- `name`: string, required. Short name (folder and title suffix)
+- `changed`: string, required. What this variant changes
+- `directory`: string, path. Parent folder
+
+### `bashcut variants list [--dir <directory>]`
+
+The variants and derived projects of this project in the sibling folders, with what each changes.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_variants_list`
+- `directory`: string, path. Parent folder
+
+### `bashcut variants diff <other> [--base <base>]`
+
+What differs between two projects (default: this one against other): top-level fields, items added, removed or changed, durations and each one's recorded change.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_variants_diff`
+- `other`: string, required, path. Project file or folder
+- `base`: string, path. Project file or folder instead of the open one
 
 ## speech
 
