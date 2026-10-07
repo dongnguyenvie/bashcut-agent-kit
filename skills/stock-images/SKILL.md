@@ -39,6 +39,12 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
 
 ## 3. Place
 
+- **Credits are optional.** Never write a licence, source or credit onto the video or into its description unless
+  the user asks. When the user wants credits tracked, import with `--origin stock --license "Pexels License"
+  --source URL --author "Name"` (stored as given; pass a JSON object such as `{"text":"Pexels License",
+  "redistribute":false}` to record what it allows; a second `media import` adds them to a file already in).
+  `project credits` gives the raw facts per used media (licence, provenance, frames on top, AI share): write the
+  credit lines from them when the user asks.
 - **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --base-rev N`, then `media place`
   on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
 - **Still photos** import directly: `media import /abs/media/stock/photo.jpg --place --track OVERLAY --at-frame F
@@ -80,5 +86,8 @@ rsvg-convert -w 512 -h 512 cash.svg -o cash.png    # transparent PNG; or: magick
 ## Free fallback: blurred own footage
 
 For a background (a horizontal clip in a vertical frame, a split moment, an info card), put a copy of the same
-clip on the layer below, zoomed to fill (`transform` zoom ~1.8) and graded dark and soft with an adjustment
-(`exposure` −1, `saturation` 0.7). Same colours, no licence question.
+clip on the layer below, zoomed until it fills the frame, and darken and soften it with an adjustment until the
+subject in front reads clearly. There is no right value: footage, text and grade all change it. As an example
+only, zoom ~1.8 with `exposure` −1 and `saturation` 0.7 has worked; a bright, busy background needs more, a dark
+one less. Check with `ui frame F` and `ui frame F --phone` (text and edges at the size a viewer sees them) and
+adjust. Same colours, no licence question.

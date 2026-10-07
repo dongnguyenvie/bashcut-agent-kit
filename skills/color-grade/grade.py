@@ -6,12 +6,17 @@
 """Make .cube LUTs for colour looks, preview them on real frames and measure footage colour.
 
   grade.py looks                                     # list looks in looks.json
-  grade.py lut <look|params.json> -o OUT.cube [--size 33]
-  grade.py match IN.mp4 <look> -o OUT.cube           # look + automatic exposure/white balance for this footage
+  grade.py lut <look|params.json> -o OUT.cube [--size 33] [--exposure S] [--wb R,G,B]
+  grade.py match IN.mp4 <look> [--n 12] [--exposure S] [--wb R,G,B]   # JSON: footage vs the look's ranges
   grade.py preview IN.mp4 OUT.cube -o sheet.jpg [--n 6]   # before | after on n frames (for looking only)
-  grade.py measure IN.mp4 [--n 12]                   # black/white point, saturation, tint per luma band
+  grade.py measure IN.mp4 [--n 12] [--json]          # black/white point, saturation, tint per luma band
 
-Apply the result in BashCut with `bashcut luts import OUT.cube`, then an adjustment item or `looks save`.
+Nothing here picks a correction. `match` measures the footage, the footage with the look (plus only the exposure
+and white balance you pass) and reports both against the look's reference ranges; it writes no file. You choose
+exposure/wb from that report and pass them to `lut`. `--exposure` is added to the look's exposure (stops);
+`--wb` multiplies the look's white balance. Scale 0-100, the same as `bashcut color measure`.
+
+Apply the result in BashCut with `bashcut luts import OUT.cube`, then an adjustment item; save it as a library look with `library save-selection --kind look`.
 Needs ffmpeg/ffprobe on PATH. Run with `uv run grade.py ...` (uv installs numpy and Pillow on first run).
 
 Parameters (all optional; 0 / 1 = unchanged):
@@ -21,17 +26,23 @@ Parameters (all optional; 0 / 1 = unchanged):
   split {"shadow": [R,G,B], "high": [R,G,B]} offsets, hue_shifts [{"hue","width","shift","sat"}],
   skin_protect 0-1 (default 0.6), fade 0-0.2 (mix with grey for an old-film look).
 """
-import argparse, json, os, subprocess, sys
+import argparse, json, os, re, subprocess, sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LOOKS = os.path.join(HERE, "looks.json")
 
 
+def read_looks():
+    with open(LOOKS, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 def load_look(name):
     if os.path.exists(name):
-        return json.load(open(name))
-    looks = json.load(open(LOOKS, encoding="utf-8"))
+        with open(name, encoding="utf-8") as fh:
+            return json.load(fh)
+    looks = read_looks()
     if name not in looks or name.startswith("_"):
         sys.exit(f"no look '{name}'. Looks: {', '.join(k for k in looks if not k.startswith('_'))}")
     return looks[name]["params"]
@@ -140,7 +151,9 @@ def frames(p, n, w=480):
 
 def read_cube(path):
     rows, size = [], None
-    for ln in open(path):
+    with open(path) as fh:
+        lines = fh.read().splitlines()
+    for ln in lines:
         ln = ln.strip()
         if ln.startswith("LUT_3D_SIZE"):
             size = int(ln.split()[1])
@@ -157,7 +170,8 @@ def apply_cube(img, path):
 
 
 def stats(a):
-    f = a.astype(np.float32) / 255
+    """a: uint8 RGB frame, or float 0-1."""
+    f = a.astype(np.float32) / 255 if a.dtype == np.uint8 else a.astype(np.float32)
     y = luma(f)
     q = np.percentile(y, [1, 5, 50, 95, 99]) * 100
     mx, mn = f.max(-1), f.min(-1)
@@ -167,7 +181,7 @@ def stats(a):
             return None
         return [round(float((f[..., 0] - f[..., 2])[m].mean()) * 100, 1),
                 round(float((f[..., 1] - (f[..., 0] + f[..., 2]) / 2)[m].mean()) * 100, 1)]
-    return dict(black=q[0], p5=q[1], mid=q[2], p95=q[3], white=q[4], sat=sat,
+    return dict(black=float(q[0]), p5=float(q[1]), mid=float(q[2]), p95=float(q[3]), white=float(q[4]), sat=float(sat),
                 tint_shadow=tint(y < .25), tint_mid=tint((y >= .25) & (y < .7)), tint_high=tint(y >= .7))
 
 
@@ -175,12 +189,19 @@ def med(ss, k):
     v = [s[k] for s in ss if s[k] is not None]
     if not v:
         return None
-    return np.round(np.median(np.array(v, np.float32), 0), 1).tolist()
+    m = np.median(np.array(v, np.float64), 0)
+    return [round(float(x), 1) for x in m] if m.ndim else round(float(m), 1)
+
+
+def summarise(ss):
+    return {k: med(ss, k) for k in ss[0]}
 
 
 def measure(p, n):
-    ss = [stats(a) for _, a in frames(p, n, 320)]
-    return {k: med(ss, k) for k in ss[0]}
+    fs = frames(p, n, 320)
+    if not fs:
+        sys.exit(f"could not read frames from {p}")
+    return summarise([stats(a) for _, a in fs])
 
 
 def fmt(m):
@@ -206,21 +227,78 @@ def cmd_preview(src, cube, out, n):
     print(out)
 
 
-def cmd_match(src, look, out):
-    """Bring this footage to the look's starting point (mid exposure, neutral mid tint), then apply the look."""
-    L = json.load(open(LOOKS, encoding="utf-8"))[look]
-    P = dict(L["params"])
-    m = measure(src, 12)
-    tgt_mid = L.get("target", {}).get("mid_before_look", 38)
-    exp = float(np.clip(np.log2(max(tgt_mid, 1) / max(m["mid"], 1)), -1.5, 1.5)) * 0.8
-    wb = [1, 1, 1]
-    if m["tint_mid"]:
-        rb, gm = m["tint_mid"]
-        wb = [round(1 - rb / 200, 3), round(1 - gm / 150, 3), round(1 + rb / 200, 3)]
-    P["exposure"] = round(P.get("exposure", 0) + exp, 2)
-    P["wb"] = [round(a * b, 3) for a, b in zip(P.get("wb", [1, 1, 1]), wb)]
-    write_cube(P, out, title=f"{look}-match")
-    print(json.dumps(dict(footage=fmt(m), exposure=P["exposure"], wb=P["wb"], cube=out), indent=1))
+def with_overrides(P, exposure=None, wb=None):
+    """The look's params plus only what the caller passed: exposure adds stops, wb multiplies."""
+    P = dict(P)
+    if exposure is not None:
+        P["exposure"] = round(P.get("exposure", 0) + exposure, 4)
+    if wb is not None:
+        P["wb"] = [round(a * b, 4) for a, b in zip(P.get("wb", [1, 1, 1]), wb)]
+    return P
+
+
+def outside(v, rng):
+    """0 inside the range, v - low below it (negative), v - high above it (positive); None without a range."""
+    if v is None or rng is None:
+        return None
+    lo, hi = rng
+    if lo is not None and v < lo:
+        return round(v - lo, 1)
+    if hi is not None and v > hi:
+        return round(v - hi, 1)
+    return 0
+
+
+def compare(m, target):
+    """Footage stats m against a look's target {field: {ref, range, why}}: differences only, no verdict."""
+    out = {}
+    for k, t in target.items():
+        v, ref, rng = m.get(k), t.get("ref"), t.get("range")
+        if isinstance(v, list):
+            refs = ref if isinstance(ref, list) else [None] * len(v)
+            rngs = rng if isinstance(rng, list) else [None] * len(v)
+            out[k] = dict(value=v,
+                          minusRef=[None if r is None else round(a - r, 1) for a, r in zip(v, refs)],
+                          outside=[outside(a, r) for a, r in zip(v, rngs)])
+        else:
+            out[k] = dict(value=v, minusRef=None if v is None or ref is None else round(v - ref, 1),
+                          outside=outside(v, rng))
+    return out
+
+
+def cmd_match(src, look, n, exposure=None, wb=None):
+    """Measure only: the footage, and the footage through the look (+ passed exposure/wb), against its ranges."""
+    looks = read_looks()
+    if look not in looks or look.startswith("_"):
+        sys.exit(f"no look '{look}'. Looks: {', '.join(k for k in looks if not k.startswith('_'))}")
+    L = looks[look]
+    fs = frames(src, n, 320)
+    if not fs:
+        sys.exit(f"could not read frames from {src}")
+    P = with_overrides(L["params"], exposure, wb)
+    raw = summarise([stats(a) for _, a in fs])
+    graded = summarise([stats(apply(a.astype(np.float32) / 255, P)) for _, a in fs])
+    target = L.get("target", {})
+    a, b = compare(raw, target), compare(graded, target)
+    fields = {k: dict(t, footage=a[k], withLook=b[k]) for k, t in target.items()}
+    return dict(look=look, fitted=L.get("fitted"), frames=len(fs), passed=dict(exposure=exposure, wb=wb),
+                footage=raw, withLook=graded, fields=fields)
+
+
+def dumps(obj):
+    """JSON with short lists kept on one line."""
+    s = json.dumps(obj, indent=1, ensure_ascii=False)
+    flat = lambda m: "[" + ", ".join(x.strip() for x in m.group(1).split(",")) + "]"
+    for _ in range(2):
+        s = re.sub(r"\[\s*([^\[\]{}]*?)\s*\]", flat, s)
+    return s
+
+
+def wb_arg(v):
+    w = [float(x) for x in v.split(",")]
+    if len(w) != 3:
+        raise argparse.ArgumentTypeError("--wb takes three multipliers R,G,B")
+    return w
 
 
 if __name__ == "__main__":
@@ -229,17 +307,26 @@ if __name__ == "__main__":
     ap.add_argument("args", nargs="*")
     ap.add_argument("-o")
     ap.add_argument("--size", type=int, default=33)
-    ap.add_argument("--n", type=int, default=6)
+    ap.add_argument("--n", type=int, help="frames to sample (preview 6, measure and match 12)")
+    ap.add_argument("--exposure", type=float, help="lut/match: stops added to the look's exposure")
+    ap.add_argument("--wb", type=wb_arg, help="lut/match: R,G,B multipliers on the look's white balance")
+    ap.add_argument("--json", action="store_true", help="measure: print JSON")
     o = ap.parse_args()
     if o.cmd == "looks":
-        for k, v in json.load(open(LOOKS, encoding="utf-8")).items():
+        for k, v in read_looks().items():
             if not k.startswith("_"):
                 print(f"{k:18s} {v.get('description', '')}")
     elif o.cmd == "lut":
-        print(write_cube(load_look(o.args[0]), o.o, o.size, os.path.splitext(os.path.basename(o.args[0]))[0]))
+        if not o.o:
+            sys.exit("lut needs -o OUT.cube")
+        P = with_overrides(load_look(o.args[0]), o.exposure, o.wb)
+        print(write_cube(P, o.o, o.size, os.path.splitext(os.path.basename(o.args[0]))[0]))
     elif o.cmd == "match":
-        cmd_match(o.args[0], o.args[1], o.o)
+        if o.o:
+            sys.exit("match writes nothing: read its report, then make the LUT with lut --exposure S --wb R,G,B -o OUT.cube")
+        print(dumps(cmd_match(o.args[0], o.args[1], o.n or 12, o.exposure, o.wb)))
     elif o.cmd == "preview":
-        cmd_preview(o.args[0], o.args[1], o.o, o.n)
+        cmd_preview(o.args[0], o.args[1], o.o, o.n or 6)
     elif o.cmd == "measure":
-        print(fmt(measure(o.args[0], o.n)))
+        m = measure(o.args[0], o.n or 12)
+        print(dumps(dict(file=o.args[0], **m)) if o.json else fmt(m))

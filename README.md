@@ -11,16 +11,18 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 
 | Skill | Use it for |
 |---|---|
-| `edit-workflow` | The whole edit from footage to export, and which skill to use when |
-| `footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`); camera ↔ screen sync (`media sync`) |
+| `edit-workflow` | The whole edit from footage to export: 13 stages, the user's workflow gates (`checkpoint request`), create/directed/revision modes, brief and plan as project data, the run log, and which skill to use when |
+| `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), padding and length ranges, a blind second pass, long → short with `project derive` |
+| `review` | The critic loop before export: severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for a fresh critic given a `review packet` |
+| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media inventory`, `media frames --sheet`, `media describe`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
 | `beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `voiceover` | Text-to-speech lines that read right, checked and placed |
 | `captions-text` | Captions from speech, hook titles, place and chapter cards |
-| `color-grade` | Looks, LUTs (`grade.py`: matte-cinematic, warm-film, faded-memory), adjustment layers, style kits |
+| `color-grade` | Measured grading: probe, `color measure`, candidate looks and LUTs with ranges (`grade.py` measures and reports), check and back off; library looks |
 | `effects` | Which effect for which moment, made with native transitions, speed ramps, freeze, reframe |
 | `stock-images` | Licensed stock photos and video, labelled as illustration; Iconify icons as transparent PNG stickers |
-| `style-study` | Measuring a reference style and turning it into a memo, look and style kit |
+| `style-study` | Measuring a reference style and turning it into a memo, a library look and text presets |
 | `library` | Making a missing preset, effect, transition, look, sticker or sound; harvesting what to keep after an edit; fixing and pruning library items |
 | `self-learn` | Recording lessons in the project memo, project skills or kit changes |
 
@@ -68,6 +70,7 @@ sh bashcut-agent-kit/scripts/install-codex.sh --uninstall
 .claude-plugin/marketplace.json   marketplace "bashcut-agent-kit"
 .mcp.json                         BashCut MCP server for Claude Code
 skills/*/SKILL.md                 the skills (Agent Skills format, shared by Claude Code and Codex)
+skills/*/REFERENCE.md             detail a skill reads on demand (kept out of SKILL.md's 250-line limit)
 scripts/bashcut-mcp.sh            finds and starts bashcut-mcp
 scripts/install-codex.sh          Codex setup
 scripts/check.py                  checks every skill's frontmatter, size and referenced files
