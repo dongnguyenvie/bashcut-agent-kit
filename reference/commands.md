@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 164 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 182 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -89,7 +89,7 @@ List recently opened projects (Welcome screen).
 
 ### `bashcut timeline get [--format <format>]`
 
-Read the revision, format and tracks, including track IDs and roles.
+Read the revision, format and tracks, including track IDs and roles, and scale per video or image item: fit or fill, baseScale, zoom and maxZoom (keyframes), pixelRatio (output pixels per source pixel; over 1 is upscaled) now and at maxZoom, maxZoomNative (the largest zoom before upscaling), shown size and frameCoverage.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_timeline_get`
 - `format`: string, one of json, text. json (default) or a compact text listing
@@ -136,6 +136,20 @@ Delete an empty gap on a layer (the main layer by default): later clips on that 
 - `atFrame`: integer, required, ≥ 0. A frame inside the gap
 - `track`: string. Layer ID; defaults to the main layer
 - `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut timeline sheet [--at <at>] [--cuts] [--text] [--every <every>] [--size <size>] [--columns <columns>] [--rows <rows>] [--outputs <outputs>]`
+
+Lay the composed edit out on contact sheets without exporting: cells at listed frames (at: numbers, first, last), at every cut on Main (cuts), in the middle of every title (text) and every N seconds (every; 2 s when nothing else is asked), labelled '<cell> <m:ss.s>'. Returns {sheets [{path, output, firstCell, cells}], cells [{cell, frame, seconds, items on screen, text on screen}], index (the same as index.json), cached}. Kept per revision and request in .bashcut/cache/timeline-sheets. With outputs (all: the project's outputs; or preset names) another set of sheets per output of the frame's shape with the zones its interface covers shaded.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_timeline_sheet`
+- `at`: string. Frames, comma separated; first and last allowed
+- `cuts`: boolean. A cell at the start of every shot on Main
+- `text`: boolean. A cell in the middle of every title
+- `every`: number, 0.1…3600. Seconds between cells
+- `size`: integer, 64…2048. Long edge of each cell in pixels (default 320)
+- `columns`: integer, 1…24. Cells per row (default 8 portrait, 6 landscape)
+- `rows`: integer, 1…24. Rows per sheet (default 3 portrait, 6 landscape)
+- `outputs`: string. all, or export preset names: sheets with each one's zones
 
 ## media
 
@@ -341,19 +355,62 @@ Read the raw picture measurement of the last review.measure: per sample {frame, 
 - `samples`: boolean. Include the samples (default true)
 - `cuts`: boolean. Include the cuts (default true)
 
-### `bashcut review shots [--summary]`
+### `bashcut review shots [--summary] [--media <media>] [--min-score <minScore>] [--run-length <runLength>] [--max-cv <maxCV>]`
 
-Read the shots on Main in order: index, id, at/atSeconds, duration (frames) and seconds, media, mediaKind, sourceIn and sourceInSeconds, zoom and transform, speed, keyframed properties, freezeFrame/reverse when set, gapBefore (frames since the previous shot), transitionIn {kind, duration} or the picture cutDifference across a hard cut, and motion {mean, peak, samples} (fractions of full scale, see review.picture) when review.measure ran for this revision (pictureMeasured). No verdicts. With summary: count, total, mean, median, min and max seconds and cuts per minute.
+Read the shots on Main in order: index, id, at/atSeconds, duration (frames) and seconds, media, mediaKind, sourceIn and sourceInSeconds, zoom and transform, speed, keyframed properties, freezeFrame/reverse when set, gapBefore (frames since the previous shot), transitionIn {kind, duration} or the picture cutDifference across a hard cut, and motion {mean, peak, samples} (fractions of full scale, see review.picture) when review.measure ran for this revision (pictureMeasured), described (the media.describe facts of the source shot it plays), cameraMove [{property, from, to, perSecond, unit, ease}] from its keyframes, and cut (into it): sameMedia, sameSetup (same media, overlapping or adjacent source), sourceGapSeconds, size/move/direction {from, to} when described. No verdicts. With summary: count, total, mean, median, min and max seconds and cuts per minute; rhythm {overall, sections [per section marker]} with mean, median, cv, cutsPerMinute, mode (the most common length bin and its share) and, given runLength and maxCV, lowVarianceRuns; runs of shots with the same described size and move; shares of each size, move and direction. With media: the same for a source file's measured shots (media.analyze) and its descriptions.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_review_shots`
-- `summary`: boolean. Add count, length statistics and cuts per minute
+- `summary`: boolean. Add statistics, rhythm, runs and shares
+- `media`: string. Read a source file's measured shots instead of Main
+- `minScore`: number, 0…1. With media: lowest cut score (default 0.1)
+- `runLength`: integer, 2…100. Shots in a low-variance run (with maxCV)
+- `maxCV`: number, 0…10. Largest length variation (deviation over mean) in such a run
 
-### `bashcut review layout [--frame <frame>]`
+### `bashcut review layout [--frame <frame>] [--contrast]`
 
-Read where text sits as the renderer lays it out: per visible text item id, track, trackRole, at/end, text, preset, lines, longestLineChars, fontPixels and fontShare (of the frame's short side), bounds (pixels from the top-left) and edges (distance to each frame edge as a share of that dimension, negative outside), keyframed when keyframes move it (not followed). Also the frame size and the platform whose zones apply (safeArea, minTextSize). No verdicts.
+Read where text sits as the renderer lays it out: per visible text item id, track, trackRole, at/end, text, preset, lines, longestLineChars, fontPixels and fontShare (of the frame's short side), bounds (pixels from the top-left) and edges (distance to each frame edge as a share of that dimension, negative outside), keyframed when keyframes move it (not followed); holdSeconds, words and wordsPerSecond; speech {onsetOffsetFrames (from the nearest word start), narrationShare (of its time with words spoken)} from the heard or caption words; captionOverlap {item, ratio of its box} for titles; templateRepeats (items with its preset on its layer); faceOverlap null (needs a vision.faces provider; null means unknown). With contrast: contrast {ratio (WCAG, 1–21) of the mean, lightRatio and darkRatio (the light and dark parts of the text, such as fill and outline), textLuminance, backgroundLuminance, textPixels} measured on the frame with and without text (at frame, or each item's middle). Also the frame size, the platform whose zones apply (safeArea, minTextSize), density (titles and captions per minute) and, at a frame, pictures on screen with their scale and coverage. No verdicts.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_review_layout`
 - `frame`: integer, ≥ 0. Only text on screen at this timeline frame
+- `contrast`: boolean. Measure each item's contrast on rendered frames
+
+### `bashcut review hook`
+
+Read how the edit opens and closes, as facts: opening {hookSeconds (the project's review.hookSeconds or null), firstWords {frame, seconds, text} (heard or caption words), firstSpeechItem, firstTitle and firstCaption {frame, seconds, item, text, holdSeconds}, firstCut, described {subjects and sizes [{name, firstFrame, firstSeconds, onScreenSeconds}] from media.describe}, firstFrame {luma, mid, inkShare (pixels text and overlay layers change)}}, close {duration, lastWords, lastCut, lastTitle with its hold, bounds and edges}, and the platform zones. No verdict about what is early enough; the review's hook check runs only when the project sets review.hookSeconds.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_hook`
+
+### `bashcut review cuts`
+
+Read every cut on Main: index, frame/seconds, from/to item IDs, kind (hard, or the transition's kind with transitionFrames/Seconds and easing), gapFrames when there is a gap, framingBefore/After {zoom, pan, tilt} (keyframes included) and sameFraming (same media and the same framing on both sides); counts per kind, runs of the same kind and how many cuts keep the framing. No verdicts.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_cuts`
+
+### `bashcut review sync [--events <events>] [--rendered]`
+
+Time events against the beat grid and the spoken words: per event (cuts on Main by default; text items and sfx items on request) the nearest beat and the nearest word edge (start or end, its text, whether the event falls inside the word) with offsetFrames and offsetMs (positive = after it), and for beats and words the distribution: count, mean, median, p10, p90 and counts per offset from −6 to +6 frames. Words are the stored transcripts heard through the clips (media.transcribe), else the caption words. With rendered: rendered {windows [{at, lagMs, correlation}], driftMsPerMinute, lagStartMs, lagEndMs} from matching the last export's sound to the timeline's mix every 10 s (positive lag = the render is later); the export must show this revision.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_sync`
+- `events`: string. cuts, text, sfx (comma separated; default cuts)
+- `rendered`: boolean. Also measure the last export's timing against the timeline
+
+### `bashcut review window <frame> [--span <span>] [--step <step>] [--width <width>]`
+
+Look across a moment of the edit without exporting: one PNG with the composed frames from frame − span to frame + span (every step frames) labelled with their time, the cuts on Main drawn as lines, the timeline's sound level (−60…0 dBFS) and the words heard there. Returns {path, frames, cuts, words [{text, at, end}], levels [{frame, db}] (the mix per frame, null without sound)}.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_window`
+- `frame`: integer, required, ≥ 0. Timeline frame in the middle
+- `span`: integer, 1…120. Frames on each side (default 6)
+- `step`: integer, 1…60. Frames between pictures (default 1)
+- `width`: integer, 400…8192. Image width in pixels (default 1600)
+
+## platforms
+
+### `bashcut platforms list`
+
+Read the platform facts review uses: per platform (TikTok, Reels, Shorts, YouTube) shape, maxSeconds, targetLUFS, maxTruePeakDbTP and safeArea (zones the app covers, as fractions), with the project's review.platform overrides applied, whether it is one of the project's outputs and whether it was overridden; layout: the zones text is checked against (the strictest of the outputs of the frame's shape, null when none); targets: each output preset's loudness target (output.targets, else the platform's).
+
+- Mode: read · Runs: immediately · MCP: `bashcut_platforms_list`
 
 ## export
 
@@ -624,6 +681,31 @@ Place captions of project media as one undoable edit, from its stored transcript
 - `provider`: string. Provider ID overriding the project preference for one request
 - `fresh`: boolean. Transcribe again instead of using the media's stored transcript
 
+### `bashcut captions group [<groups.json>] [--source <source>] [--max-chars <maxChars>] [--max-seconds <maxSeconds>] [--break-gap <breakGapSeconds>] [--from <from>] [--to <to>] --base-rev <baseRev>`
+
+Re-cut captions from word groups you choose, as one undoable edit: groups is a list of runs of word indices (from transcript words, or with source heard from transcript words --heard), each becoming one caption from its first word's start to its last word's end with its words timed; the captions those words fall in are replaced (their style kept). Rule mode instead (maxChars, maxSeconds and breakGapSeconds, all required; from/to limit it) joins words greedily. Returns rev and facts: cues [{frames, seconds, chars, cps, text}], gaps and overlaps between cues in frames. No default grouping.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_captions_group`
+- `groups`: array. Runs of word indices (CLI: path to groups.json)
+- `source`: string, one of captions, heard. captions (default) or heard
+- `maxChars`: integer, 1…500. Rule mode: longest caption in characters
+- `maxSeconds`: number, 0.1…60. Rule mode: longest caption in seconds
+- `breakGapSeconds`: number, 0…10. Rule mode: a pause this long starts a caption
+- `from`: integer, ≥ 0. Rule mode: from this timeline frame
+- `to`: integer, ≥ 0. Rule mode: up to this timeline frame
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
+
+### `bashcut captions align --media <media> --text <text> [--replace] [--provider <provider>] [--aligner <aligner>]`
+
+Make captions whose text is the script and whose times come from the speech: each non-empty line of text becomes a cue, timed by matching the script's words to the media's words (its stored transcript, or a new transcription), placed through the clips that play the media as one undoable edit. With replace, captions of that media in the aligned stretch are replaced. With aligner, a captions.align provider times the words instead of the transcript. Returns cues, score (matched words over the longer count) and unmatched words with their times. A job.
+
+- Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_captions_align`
+- `media`: string, required. Media ID whose speech times the script
+- `text`: string, required. The script, one cue per line
+- `replace`: boolean. Replace that media's captions in the stretch
+- `provider`: string. Provider ID overriding the project preference for one request
+- `aligner`: string. A captions.align provider to time the words instead of the transcript
+
 ## transcript
 
 ### `bashcut transcript words [--from <from>] [--to <to>] [--media <media>] [--heard]`
@@ -806,28 +888,123 @@ Detect beats in audio media and set its beat grid as one undoable edit.
 - `media`: string, required. Audio media ID already placed on the timeline
 - `provider`: string. Provider ID overriding the project preference for one request
 
+### `bashcut beats grid --media <media>`
+
+Read the beat grid beats detect stored for a media file, in its own seconds: bpm, beatsSeconds and, when the provider gives them, grid {strengths (0–1 per beat), downbeats and beatsPerBar (the phase where the kick band hits hardest; phaseScores per phase), confidence (how much the tempo stands out, 0–1), fit {periodSeconds, phaseSeconds, rmsErrorMs of the beats from a straight grid}, alternates [{bpm half and double, relative strength}]}, and downbeatFrames on the timeline where the media plays.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_beats_grid`
+- `media`: string, required. Project media ID
+
+## audio
+
+### `bashcut audio measure [--media <media>] [--curve] [--timeline] [--provider <provider>]`
+
+Measure a media file's sound with an audio.loudness provider: integrated loudness (LUFS), true peak, loudness range (LU) and the energy share in the speech band (300-3000 Hz) and the presence band (1-4 kHz, where consonants carry words). With curve, loudness over time: curve {step 0.1 s, momentary (400 ms) and shortTerm (3 s) LUFS, peakDb per step}. With timeline (instead of media), the whole mix is rendered to a scratch file (no export) and measured with its curve and silences [{start, end, seconds}] where momentary loudness stays at or under −70 LUFS. The job's result holds the values.
+
+- Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_audio_measure`
+- `media`: string. Project media ID
+- `curve`: boolean. Add loudness over time
+- `timeline`: boolean. Measure the timeline's mix instead of a media file
+- `provider`: string. Provider ID overriding the project preference for one request
+
+### `bashcut audio energy --media <media> [--count <count>] [--window <windowSeconds>] [--provider <provider>]`
+
+How a music file's energy moves, with an audio.energy provider: every step seconds levelDb, onset (density) and fullness (share of octave bands near the loudest), and candidates [{kind lift, drop or breath, seconds, magnitude dB, beatSeconds (snapped), timeline [{item, frame}]}] ranked by size, count per kind. Pointers to listen to, not cut points. A job.
+
+- Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_audio_energy`
+- `media`: string, required. Project media ID
+- `count`: integer, 1…50. Candidates per kind (default 6)
+- `windowSeconds`: number, 0.5…30. Seconds compared before and after (default 2)
+- `provider`: string. Provider ID overriding the project preference for one request
+
+### `bashcut audio mix-measure [--near <nearSeconds>] [--provider <provider>]`
+
+Read the mix by role without exporting: one stem each for speech (dialogue and voiceover layers and the sound of video clips), music and sound effects is rendered (other sounds at −120 dB, so ducking stays as in the mix) and measured over time. Spoken blocks are those inside heard or caption words, else where the speech stem is over −70 LUFS. Returns voice, musicUnderSpeech (voice minus music, in LU) and musicInGaps as {median, p10, p90, blocks}; speechWindows with the same per window; effects per sound-effect item: loudness (loudest momentary LUFS), peakDb, voiceP95 within nearSeconds, deltaDb, masked (under that voice level), onset and peak offsets in frames to the nearest cut, beat and word edge; and each stem's integrated loudness. A job; no levels are changed.
+
+- Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_audio_mix-measure`
+- `nearSeconds`: number, 0.1…10. Seconds around an effect read for the voice (default 1)
+- `provider`: string. Provider ID overriding the project preference for one request
+
+## color
+
+### `bashcut color measure [--items <items>] [--samples <samples>] [--graded] [--compare <compare>] [--by <by>]`
+
+Measure colour per clip on frames spread over each clip (samples, default 3), on the scale the colour skill reads (0–100): black (luma p1), p5, mid (p50), p95, white (p99), mean, saturation (mean HSV) and saturationP95, tintShadows/Mids/Highlights [R−B, G−(R+B)/2] (bands split at luma 0.25 and 0.7; null with too few pixels), clippedShare and crushedShare; the median over the samples. By default the source frames (no reframe, no grade); graded measures the edit as composed; compare source measures the edit without colour and as graded and adds change {black, mid, white, saturation, tintMids, chromaRatio, blackLift, clippedGrowth, crushedGrowth, meanDeltaE (CIE76)}. by clip adds the median clip and each clip's difference from it. Clips on Main by default, or the given video item IDs. Facts only.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_color_measure`
+- `items`: string. Video item IDs, comma separated; the clips on Main by default
+- `samples`: integer, 1…24. Frames per clip (default 3)
+- `graded`: boolean. Measure the edit as composed
+- `compare`: string, one of source. source: the edit without colour against it as graded
+- `by`: string, one of clip. clip: each clip's difference from the median clip
+
+## speech
+
+### `bashcut speech rate [--media <media>] [--unit <unit>] [--voice <voice>]`
+
+Measure speaking rate in the content language's unit (syllables for Vietnamese, characters for Chinese, Japanese and Korean, else words): per transcribed media (media.transcribe) and speaker, each phrase's rate over its own length as p10/p50/p90, overall (all units over all phrase time) and articulation (over the time words sound); and voices: the rates measured on synthesized takes (voice speak), per voice and language, with sample count and p10/p50/p90. No normal rate is assumed.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_speech_rate`
+- `media`: string. Project media ID; every transcribed media by default
+- `unit`: string, one of syllables, words, characters. Count in this unit instead
+- `voice`: string. Only this voice (provider/voice)
+
+## narration
+
+### `bashcut narration windows --min-seconds <minSeconds> [--rate <rate>] [--levels]`
+
+List stretches of at least minSeconds with no spoken word (heard or caption words) and no voiceover item: at/end frames and seconds, anchors {afterWord (the last word before it), firstCut, firstBeat, section, sectionStartsInside}, owner (music, footage or silence: what covers most of it), the shots on Main under it with their described facts, and with rate (units per second, in the content language's unit) a budget of units that fit. With levels, the mix is rendered once (no export) and each window gets its mixLoudness {median, p10, p90}. No length or rate is assumed.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_narration_windows`
+- `minSeconds`: number, required, 0.1…600. Shortest window listed
+- `rate`: number, 0.1…50. Units per second for the text budget
+- `levels`: boolean. Render the mix to add each window's loudness
+
 ## voice
 
-### `bashcut voice speak <text> [--takes <takes>] [--at-frame <atFrame>] [--provider <provider>] [--keep-takes]`
+### `bashcut voice voices`
 
-Synthesize voice takes and insert the best take on the Voiceover track; with keepTakes, insert nothing and keep every take file so one can be chosen and placed with media.import.
+List the voices of every voice.synthesize provider: per provider plugin, name, availability, clones (it can clone a voice; voice speak then needs cloneConsent) and the voice its plugin is set to; per voice id, language, region, style, gender, supportsRate and measuredRate (rates measured on its takes by voice speak, per language: samples, p10, p50, p90).
+
+- Mode: read · Runs: immediately · MCP: `bashcut_voice_voices`
+
+### `bashcut voice speak [<text>] [--replace <replace>] [--takes <takes>] [--at-frame <atFrame>] [--provider <provider>] [--keep-takes] [--target-rate <targetRate>] [--choose <choose>] [--clone-consent]`
+
+Synthesize voice takes and insert one on the Voiceover track: the take whose rate is closest to targetRate, the take number choose, or else the provider's best score (the first take when it gives none). Every take is reported with seconds, units (syllables, words or characters for the content language), unitsPerSecond over its sound, leadingSilence, trailingSilence, pauses and its file; the rates are kept per voice (speech rate). The item keeps voice {text, language, provider, voice}. With replace, the take goes into that item instead. With keepTakes, insert nothing and keep every take file so one can be chosen and placed with media.import.
 
 - Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_voice_speak`
-- `text`: string, required. Voiceover text in the project content language
+- `text`: string. Voiceover text in the project content language (with replace, the item's voice text by default)
+- `replace`: string. Voiceover item to put the new take into, keeping its place; its captions are timed again from the new take
 - `takes`: integer, 1…8, default 3. Number of takes to generate
 - `atFrame`: integer, ≥ 0. Timeline frame; defaults to the playhead
 - `provider`: string. Provider ID overriding the project preference for one request
 - `keepTakes`: boolean, default false. Keep all takes in voiceover/generated and insert none
+- `targetRate`: number, 0.1…50. Insert the take closest to this many units per second
+- `choose`: integer, 1…8. Insert this take (1 = first)
+- `cloneConsent`: boolean. The user agreed to clone the voice set in the plugin's options; providers that clone refuse without it
 
-## audio
+### `bashcut voice check [--item <item>] [--media <media>] [--text <text>] [--min-similarity <minSimilarity>] [--provider <provider>]`
 
-### `bashcut audio measure --media <media> [--provider <provider>]`
+Check what a voiceover take says against the text it should say: the take (a voiceover item, or a media) is transcribed (or its stored transcript reused) and diffed word by word. Returns similarity (matched words over the longer word count), words [{text, heard, kind match|substituted|missing, start, end}], unmatched, extra (heard but not in the text) and, only with minSimilarity, passed. The text defaults to the item's voice.text. A job.
 
-Measure a media file's sound with an audio.loudness provider: integrated loudness (LUFS), true peak, loudness range (LU) and the energy share in the speech band (300-3000 Hz) and the presence band (1-4 kHz, where consonants carry words). Under a voice, prefer music with a low presence share and loudness range. The job's result holds the values.
-
-- Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_audio_measure`
-- `media`: string, required. Project media ID
+- Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_voice_check`
+- `item`: string. Voiceover item ID
+- `media`: string. Media ID instead of an item
+- `text`: string. The text the take should say
+- `minSimilarity`: number, 0…1. Report passed against this similarity
 - `provider`: string. Provider ID overriding the project preference for one request
+
+### `bashcut voice fit --item <item> [--frames <frames>] [--to-frame <toFrame>] --min-ratio <minRatio> --max-ratio <maxRatio> --base-rev <baseRev>`
+
+Change a voiceover item's speed (pitch kept) so it lasts frames, or ends at toFrame, as one undoable edit, when the needed speed is within minRatio…maxRatio; otherwise nothing changes and the error gives the speed it would need. Returns speed, frames and slackFrames. No default bounds.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_voice_fit`
+- `item`: string, required. Voiceover item ID
+- `frames`: integer, ≥ 1. Length to fill, in timeline frames
+- `toFrame`: integer, ≥ 1. Timeline frame to end at
+- `minRatio`: number, required, 0.1…16. Slowest speed allowed (1 = as recorded)
+- `maxRatio`: number, required, 0.1…16. Fastest speed allowed
+- `baseRev`: integer, required, ≥ 0. Current project revision from timeline.get
 
 ## storage
 
@@ -1067,12 +1244,24 @@ Move the viewer to a timeline frame.
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_seek`
 - `frame`: integer, required, ≥ 0. Timeline frame
 
-### `bashcut ui frame [<frame>]`
+### `bashcut ui frame [<frame>] [--width <width>] [--phone]`
 
-Render the viewer's picture at a timeline frame (the playhead by default) to a PNG, like attaching the viewer frame in Ask; returns its path. Read the file to look at the edit. Keeps the ten newest.
+Render the viewer's picture at a timeline frame (the playhead by default) to a PNG, like attaching the viewer frame in Ask; returns its path. Read the file to look at the edit. Keeps the ten newest. width renders it that many pixels wide (phone: 390, about a phone screen, to judge text at the size viewers see it); otherwise up to 1280 on the long edge.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_ui_frame`
 - `frame`: integer, ≥ 0. Timeline frame; the playhead by default
+- `width`: integer, 64…4096. Width in pixels
+- `phone`: boolean. 390 pixels wide
+
+### `bashcut ui frames --compare <compare> [--frames <frames>] [--items <items>] [--width <width>]`
+
+Compare pictures in one PNG grid, one row per frame: compare graded puts the frame without colour (looks, adjustments, LUTs bypassed) next to the edit as graded; compare source puts the source frame of the clip on Main at that point (no reframe, no grade) next to the edit. Rows from frames (timeline frames) or items (the middle of each item). Each cell is width pixels wide (default 390). Returns {path, rows [{frame, item?, sourceSeconds?}], columns}.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_ui_frames`
+- `compare`: string, required, one of graded, source. graded or source
+- `frames`: string. Timeline frames, comma separated
+- `items`: string. Item IDs, comma separated
+- `width`: integer, 64…2048. Cell width in pixels (default 390)
 
 ### `bashcut ui panel <panel>`
 
@@ -1478,7 +1667,7 @@ Add a library item to the timeline as a new item: a text preset (with its stored
 
 ### `bashcut library analyze <id> [--scope <scope>] [--provider <provider>]`
 
-Measure an audio library item's file and save the values as a new version: its length, integrated loudness and true peak (an audio.loudness provider, as audio measure) and, unless it is a sound effect, its tempo in BPM (an audio.beats provider, as beats detect). Runs as a job; a missing provider leaves that value and says why in notes. Agents saving to the user scope wait for approval. Tag mood and genre with library update --tags after listening or reading the analysis.
+Measure an audio library item's file and save the values as a new version: its length, integrated loudness and true peak (an audio.loudness provider, as audio measure), landmarks {onset, peak, tail} in seconds (where it passes the −70 LUFS gate, peaks and drops back under it) and, unless it is a sound effect, its tempo in BPM (an audio.beats provider, as beats detect). Runs as a job; a missing provider leaves that value and says why in notes. Agents saving to the user scope wait for approval. Tag mood and genre with library update --tags after listening or reading the analysis.
 
 - Mode: edit · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_library_analyze`
 - `id`: string, required. Item ID, or scope:id to pick one scope
