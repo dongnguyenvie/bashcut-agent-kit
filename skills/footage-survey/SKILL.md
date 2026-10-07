@@ -13,7 +13,7 @@ N`, one file per call, absolute paths, without `--place`); importing does not to
 bashcut context get                               # analysis: running jobs, media not measured/transcribed/described
 bashcut media inventory                           # per clip, folder and project: length, size, orientation, capture
                                                   # time, GPS, device, speech, what is measured/transcribed/described
-bashcut media analyze                             # job: measure every file once (kept by content); jobs status JOB_ID
+bashcut media analyze                             # job: measure every file once (kept by content); jobs wait JOB_ID
 bashcut media frames --sheet                      # contact sheets of every clip with a picture (8 frames each)
 bashcut media frames --sheet --media A,B --count 12   # more frames for clips that change inside (walks, timelapses)
 bashcut media frames --sheet --every 2 --media ID     # a frame every 2 s of one file (a long take, a rendered draft)
@@ -94,7 +94,7 @@ Filename clocks lie (82 s and 101 s apart by name, 2.44 s by sound once the reco
 ```sh
 bashcut media sync --media CAMERA_ID --to SCREEN_ID [--item CAMERA_CLIP]   # job: screen time = camera time + offset
 bashcut media sync --media SCREEN_ID --to RENDER_ID                        # a render played on screen starts at −offset
-bashcut jobs status JOB_ID
+bashcut jobs wait JOB_ID --timeout 25
 ```
 
 Both files must be project media (`media import`). It correlates loudness envelopes and checks each half of the
@@ -148,7 +148,7 @@ Once clips are project media (`media import`), BashCut measures each file once a
 content, so later sessions reuse it):
 
 ```sh
-bashcut media analyze [--media ID]              # job, every video/audio media by default; jobs status JOB_ID
+bashcut media analyze [--media ID]              # job, every video/audio media by default; jobs wait JOB_ID
 bashcut media list --analysis                   # which media are measured
 bashcut media analysis --media ID               # tech, cuts, shots, summary, sound
 bashcut media analysis --media ID --samples     # + every picture sample (4 a second)

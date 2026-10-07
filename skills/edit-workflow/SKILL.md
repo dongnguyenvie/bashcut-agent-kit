@@ -148,9 +148,15 @@ Shapes and an example: `<skill_dir>/REFERENCE.md`, "The brief and the plan as da
 - **Frame budget.** Before a stage, decide how many images it needs (usually one sheet plus a few doubts) and stay
   near it. Read text results first (`review run`, `review cuts`, `timeline sheet` cells) and open images when the
   numbers leave a question.
-- **Wait and back off.** Jobs (`media transcribe`, `review measure`, exports) return a job ID: poll `jobs status <job>`
-  (exports: `export status`) at 2 → 5 → 10 → 15 s, not in a tight loop and never with minute-long sleeps (T20 §3).
-  After about 30 min, stop and give the user the job ID. Poll `checkpoint status` the same way.
+- **Wait, don't poll.** Jobs (`media transcribe`, `review measure`, exports) return a job ID: call
+  `jobs wait <job> --timeout 25` again until its state is `completed`, `failed` or `cancelled`; it returns as soon as
+  the state or step changes, so never sleep between calls. After about 30 min, stop and give the user the job ID.
+  Poll `checkpoint status` at 2 → 5 → 10 → 15 s (T20 §3).
+- **Paid providers.** `voice speak` and `library generate` may call a provider that charges. Always pass a stable
+  `--request-id` (for example `vo-<section>-<n>`), so a retry after a timeout returns the same job instead of paying
+  twice. When the provider is `paid` (`--dry-run` says so), run `--dry-run` first and show the user the request and
+  the provider's `estimate`; never invent a price. Report each finished job's `usage` (`costUSD` only when the
+  provider reported it, `costSource: provider`).
 - **Retry rules.** Retry reads and polls freely. A mutation that timed out may have happened: re-read before sending
   it again. `-32002`: re-read, retry with the new `--base-rev`. After 2–3 identical failures of one step, stop and ask
   (T00 §3, T20 §3), and record the tooling problem with `bc:self-learn`.

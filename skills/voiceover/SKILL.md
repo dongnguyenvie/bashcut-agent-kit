@@ -69,13 +69,15 @@ approved text minimally and tell the user which words changed.
 ```sh
 bashcut voice speak "Text of one line" --takes 3 --at-frame F --target-rate R   # job; inserts the take closest to R
 bashcut voice speak "Text" --takes 6 --keep-takes                                # keep every take, insert nothing
-bashcut jobs status JOB_ID                                                       # every take's facts and file
+bashcut jobs wait JOB_ID --timeout 25                                            # repeat until done; every take's facts and file
 ```
 
 - Each take reports `seconds`, `units`, `unitsPerSecond`, `leadingSilence`, `trailingSilence`, `pauses` and its
   file. Choose by `--target-rate` (the rate you sized the line with), `--choose N` (a take you picked from the
   facts), or else the provider's score. Core holds no pace formula: the choice is yours.
 - One call per line or short paragraph at its window; it becomes one undoable edit and the item keeps its text.
+- Give every call a stable `--request-id` (`vo-<section>-<n>`). A paid provider: `--dry-run` first and show the
+  user its `estimate`; the job's `usage` reports what it charged.
 - Takes: 3–6, more for short or expressive lines (T10 §3).
 - A take whose rate is far from the voice's measured rate (video-recap flags beyond about ±30 %, T10 §3) has
   likely dropped, repeated or invented words: check it first.

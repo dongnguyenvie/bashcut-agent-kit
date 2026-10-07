@@ -43,7 +43,7 @@ Place the music on its layer first, then:
 
 ```sh
 bashcut beats detect --media MUSIC_MEDIA_ID     # job; needs an audio.beats provider (core audio-analysis)
-bashcut jobs status JOB_ID                      # bpm and beat frames; stored as the media's grid
+bashcut jobs wait JOB_ID --timeout 25         # bpm and beat frames; stored as the media's grid
 bashcut beats grid --media MUSIC_MEDIA_ID       # strengths, downbeats, confidence, fit, half/double alternates
 bashcut audio energy --media MUSIC_MEDIA_ID     # job: level, onset, fullness per step; lift/drop/breath candidates
 ```

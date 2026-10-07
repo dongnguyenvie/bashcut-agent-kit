@@ -27,7 +27,7 @@ Ducking follows speech on the dialogue and voiceover layers; a muted layer stops
 
 ```sh
 bashcut audio mix-measure                  # job, no export, no change: the mix by role
-bashcut jobs status JOB_ID
+bashcut jobs wait JOB_ID --timeout 25
 bashcut audio measure --timeline --curve   # job: the whole mix rendered, loudness over time and silent stretches
 bashcut audio measure --media ID --curve   # job: one file (a music candidate, a take, an SFX)
 ```
