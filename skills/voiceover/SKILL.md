@@ -10,8 +10,10 @@ choose from with the measurements in hand. Measure → change → measure again.
 
 ## Provider and voice
 
-`voice speak` uses the project's `voice.synthesize` provider. Check with `plugins list`; if there is none,
-`plugins search --capability voice.synthesize` and ask the user to install one (for Vietnamese: VieNeu TTS).
+`voice speak` uses the project's `voice.synthesize` provider. Check with `capabilities get voice.synthesize`:
+`reason: missing` → `plugins search --capability voice.synthesize` and ask the user to install one (for Vietnamese:
+VieNeu TTS); `not_configured` → tell the user what the provider's `detail` says (turn it on, trust it again);
+`unhealthy` → the failing dependency is in `detail`.
 
 ```sh
 bashcut voice voices                                   # per voice: language, region, style, gender, supportsRate, measuredRate; per provider: clones
