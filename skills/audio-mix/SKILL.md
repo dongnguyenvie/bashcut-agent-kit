@@ -18,7 +18,7 @@ source and what moves them. You cannot listen: measure, change, measure again, a
 | Volume that changes over time (swell the music at a drop, dip it for one line) | `clip keyframe ITEM --property volume --value -18 --at-frame F` per key (dB, timeline frame inside the item; `--ease linear/in/out/inOut/hold`); keys replace `volumeDb` and stack with fades and ducking. Key audio items, or clips whose sound is not unlinked |
 | Silence a clip / a layer | `{"muted": true}` / `layers set TRACK --muted on` |
 | Music under speech | music layer: `setTrackProperties` `{"duckingEnabled": true, "duckUnderSpeechDb": -D, "duckAttackFrames": A, "duckReleaseFrames": R}` (ranges below) |
-| Loudness per output | `platforms list`: `targets` gives each output preset's target; override one with `setProjectProperties` `{"output": {"targets": {"tiktok": {"integratedLUFS": L, "truePeakDbTP": TP}}}}`; export with `--normalize-audio` (needs `audio.loudness`, core audio-analysis) |
+| Loudness per output | `platforms get`: `targets` gives each output preset's target; override one with `setProjectProperties` `{"output": {"targets": {"tiktok": {"integratedLUFS": L, "truePeakDbTP": TP}}}}`; export with `--normalize-audio` (needs `audio.loudness`, core audio-analysis) |
 | New layers | `layers add --kind audio --role music` (or `sfx`; voiceover layers: `bc:voiceover`) |
 
 Ducking follows speech on the dialogue and voiceover layers; a muted layer stops ducking music.
@@ -157,7 +157,7 @@ Udio, MusicGen, `library generate` for music). Dead ends: Bensound, BBC SFX, Pro
 
 ## Loudness and verify
 
-- **Each export is normalized to its own preset's target**, not one number for all: read `platforms list`
+- **Each export is normalized to its own preset's target**, not one number for all: read `platforms get`
   (`targets`). Values seen: −14 LUFS is the common short-form playback reference, −16 for podcast, web or
   voice-only, broadcast −23/−24; true peak −1 to −1.5 dBTP, lower when the platform re-encodes (T11 §3). Override
   a preset only for a reason the user gave (`output.targets`); a recipe never sets it.

@@ -24,8 +24,8 @@ generous on the first pass and tighten later: a discarded moment is slow to find
 3. Classify the source (T06 §4): **words** (the content is what is said: talks, interviews, tutorials), **reactions**
    (laughter, surprise: watch the picture; laughter and "clip that" lag the moment they react to) or **visual**
    (demonstrations, sport: the transcript is weak evidence, use the survey's descriptions).
-4. Read the brief and plan (`project brief`, `plan get`): the length range, the outputs and the sections decide
-   what is worth keeping.
+4. Read the brief and plan (`project data brief`, `project data plan`): the length range, the outputs and the
+   sections decide what is worth keeping.
 
 ## The select-by-quote loop
 

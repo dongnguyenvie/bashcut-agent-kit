@@ -23,15 +23,14 @@ edit and you have none of the maker's reasons, on purpose (T16 §4). Judge what 
 | `plan.json` | the brief, the edit plan (sections with length ranges, shots, beats, decisions), the review profile, the outputs | know what the edit promised and for which platforms |
 | `digest.json` | what changed since the last review round | in round 2+, check those changes first |
 | `issues.json` | the measured issues with severity, frame, fix, and the round diff (fixed, new, persisting) | start from facts; a measured issue is a number, not yet a finding |
-| `cuts.json` | every cut on Main: frame, kind, framing before and after | find jump cuts, same-framing cuts, unintended gaps |
+| `shots.json` | every shot on Main with the cut into it (kind, framing before and after), rhythm, shares | find jump cuts, same-framing cuts, unintended gaps, monotony |
 | `word-landing.json` | words against cuts and titles: offsets, cuts inside words | find clipped words, titles early or late on their word |
-| `hook.json` | the opening and the close as facts: first words, first title, first cut, first frame | judge whether the first 1–3 s make a viewer stay |
-| `coverage.json` | planned shots and beats against what was placed or heard | find promised shots or lines that are missing |
+| `coverage.json` | the described shot each clip plays; the plan's beats against the words heard | find promised shots or lines that are missing (join the clips with `plan.json` shots) |
 | `measured.json` | what was measured and what was not (stale, notChecked, failed, unreliable) | never pass what nobody measured |
 | `sheet-*.png` | a contact sheet of every cut and title, labelled `<cell> <m:ss.s>` | see framing, text size and placement, repeated shots |
 
-How to work: read `README`, `plan.json` and `measured.json` first; then `issues.json`, `cuts.json`,
-`word-landing.json`, `hook.json`, `coverage.json`; then every sheet. Do not edit the project. If you also have the
+How to work: read `README`, `plan.json` and `measured.json` first; then `issues.json`, `shots.json`,
+`word-landing.json`, `coverage.json`; then every sheet; judge the opening from the first shots, words and cells. Do not edit the project. If you also have the
 `bashcut` CLI, read-only commands are fine for a doubt (`ui frame F --phone`, `review window F`), nothing else.
 
 Return, as text, briefed "to roast, not to praise" (T16 §2):
@@ -103,7 +102,7 @@ Each round:
 2. **Look in batches.** `timeline sheet --cuts --text` (and `--outputs all` for safe zones), then
    `review window F --span S --step K` only at cuts in doubt: ±0.4–1.5 s at 10–12 fps, wider for dialogue cuts,
    narrower for beat cuts (T16 §3; at 30 fps about `--span 12`–`45` with `--step 3`). `ui frame F --phone` for text
-   at the width a viewer sees (360–420 px, T16 §3). `review coverage` and `script check` against the plan.
+   at the width a viewer sees (360–420 px, T16 §3). `review coverage` (which described shot each clip plays) and `script check` against the plan.
 3. **Critic.** When you can start a sub-agent, run `review packet` and give it only the folder and `bc:review` (the
    section above). It has none of your reasons, so it sees what a viewer sees. Otherwise judge yourself, from the
    evidence, not from what you intended.
@@ -122,10 +121,10 @@ or ask the user when it is taste. Never hide a failure with a transition or a fl
 | Issue | Look and measure | Fix with |
 |---|---|---|
 | black, frozen picture, long static shot | `ui frame F`, `review picture --from F --to G`, `review shots --summary` | `bc:beat-cut`, `bc:effects`; black: offline media or a hiding layer |
-| jump cut, repeated framing, gap, cut in a word | `review window F`, `review cuts`, `timeline apply --dry-run` (`cutsInsideWord`) | `bc:rough-cut`, `bc:beat-cut` |
+| jump cut, repeated framing, gap, cut in a word | `review window F`, `review shots` (`cut`), `timeline apply --dry-run` (`cutsInsideWord`) | `bc:rough-cut`, `bc:beat-cut` |
 | cut or text off the beat or the word | `review window F`, `review sync --events cuts,text` | `bc:beat-cut`, `bc:captions-text` |
 | text in a zone, too small, overlap, contrast | `ui frame F --phone`, `review layout --frame F --contrast` | `bc:captions-text` |
-| no hook, slow opening | `review hook`, the first cells of the sheet | story (`bc:edit-workflow`), `bc:captions-text` |
+| no hook, slow opening | `review shots --to F`, `review layout --to F --ink`, `transcript words --to F`, the first cells of the sheet | story (`bc:edit-workflow`), `bc:captions-text` |
 | dead air, music gaps, voice drowned | `review window F`, `audio mix-measure` (a job) | `bc:audio-mix` |
 | loudness, true peak | the normalized draft, `platforms get <id>` | `bc:audio-mix` |
 | colour jumps between clips | `color measure --by clip`, `ui frame F` | `bc:color-grade` |

@@ -1,6 +1,6 @@
 ---
 name: beat-cut
-description: Give a BashCut edit rhythm by measurement — read the music's beat grid and energy or the speech's word edges and rate, choose cut points and shot lengths per section from sourced ranges, cut, then check rhythm, runs and beat/word sync (review shots, review cuts, review sync) and adjust; fake extra shot sizes with punch-in reframes sized from each clip's measured zoom headroom when the footage lacks coverage. Use when editing a vlog or montage to music, when the cut feels flat, slow, rushed or boring, when cuts miss the beat, or when consecutive cuts look the same because the camera was locked off. Triggers: "cắt theo nhịp", "cắt theo beat", "khớp nhạc", "lệch nhịp", "bản dựng phẳng", "nhàm", "punch-in".
+description: Give a BashCut edit rhythm by measurement — read the music's beat grid and energy or the speech's word edges and rate, choose cut points and shot lengths per section from sourced ranges, cut, then check rhythm, runs and beat/word sync (review shots, review sync) and adjust; fake extra shot sizes with punch-in reframes sized from each clip's measured zoom headroom when the footage lacks coverage. Use when editing a vlog or montage to music, when the cut feels flat, slow, rushed or boring, when cuts miss the beat, or when consecutive cuts look the same because the camera was locked off. Triggers: "cắt theo nhịp", "cắt theo beat", "khớp nhạc", "lệch nhịp", "bản dựng phẳng", "nhàm", "punch-in".
 ---
 
 # Beat cutting and punch-in reframes
@@ -136,19 +136,18 @@ from one edit: (1.00,0,0) (1.28,60,−25) (1.14,−50,15) (1.22,0,30) (1.00,0,0)
 
 ```sh
 bashcut review measure                                    # job: motion per shot, both sides of every hard cut
-bashcut review shots --summary --run-length 6 --max-cv 0.15
-bashcut review cuts                                       # kind, framing before/after, sameFraming, runs
-bashcut review sync                                       # cuts against beats and word edges
+bashcut review shots --summary                            # rhythm, shares; per shot the cut: kind, framing, sameFraming
+bashcut review sync --bins                                # cuts against beats and word edges, with p10/p90
 bashcut review sync --events cuts,sfx --rendered          # after an export of this revision
 ```
 
 - **Rhythm** (`rhythm.overall` and per section): median, cv and cutsPerMinute against the band you chose.
-  `lowVarianceRuns` with cv under ~0.15 over 6+ shots (davinci) or a `mode` share over ~60% (saas-motion-kit) is
-  monotony: break it unless the calm is intended (T07 §3).
-- **Runs of the same described size and move**: 2 in a row → look; 3+ → change size, angle or relation, or say
+  6+ consecutive shots whose lengths vary under ~0.15 cv (davinci; compute it from the shots' `seconds`) or a `mode`
+  share over ~60% (saas-motion-kit) is monotony: break it unless the calm is intended (T07 §3).
+- **Runs of the same described size and move** (count them from each shot's `described`): 2 in a row → look; 3+ → change size, angle or relation, or say
   why (a motif, a locked-off talk) (higgsfield; T03 §3). A talking head is one setup: punch-ins make the change.
 - **Cut facts**: `sameSetup` with a small `sourceGapSeconds` is a jump cut (punch-in or cutaway); `sameFraming` in
-  `review cuts` means the punch-in is missing; `motion` and `cameraMove` show stillness and repeated moves.
+  the shot's `cut` means the punch-in is missing; `motion` and `cameraMove` show stillness and repeated moves.
 - **Sync to beats**: hard cuts within ±1–2 frames; 3 frames is perceptible (shotcraft pass ≤3 f, ideal ≤1.5 f;
   T07 §3). A median offset away from 0 with a tight p10–p90 means the grid's phase or the whole music is off: shift
   once or recheck the downbeat, not cut by cut. A wide spread means cuts were placed off the grid: `roll` them.

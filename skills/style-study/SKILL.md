@@ -33,7 +33,7 @@ bashcut media transcribe                                    # job: words per fil
 | Facet | Command | Record |
 |---|---|---|
 | Rhythm | `bashcut review shots --media REF --summary` | mean, median, cv, mode (bin and share), cuts per minute; cuts per 10 s and the shot-length histogram from `media analysis --media REF` |
-| Shot sizes, moves | `media describe` the shots you looked at (`bc:footage-survey`), then `review shots --media REF --summary` again | shares of each size, move, direction; runs of the same size and move |
+| Shot sizes, moves | `media describe` the shots you looked at (`bc:footage-survey`), then `review shots --media REF --summary` again | shares of each size, move, direction; runs of the same size and move (count them from the shots) |
 | Hook and close | `bashcut media frames --sheet --media REF --from 0 --to 3 --count 6`; `media transcript --media REF --as words --to 5` | first cut, first words (`firstSpeech`), first text on screen, the last seconds |
 | Speech | `bashcut speech rate --media REF`; `media speech-map --media REF` | rate p10/p50/p90 (syllables for Vietnamese), pauses (`gapStats`), speech share |
 | Sound | `bashcut audio measure --media REF --curve` (job) | integrated LUFS, LRA, true peak; short-term level during words vs in the speech-map gaps |
