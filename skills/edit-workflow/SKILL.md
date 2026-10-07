@@ -29,6 +29,10 @@ with their source, and you choose within them for this footage.
   wherever a kit skill gives one. No plugin: use this kit's ranges and suggest `plugins search vlog`.
 - Read before you edit: `context get`, then `timeline get --format text`. Track IDs and roles come from the read,
   never from memory. Every edit needs the latest `--base-rev`.
+- Say why. On `timeline apply`, pass `--why` (one sentence) and `--evidence` (`;`-separated: review issue IDs,
+  transcript ranges, measurements) next to the stage label. A batch you checked with `--dry-run` goes in with
+  `--expect-fingerprint <its fingerprint>`. When resuming or revising, read `timeline changes` (what was done, by whom
+  and why) instead of guessing from the timeline.
 - Respect an attached scope. A request starting with a `[Scope]` block, or a `scope` list in `context get`, names the
   items the user picked with Send to Agent: change only those (their linked sound or picture follows). New items
   such as a title or an adjustment layer are fine inside their frame range. Ask before touching anything else.
