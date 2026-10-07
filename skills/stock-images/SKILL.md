@@ -53,6 +53,13 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
   `clip motion ITEM --preset zoom-in` (or `pan-left`/`pan-right`): a still that does not move looks frozen.
   Never convert photos to video files.
 
+- **Generated B-roll** (only when a provider serves it: `capabilities get library.generate --kind clip`; none is
+  not a reason to skip stock): `library generate "<shot, framing, light>" --kind clip --request-id broll-1
+  [--params '{...}']` (paid providers: `--dry-run` first and say the price; model options such as length and aspect
+  are the provider's, read them from its options). Save the one the user picks with `library add --from-result
+  JOB:N`, then `library place ID --track OVERLAY --at-frame F --duration N --base-rev N`. It is AI picture: the
+  rules below apply as for stock, and `project credits` counts it in the AI share.
+
 ## 4. Rules
 
 - **Never pass stock off as the real place.** Keep the real footage as the main picture; stock goes on top or
