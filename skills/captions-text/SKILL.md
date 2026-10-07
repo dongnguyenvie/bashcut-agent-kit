@@ -15,7 +15,15 @@ bashcut captions generate --media MEDIA_ID [--replace]   # job; needs a captions
 bashcut captions generate --media MEDIA_ID --from 128 --to 148 --replace   # one stretch again (source seconds)
 bashcut captions export --format text > /tmp/captions.srt # read and fix
 bashcut captions import /abs/captions.srt --base-rev N --replace
+bashcut captions export --as text --format text   # one line per cue: times, seconds, cps | text
+bashcut captions export --as json                 # per cue: frames, chars, cps, lines, gapBefore, words with frames
+bashcut transcript words --from F --to G          # each word: frames, transcribed/estimated, source seconds
 ```
+
+Reading speed is a measurement, not a rule: `cps` is characters (spaces included) per second on screen. Common
+subtitle guides allow up to about 17 cps for adults and 13 for children (Netflix); short-form captions read in a
+glance often sit lower. Pick the range for the audience and genre, then fix the cues outside it (split, merge or
+re-time) and read the export again. `gapBefore` below a few frames between cues flickers; negative means they overlap.
 
 - Speech recognition invents text over music, crowds, rooms and screen recordings ("hãy subscribe kênh…",
   "cảm ơn các bạn đã theo dõi", repeated phrases). Delete those cues; trust a clip with only that text as
@@ -112,7 +120,7 @@ Vietnamese glyph. Inspector › Text has the same font menu and colours.
 
 ## Verify
 
-Render each title and a few captions with `ui frame F` and read the PNGs (position, size, faces, overlaps). `captions export` once more to check timing.
+Render each title and a few captions with `ui frame F` and read the PNGs (position, size, faces, overlaps). `captions export --as text --format text` once more to check timing and cps.
 Then `review run`: text under the vertical caption bar is an error with a fix that raises it; the side buttons, the
 top bar, landscape title safe, text under 3 % of the short side, captions over two lines or 32 characters (42
 landscape), overlapping text and a missing hook in the first 3 s are warnings or notes. `review layout --frame F`
