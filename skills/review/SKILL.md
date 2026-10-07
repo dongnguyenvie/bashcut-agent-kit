@@ -96,7 +96,10 @@ Each round:
 
 1. **Measure, then read.** `review run --summary` returns the issues and `checks`: `measured`, `stale` (an older
    revision: measure again), `notChecked` (with how to measure it), `failed` (plugin checks that timed out),
-   `unreliable` (picture that barely changes: not a pass) and `unsetLimits`. Errors come first.
+   `unreliable` (picture that barely changes: not a pass) and `unsetLimits`. Errors come first. Info issues
+   `voice-text-changed-*`, `captions-source-changed-*` and `beats-source-changed-*` mean a result was made from an
+   older text or file: run their fix (speak, transcribe or detect again) before judging that voice, those captions
+   or that beat grid.
 2. **Look in batches.** `timeline sheet --cuts --text` (and `--outputs all` for safe zones), then
    `review window F --span S --step K` only at cuts in doubt: ±0.4–1.5 s at 10–12 fps, wider for dialogue cuts,
    narrower for beat cuts (T16 §3; at 30 fps about `--span 12`–`45` with `--step 3`). `ui frame F --phone` for text
