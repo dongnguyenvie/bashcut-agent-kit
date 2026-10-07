@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 148 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 151 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -202,6 +202,30 @@ Run the measured review for this revision and keep it, so review.run includes it
 - Mode: read · Runs: as a background job (poll `jobs status`) · MCP: `bashcut_review_measure`
 - `picture`: boolean. Measure the picture (default true)
 - `plugins`: boolean. Run plugin review checks (default true)
+
+### `bashcut review picture [--from <from>] [--to <to>] [--samples <samples>] [--cuts <cuts>]`
+
+Read the raw picture measurement of the last review.measure: per sample {frame, seconds, luma, spread, change, peak} at a fixed interval and per hard cut on Main {item, fromItem, frame, before, seconds, difference}, with the units and the noise floors the picture checks use (floors). Values are fractions of full scale on a small grey thumbnail. current is false when the timeline changed since; measure again for this revision. No verdicts: read the numbers to find frozen stretches, flat or dark picture and near-identical cuts.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_picture`
+- `from`: integer, ≥ 0. First timeline frame (default 0)
+- `to`: integer, ≥ 1. Timeline frame after the range (default: the end)
+- `samples`: boolean. Include the samples (default true)
+- `cuts`: boolean. Include the cuts (default true)
+
+### `bashcut review shots [--summary]`
+
+Read the shots on Main in order: index, id, at/atSeconds, duration (frames) and seconds, media, mediaKind, sourceIn and sourceInSeconds, zoom and transform, speed, keyframed properties, freezeFrame/reverse when set, gapBefore (frames since the previous shot), transitionIn {kind, duration} or the picture cutDifference across a hard cut, and motion {mean, peak, samples} (fractions of full scale, see review.picture) when review.measure ran for this revision (pictureMeasured). No verdicts. With summary: count, total, mean, median, min and max seconds and cuts per minute.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_shots`
+- `summary`: boolean. Add count, length statistics and cuts per minute
+
+### `bashcut review layout [--frame <frame>]`
+
+Read where text sits as the renderer lays it out: per visible text item id, track, trackRole, at/end, text, preset, lines, longestLineChars, fontPixels and fontShare (of the frame's short side), bounds (pixels from the top-left) and edges (distance to each frame edge as a share of that dimension, negative outside), keyframed when keyframes move it (not followed). Also the frame size and the platform whose zones apply (safeArea, minTextSize). No verdicts.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_review_layout`
+- `frame`: integer, ≥ 0. Only text on screen at this timeline frame
 
 ## captions
 
