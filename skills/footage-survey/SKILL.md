@@ -79,9 +79,37 @@ Cameras put the time in the name: `DJI_20260808201922_0400_D.MP4` → 20:19:22 o
 the trip and for place or time labels (`bc:captions-text`). Subfolders may reuse the same clip numbers; the survey
 keeps them apart by path.
 
+## Measured record in BashCut
+
+Once clips are project media (`media import`), BashCut measures each file once and keeps the record (by file
+content, so later sessions reuse it):
+
+```sh
+bashcut media analyze [--media ID]              # job, every video/audio media by default; jobs status JOB_ID
+bashcut media list --analysis                   # which media are measured
+bashcut media analysis --media ID               # tech, cuts, shots, summary, sound
+bashcut media analysis --media ID --samples     # + every picture sample (4 a second)
+bashcut media cuts --media ID --add 12.4 --remove 30.1   # correct the cut list (source seconds)
+```
+
+What it gives, as numbers (no verdicts; you decide what they mean for this edit):
+- `tech`: codec, size, `rotation`, `variableFrameRate` (from the real frame timing; phone screen recordings often
+  are), `transferKind` (`pq`/`hlg` = HDR, `log` = needs a grade before it looks right, `unknown` = untagged), bit
+  depth, `audioMinusVideoSeconds` (a truncated track).
+- `picture.shots`: the camera's own cuts inside a file (a phone edit, a reference video), each with seconds,
+  `cutDifference`, `motion` (as in `review shots`) and mean `luma`, `sharpness`, `colourfulness`. One long shot with
+  low motion = locked-off: one shot size, as the contact sheet shows. `minScore` (default 0.1) is the cut limit:
+  lower it when a soft cut is missing, check the frame, and fix the list with `media cuts`.
+- `sound`: `floorDb`, `medianDb`, `peakDb`, `silentShare`, and `active` spans over the floor (sound, not
+  necessarily speech: transcribe to know). A clip whose `loudDb` stays near the floor has no usable sound.
+
+Use the record for the table's flags and in-points; use the sheet to see what the shots *are*. Only measure what
+you will use when the folder is large: `media analyze --media ID` per clip.
+
 ## Picking in-points
 
-- Pick by measured sharpness, not by eye on a small sheet: motion blur hides at sheet size. Look at the frame
+- Pick by measured sharpness, not by eye on a small sheet: motion blur hides at sheet size (`media analysis
+  --samples`: `sharpness` per sample; compare within one clip, it depends on the picture). Look at the frame
   full size before committing to an in-point (`ffmpeg -ss SECONDS -i clip -frames:v 1 /tmp/f.jpg`, then read it;
   once placed, `ui frame F` shows it in the edit).
 - Long clips that change inside (timelapse, walks) need more frames: rerun with `--frames 10`.

@@ -174,6 +174,7 @@ bashcut review picture --from F --to G     # per sample: luma, spread, change, p
 bashcut review shots --summary             # per shot: seconds, source, zoom, speed, motion; count, median, cuts/min
 bashcut review layout --frame F            # per text item: rendered bounds, font share, margin to each edge + zones
 bashcut transcript words --from F --to G   # per spoken word: frames, gap before, source seconds of its clip
+bashcut media analysis --media ID          # a source file: tech facts, its shots and motion, sound spans (media analyze first)
 ```
 
 `review picture` and `review shots` motion come from the last `review measure` (`current` / `pictureMeasured`
