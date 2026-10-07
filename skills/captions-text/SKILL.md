@@ -166,7 +166,8 @@ frame, not the number.
   strictest zones of all the project's outputs of that shape. Do not carry one platform's numbers to another.
 - Vertical caption height is the biggest contradiction in T09 (from 55–60 % down to near the bottom bar across a
   dozen sources): decide from the zones, faces, a picture-in-picture camera and product cards on this frame, and
-  keep one zone per sequence (T09 §3, §4). `faceOverlap` is null without a vision provider: check faces by eye.
+  keep one zone per sequence (T09 §3, §4). `review layout` `faceOverlap` stays null: read face boxes with `bashcut media subjects --media ID --from S
+  --to S2` (source shares from the top left) and keep captions off them; check on the frame.
 - Keep labels clear of each other (a top-left step label and a top-right tag collided in one project).
 - Sync (T09 §3): captions start 0–0.15 s before the word; cards and graphics lead by 0.15–0.6 s. Read
   `speech.onsetOffsetFrames` instead of assuming.
