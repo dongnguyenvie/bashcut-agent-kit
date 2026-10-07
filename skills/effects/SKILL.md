@@ -1,6 +1,6 @@
 ---
 name: effects
-description: Pick the right editing effect for the moment and genre (food, travel, daily vlog, review/unboxing, product ad, talking head, real estate, event/MV) after reading what the cut already uses (review cuts, review shots), and make it with BashCut's native tools — camera-like moves (punch-in, Ken Burns, keyframe zoom/pan, focus on a screen panel), speed and time (speed ramps, fast-forward, slow motion, freeze, reverse), graphic moves and transitions (dissolve, whip, blink, zoom, spin, shutter, wipe, animated titles, stickers, word-by-word captions) with matching SFX, and reframes that crop only to what matters in the frame — or say plainly when an effect is not possible yet. Use when the user asks "hiệu ứng", "effect", "chuyển cảnh", "transition", "speed ramp", "freeze", "chữ nhảy", "làm giống CapCut", "zoom vào màn hình", "tua nhanh", "cắt khung dọc", "reframe", or when a cut feels flat or repetitive and needs emphasis.
+description: Pick the right editing effect for the moment and genre (food, travel, daily vlog, review/unboxing, product ad, talking head, real estate, event/MV) after reading what the cut already uses (review shots), and make it with BashCut's native tools — camera-like moves (punch-in, Ken Burns, keyframe zoom/pan, focus on a screen panel), speed and time (speed ramps, fast-forward, slow motion, freeze, reverse), graphic moves and transitions (dissolve, whip, blink, zoom, spin, shutter, wipe, animated titles, stickers, word-by-word captions) with matching SFX, and reframes that crop only to what matters in the frame — or say plainly when an effect is not possible yet. Use when the user asks "hiệu ứng", "effect", "chuyển cảnh", "transition", "speed ramp", "freeze", "chữ nhảy", "làm giống CapCut", "zoom vào màn hình", "tua nhanh", "cắt khung dọc", "reframe", or when a cut feels flat or repetitive and needs emphasis.
 ---
 
 # Effects: look, then when, then how
@@ -15,12 +15,12 @@ notes; the names inside are the editors' kits they were seen in). They are start
 ## 1. Read what the cut already does
 
 ```sh
-bashcut review cuts                 # every cut: kind, transition seconds and easing, framing before/after, sameFraming; counts, runs
 bashcut review measure              # job: picture motion per shot (needed for motion in review shots)
-bashcut review shots --summary      # per shot: motion, cameraMove (perSecond, ease), speed, described size/move; runs, shares
+bashcut review shots --summary      # per shot: motion, cameraMove (perSecond, ease), speed, described size/move, and the cut
+                                    # into it: kind, framingBefore/After, sameFraming; transitionIn {kind, duration, easing}; shares
 ```
 
-Look for runs of one transition kind, neighbouring cuts with `sameFraming`, every shot with the same
+Count kinds and runs yourself from each shot's `cut.kind`. Look for runs of one transition kind, neighbouring cuts with `sameFraming`, every shot with the same
 `cameraMove` (one failure seen: all 12 shots a push-in, vox-director; T08 §2), one ease on most moves, and long
 stretches with no motion. For each, decide **motif or mistake**; a motif is fine when it is a choice. Other kits
 warn on: the same transition on two consecutive cuts, one kind used more than 2× in a film under 60 s (3 when
@@ -75,7 +75,7 @@ longer), fewer than 3 families when there are 5+ cuts, one ease on more than hal
 - A clip a few frames short: slow it slightly instead of freezing on its last frame (vox-director stretches by
   ~1.02–1.1; T08 §3).
 - Fast-forward: 1.5–2× when narrated over, 4–20× for silent waiting (digitalsamba, vlog tutorial; T19 §3).
-  `clip speed` takes up to 16×. One example: a 65 s typing stretch read clearly at 18× (3.6 s) with no presenter
+  `setSpeed` takes up to 16×. One example: a 65 s typing stretch read clearly at 18× (3.6 s) with no presenter
   or captions and one label saying what happens.
 
 **Graphic moves and transitions.** Durations in seconds: frames change meaning with fps (T08 §3).
@@ -132,8 +132,8 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
 | Effect | Make it with |
 |---|---|
 | Transition | `{"op":"upsertTransition","id":"t-hook","kind":"whip","from":"A","to":"B","duration":9}` (frames; clips adjacent on one video layer; kinds: dissolve, whip, blink, zoom, spin, shutter, wipe) |
-| Speed ramp | `clip speed-curve ITEM --preset hero` (montage, hero, bullet, jump-cut, flash-in, flash-out) or `--points '[[0,1],[0.5,3],[1,1]]'` |
-| Constant speed | `clip speed ITEM --speed 2` (0.1–16; length follows, `--keep-duration` keeps it) |
+| Speed ramp | `{"op":"setSpeedCurve","item":"ITEM","preset":"hero"}` (montage, hero, bullet, jump-cut, flash-in, flash-out) or `"points":[{"t":0,"speed":1},{"t":0.5,"speed":3},{"t":1,"speed":1}]` |
+| Constant speed | `{"op":"setSpeed","item":"ITEM","speed":2}` (0.1–16; length follows, `"keepDuration":true` keeps it) |
 | Reverse | `clip reverse ITEM` (job) |
 | Freeze frame | select the clip, playhead on the frame, `ui action clip.freeze` |
 | Punch-in / reframe | `setProperties` `{"reframePreset":"custom","transform":{"zoom":Z,"pan":P,"tilt":T}}`, Z from the clip's headroom (`bc:beat-cut`) |
@@ -160,7 +160,7 @@ it with a pre-rendered file.
 
 ## Verify
 
-Run `review cuts` and `review shots --summary` again: the runs and repeats you meant to break are gone, and the
+Run `review shots --summary` again: the runs and repeats you meant to break are gone, and the
 ones left are motifs you can name. Render frames just before, inside and after each effect with `ui frame F` (for
 motion: the first, middle and last frame of the item) or one `review window F` across a transition, and read them;
 for a reframe, check that what matters is still in the frame. Ask the user to listen to the matching sound.

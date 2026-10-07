@@ -16,7 +16,7 @@ for YouTube and computers, `square` for feeds. Ask when it is not clear. It can 
 again with `ui frame`.
 
 Then name the platforms: `project format --outputs reels,tiktok --base-rev N` (export presets, first one primary;
-a recipe sets them for you; the Export sheet starts with the first). `platforms list` gives each platform's facts —
+a recipe sets them for you; the Export sheet starts with the first). `platforms get` gives each platform's facts —
 shape, longest length, safe zones, loudness target, true peak — and which are outputs; `platforms get <id>` gives one
 platform's facts with their source and whether each is hard or a recommendation. The review checks text against the
 zones of every output of the frame's shape (the strictest wins; with none, `layout` is null and zones are not
@@ -32,7 +32,7 @@ analysis jobs still running: wait for them or say what the plan does not know ye
 
 ## The brief and the plan as data
 
-The brief (`project set-brief brief.json --base-rev N`) holds what the edit is for. Each field is
+The brief (`project set-data brief brief.json --base-rev N`) holds what the edit is for. Each field is
 `{value, status, source?}`: `stated` (the user said it), `inferred` (you guessed it from the footage or the
 platform) or `confirmed` (the user approved your guess at G1). Fields: `goal`, `audience`, `outputs`, `angle`,
 `lengthSeconds` (`{min, max}`), `notes`, plus `ideas` and `references` lists.
@@ -46,16 +46,17 @@ platform) or `confirmed` (the user approved your guess at G1). Fields: `goal`, `
 }
 ```
 
-The plan (`plan set plan.json --base-rev N`, later `--merge` to change one field) holds how you mean to make it:
+The plan (`project set-data plan plan.json --base-rev N`, later `--merge` to change one field) holds how you mean to make it:
 `mode` (create, directed, revision), `stage`, `options` (the story options you compared), `sections`
 (`{id, label, lengthSeconds {min, max}, reason, frozen}`), `shots` (planned shots: `purpose`, `size`, `mustShow`,
 `source` footage, stock or generated), `beats` (script lines: `{id, section, text}`), `decisions`
 (`{text, …}`, with the alternatives and the reason), `ranges` (the review limits you chose, `{min, max, source,
 reason}`) and `notes`. `context get` summarises both, so a later session (or you after a context reset) resumes from
 them; `review run` compares section lengths and the brief's length and outputs with the edit, as info;
-`review coverage` compares the planned shots with the footage, and `script check` the beats with the words heard.
+`review coverage` says which described shot each clip plays (match it with the planned shots yourself), and
+`script check` the beats (or `--beats`/`--text` you give) with the words heard.
 
-Update `stage` with `plan set --merge` at each stage start, so the plan and the run log agree.
+Update `stage` with `project set-data plan --merge` at each stage start, so the plan and the run log agree.
 
 ## Story
 

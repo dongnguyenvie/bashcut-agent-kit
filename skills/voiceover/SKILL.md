@@ -16,7 +16,7 @@ VieNeu TTS); `not_configured` → tell the user what the provider's `detail` say
 `unhealthy` → the failing dependency is in `detail`.
 
 ```sh
-bashcut voice voices                                   # per voice: language, region, style, gender, supportsRate, measuredRate; per provider: clones
+bashcut capabilities get voice.synthesize --voices   # voices: per voice language, region, style, gender, supportsRate, measuredRate; per provider clones
 bashcut plugins options bashcut.vieneu-tts
 bashcut plugins option bashcut.vieneu-tts --option voice --value <voice>
 ```
@@ -37,7 +37,8 @@ bashcut speech rate                        # each speaker in the transcribed foo
 bashcut speech rate --voice PROVIDER/VOICE # the rates measured on that voice's earlier takes
 ```
 
-- A voice with no measured rate yet: synthesize one test line (`--keep-takes`) and read its `unitsPerSecond`.
+- A voice with no measured rate yet: synthesize one test line (`voice speak "<line>"`, nothing is placed) and read
+  its `unitsPerSecond`.
 - When the voiceover should sound like the creator, size lines from the creator's own measured rate.
 - Never reuse an English words-per-second figure for a syllable language (T10 §3).
 
@@ -69,15 +70,17 @@ approved text minimally and tell the user which words changed.
 ## 3. Synthesize
 
 ```sh
-bashcut voice speak "Text of one line" --takes 3 --at-frame F --target-rate R   # job; inserts the take closest to R
-bashcut voice speak "Text" --takes 6 --keep-takes                                # keep every take, insert nothing
-bashcut jobs wait JOB_ID --timeout 25                                            # repeat until done; every take's facts and file
+bashcut voice speak "Text of one line" --takes 3          # job; measures every take and keeps its file, places none
+bashcut jobs wait JOB_ID --timeout 25                       # repeat until done; every take's facts and file
+bashcut voice place TAKE_PROJECT_PATH --at-frame F         # put the take you picked on the Voiceover track
+bashcut voice speak "Text" --takes 1 --choose 1 --at-frame F   # one take, placed at once
 ```
 
-- Each take reports `seconds`, `units`, `unitsPerSecond`, `leadingSilence`, `trailingSilence`, `pauses` and its
-  file. Choose by `--target-rate` (the rate you sized the line with), `--choose N` (a take you picked from the
-  facts), or else the provider's score. Core holds no pace formula: the choice is yours.
-- One call per line or short paragraph at its window; it becomes one undoable edit and the item keeps its text.
+- Each take reports `seconds`, `units`, `unitsPerSecond`, `leadingSilence`, `trailingSilence`, `pauses`, the
+  provider's `score` when it gives one, and its `path`/`projectPath`. Pick the take yourself, for example the one
+  whose `unitsPerSecond` is closest to the rate you sized the line with. Core holds no pace formula and picks none.
+- One line or short paragraph per call, placed at its window; `voice place` is one undoable edit and the item keeps
+  its text and the take's provenance.
 - Give every call a stable `--request-id` (`vo-<section>-<n>`). A paid provider: `--dry-run` first and show the
   user its `estimate`; the job's `usage` reports what it charged.
 - Takes: 3–6, more for short or expressive lines (T10 §3).
@@ -85,8 +88,8 @@ bashcut jobs wait JOB_ID --timeout 25                                           
   likely dropped, repeated or invented words: check it first.
 - Style or emotion directives: compare with a neutral take of the same text. One source treats +25 % duration as
   "took effect" and < 5 % as "not applied" (jianshuo, T10 §3); listen as well.
-- With `--keep-takes`, place a take with `media import /abs/take.wav --kind audio --place --track VOICEOVER_TRACK
-  --at-frame F --base-rev N`.
+- Takes you do not place stay in `voiceover/generated`; place them with `voice place`, not `media import` (that
+  loses the voice text and the AI provenance).
 
 ## 4. Check every kept take
 
@@ -131,8 +134,9 @@ longer before a cut or reveal; gaps between sentences 0.2–0.8 s, up to 1–3 s
 ## 6. Re-take one line
 
 ```sh
-bashcut voice speak --replace ITEM --takes 3 --target-rate R          # same text, new take in place
-bashcut voice speak "Reworded line" --replace ITEM --takes 3          # new text
+bashcut voice speak --replace ITEM --takes 1                         # same text, a new take in place
+bashcut voice speak "Reworded line" --takes 3                         # new text: pick a take, then
+bashcut voice place TAKE_PROJECT_PATH --replace ITEM                   # put it into the item
 ```
 
 The new take keeps the item's place and its captions are timed again. Check it (`voice check --item ITEM`) and

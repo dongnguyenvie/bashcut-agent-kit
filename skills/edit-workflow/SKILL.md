@@ -67,7 +67,7 @@ with their source, and you choose within them for this footage.
 
 ## Modes
 
-Set the mode in the plan (`plan set`, field `mode`) before the story stage:
+Set the mode in the plan (`project set-data plan`, field `mode`) before the story stage:
 
 - **create**: the user gave footage and a goal. Compare 2–3 story options before choosing (T00 §3) and show them at G2.
 - **directed**: the user said what to make ("hook = the sunset, then the market in order"). One option: do what was
@@ -118,6 +118,8 @@ bashcut checkpoint status
   not `awaiting_user`. `approved`: go on. `changes`: apply the user's note, then request the gate again. `rejected`:
   stop and ask what they want. `stale` (the project changed since): request again.
 - `notify`: the user is told and you go on. `skip`: nothing is shown; `checkpoint status` reports it as `skipped`.
+- A skill may stop at a gate of its own besides G1–G5: `checkpoint request music-pick --summary …` (a name of 1–40
+  letters, digits, `.`, `-`, `_`). It asks until the user sets it otherwise; Settings lists it once used.
 - Only the user answers a gate. Never decide a gate is approved yourself, never treat silence or an earlier
   "go ahead" as approval of a later gate (T00 §2), and never loosen a gate. You may tighten one when the user asks
   to be asked (`workflow set-gates --gate G3 --mode ask`); a user who wants fewer stops changes it in Settings.
@@ -133,11 +135,12 @@ bashcut checkpoint status
 
 Write what you decide as project data, not chat:
 
-- **Brief** at stage 0: `project set-brief brief.json --base-rev N`, each field `{value, status, source}`
+- **Brief** at stage 0: `project set-data brief brief.json --base-rev N`, each field `{value, status, source}`
   (`stated`, `inferred`, `confirmed` once G1 is approved). Outputs also go to `project format --outputs`.
-- **Plan** from stage 2: `plan set plan.json --base-rev N` with the mode, the options compared, sections with length
-  ranges and reasons, planned shots, script beats, decisions with alternatives, and the review ranges you chose with
-  their source. Change one part later with `plan set part.json --merge --base-rev N`; set `stage` at each stage start.
+- **Plan** from stage 2: `project set-data plan plan.json --base-rev N` with the mode, the options compared,
+  sections with length ranges and reasons, planned shots, script beats, decisions with alternatives, and the review
+  ranges you chose with their source. Change one part later with `project set-data plan part.json --merge --base-rev
+  N`; set `stage` at each stage start. Other notes of your own go under their own key (`project set-data KEY`).
 - `context get` summarises both: after a context reset, resume from them and `run log`, not from memory.
 
 Shapes and an example: `<skill_dir>/REFERENCE.md`, "The brief and the plan as data".
@@ -152,7 +155,7 @@ Shapes and an example: `<skill_dir>/REFERENCE.md`, "The brief and the plan as da
   `media frames --sheet` for footage. Open single frames (`ui frame F`, `--phone` for text) only on doubt, and
   `review window F` only at a decision point, not in a scan loop (T16 §2).
 - **Frame budget.** Before a stage, decide how many images it needs (usually one sheet plus a few doubts) and stay
-  near it. Read text results first (`review run`, `review cuts`, `timeline sheet` cells) and open images when the
+  near it. Read text results first (`review run`, `review shots`, `timeline sheet` cells) and open images when the
   numbers leave a question.
 - **Wait, don't poll.** Jobs (`media transcribe`, `review measure`, exports) return a job ID: call
   `jobs wait <job> --timeout 25` again until its state is `completed`, `failed` or `cancelled`; it returns as soon as

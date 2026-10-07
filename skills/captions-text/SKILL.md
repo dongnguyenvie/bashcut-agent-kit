@@ -162,7 +162,7 @@ frame, not the number.
 
 ## Placement
 
-- Safe zones are facts per output: `bashcut platforms list` gives each platform's `safeArea` and `layout`, the
+- Safe zones are facts per output: `bashcut platforms get` gives each platform's `safeArea` and `layout`, the
   strictest zones of all the project's outputs of that shape. Do not carry one platform's numbers to another.
 - Vertical caption height is the biggest contradiction in T09 (from 55–60 % down to near the bottom bar across a
   dozen sources): decide from the zones, faces, a picture-in-picture camera and product cards on this frame, and
@@ -172,7 +172,8 @@ frame, not the number.
   `speech.onsetOffsetFrames` instead of assuming.
 - Hold authored text at least its reading time, plus 1–1.5 s after its animation ends; a hook can be shorter when
   the same words are spoken (T09 §3). The kit's old "hook title 1–2 s" and review's 3 s hook window disagreed:
-  `review hook` shows the first title, caption and words with their hold, and the project sets `hookSeconds`.
+  `review layout --to F` shows the titles and captions of the opening with their hold, `transcript words --to F` the
+  first words, and the project sets `hookSeconds`.
 - Copy budget (T09 §3): hook text 3–8 words, overlays ≤ 6; on-screen text repeats only the key word or number of
   the spoken line.
 - Place card at each location change, with the real place and time. Chapter cards only in tutorials and list
@@ -198,7 +199,7 @@ may already have set it (`bashcut.vlog`): read `timeline get` first and send eve
 bashcut review layout --contrast          # every text item: lines, longestLineChars, fontShare, edges, holdSeconds,
                                           # wordsPerSecond, speech onset/narrationShare, captionOverlap, templateRepeats
 bashcut review layout --frame F           # one frame, with the pictures on screen
-bashcut review hook                       # first title, caption and words, with their hold
+bashcut review layout --to F --ink       # text of the opening with its hold; ink of frame 0 (luma, inkShare)
 bashcut ui frame F --phone                # 390 px wide: read it as a viewer would
 ```
 

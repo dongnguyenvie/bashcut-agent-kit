@@ -153,7 +153,7 @@ bashcut media list --analysis                   # which media are measured
 bashcut media analysis --media ID               # tech, cuts, shots, summary, sound
 bashcut media analysis --media ID --samples     # + every picture sample (4 a second)
 bashcut media cuts --media ID --add 12.4 --remove 30.1   # correct the cut list (source seconds)
-bashcut review shots --media ID --summary       # its measured shots with seconds, motion and descriptions; runs, shares
+bashcut review shots --media ID --summary       # its measured shots with seconds, motion and descriptions; shares
 bashcut media speech-map --media ID             # sound spans and gaps, with the floor and separation used
 bashcut media transcribe [--media ID]           # job; what is said, kept per file (needs a captions.transcribe plugin)
 bashcut media transcript --media ID --as text --format text   # one line per phrase, source seconds
