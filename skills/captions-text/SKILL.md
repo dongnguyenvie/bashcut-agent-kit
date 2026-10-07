@@ -115,4 +115,7 @@ Vietnamese glyph. Inspector › Text has the same font menu and colours.
 Render each title and a few captions with `ui frame F` and read the PNGs (position, size, faces, overlaps). `captions export` once more to check timing.
 Then `review run`: text under the vertical caption bar is an error with a fix that raises it; the side buttons, the
 top bar, landscape title safe, text under 3 % of the short side, captions over two lines or 32 characters (42
-landscape), overlapping text and a missing hook in the first 3 s are warnings or notes.
+landscape), overlapping text and a missing hook in the first 3 s are warnings or notes. `review layout --frame F`
+returns each text item's rendered box: `edges` (margin to each frame edge as a share of the frame) next to the
+platform's `safeArea`, and `fontShare` next to its `minTextSize`, so you can see how far a caption is from the bar
+before moving it.

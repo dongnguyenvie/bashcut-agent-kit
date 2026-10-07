@@ -78,4 +78,6 @@ section marker (`upsertSection`) and a place label (`bc:captions-text`) at each 
 
 Render three consecutive cuts in one scene with `ui frame F` and read the PNGs: three different shot sizes? Then
 `review measure`, then `review run`: gaps, jump cuts (a punch-in fix), very short shots, long static shots and frozen
-picture. Lock the cut before `bc:audio-mix`.
+picture. Then `review shots --summary`: compare the median shot length and cuts per minute with the range you chose
+for this genre and section, and read each shot's `motion` (mean and peak change) and `zoom` to find runs of shots
+that look alike. Lock the cut before `bc:audio-mix`.

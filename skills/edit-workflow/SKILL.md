@@ -164,6 +164,20 @@ it, and usually a `fix`:
 | `command: fonts.import`, `captions.generate` | run it as the issue says (`bc:captions-text`) |
 | `hint` only | do what it says with the skill for that area (the table below), or ask the user when it is a choice of taste |
 
+Read the numbers, not only the issues. The issues are verdicts with built-in limits; these commands return the
+measurements behind them, so you can judge against the plan and the genre's range:
+
+```sh
+bashcut review picture --samples false     # per hard cut: difference across it (near 0 = the same picture)
+bashcut review picture --from F --to G     # per sample: luma, spread, change, peak (fractions of full scale)
+bashcut review shots --summary             # per shot: seconds, source, zoom, speed, motion; count, median, cuts/min
+bashcut review layout --frame F            # per text item: rendered bounds, font share, margin to each edge + zones
+```
+
+`review picture` and `review shots` motion come from the last `review measure` (`current` / `pictureMeasured`
+false: measure again). Values are facts, not verdicts: a 0.004 change can be a deliberate locked-off interview. Look
+at the frame (`ui frame F`) before fixing anything the numbers point to.
+
 One round: fix every error, then the warnings that are clearly wrong (a caption under the platform's buttons, a
 jump cut, music not ducked); a fix is one labelled edit, so the user can undo it. Then measure and review again: the
 revision changed, so earlier measurements no longer count. Stop after 3 rounds, or when a round fixes nothing, and
