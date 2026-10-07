@@ -93,7 +93,7 @@ every sync point.
 | 6 | Sound: levels, fades, music, ducking, SFX | `bc:audio-mix` | — |
 | 7 | Captions and text | `bc:captions-text` | — |
 | 8 | Colour | `bc:color-grade` | — |
-| 9 | Effects, only where a moment needs one; stock where footage lacks | `bc:effects`, `bc:stock-images` | — |
+| 9 | Effects, only where a moment needs one; graphics where words need an example or number; stock where footage lacks | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
 | 10 | Review: measure, look, critic, fix (rounds capped) | `bc:review` | **G5 draft**, the user watches and listens |
 | 11 | Export per output (the user approves each export in the app) | this skill | — |
 | 12 | Learn: lessons, preferences, library harvest | `bc:self-learn`, `bc:library` | — |
