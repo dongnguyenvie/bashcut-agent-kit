@@ -121,8 +121,9 @@ Udio, MusicGen, `library generate` for music). Dead ends: Bensound, BBC SFX, Pro
 - Ask before downloading (list the files, source, licence, size). Save under the project's `media/audio/` and
   record source, licence and, for CC BY, the credit line ("Title" by Creator, licence, link) in
   `media/audio/index.json`; tell the user the credit goes in the video description. Files the user downloaded:
-  ask for the page URL, import them and record the same. Keep what worked:
-  `bashcut library add --kind audio --file /abs/media/audio/x.mp3 --name "Soft pop" --source URL --license "CC0" --tags pop`.
+  ask for the page URL, import them and record the same. Import with the facts so BashCut keeps them:
+  `media import … --origin stock --license "CC-BY 4.0" --source URL --author "Creator"`. Keep what worked:
+  `bashcut library add --kind audio --file /abs/media/audio/x.mp3 --name "Soft pop" --source URL --license "CC0" --origin stock --author "Creator" --tags pop`.
 
 ## Real speech vs voiceover
 

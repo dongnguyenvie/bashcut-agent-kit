@@ -39,8 +39,11 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
 
 ## 3. Place
 
-- **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --base-rev N`, then `media place`
-  on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
+- **Record where it came from** on every downloaded file: `media import … --origin stock --license "Pexels License"
+  --source URL --author "Name"` (BashCut stores the licence structured with what it allows; `timeline get` › `media`
+  shows it, and credits are built from it). A file already imported takes them on a second `media import`.
+- **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --origin stock --license … --source URL
+  --base-rev N`, then `media place` on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
 - **Still photos** import directly: `media import /abs/media/stock/photo.jpg --place --track OVERLAY --at-frame F
   --base-rev N` (kind `image`; JPEG, PNG with transparency, HEIC). An image is placed for 3 s; trim it to the words
   it illustrates. Frame it with `transform` (zoom below 1 for a card, pan/tilt to place it), and give it life with
