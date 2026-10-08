@@ -141,7 +141,7 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
 | Punch-in / reframe | `setProperties` `{"reframePreset":"custom","transform":{"zoom":Z,"pan":P,"tilt":T}}`, Z from the clip's headroom (`bc:beat-cut`) |
 | Picture in picture, split moment | the second clip on an overlay layer with `transform` zoom below 1 and pan/tilt |
 | Black-and-white moment | `adjustment add --look black-white` over the range |
-| Pop text, labels, prices | text items with `hook-title`, `keyword-sticker`, `place-card` (`bc:captions-text`) |
+| Pop text, labels, prices | text templates (`stacked-keyword`, `boxed-keyword`, …), `keyword-sticker`, `place-card` (`bc:captions-text`) |
 | Stickers | `library place ID --position top-right --size 0.25` (image, alpha movie or emoji) |
 | Fade from/to black | `dissolve` against a black clip, or audio `fadeIn`/`fadeOut` for sound |
 | Ken Burns, slow push-in | `clip motion ITEM --preset zoom-in` (also zoom-out, pan-*), or keyframes at the drift rate above |
