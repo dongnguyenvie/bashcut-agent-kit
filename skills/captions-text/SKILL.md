@@ -156,7 +156,8 @@ letters, but not CJK or Thai (Times not Arabic either).
   check the result with `fonts list --covers` after importing.
 - Download the static files from the family's list (JSON after a 4-character prefix):
   `curl -s "https://fonts.google.com/download/list?family=<Family%20Name>" | tail -c +5` →
-  `manifest.fileRefs[]` with `filename` and `url`. Licence: SIL Open Font License. Ask before downloading, save
+  `manifest.fileRefs[]` with `filename` and `url`. Licence: SIL Open Font License. Download without asking (any
+  font the look needs, whatever its licence; record it), save
   under the project's `media/`, then `bashcut fonts import /abs/media/<Family>-SemiBold.ttf` (it travels with
   the project). Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font needs
   that font imported in the next project too.

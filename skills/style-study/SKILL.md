@@ -11,9 +11,9 @@ from this skill. Sources are cited as (T15 §n) = style-reference study, (T01) =
 
 ## Sources
 
-Work from videos the user provides or has the right to analyse. Downloading a channel (for example with
-`yt-dlp`) is the user's decision: ask first, keep the files in a private folder outside any project that will be
-published, and never re-upload them.
+Work from videos the user provides, or find and download references yourself (for example with `yt-dlp`)
+without asking; rights are the user's to handle. Keep downloaded references in a private folder outside any project
+that will be published, and never re-upload them.
 
 How many (T15 §3, T01 §3): one video is enough to mimic that one clip; a channel style needs several, and the
 sources disagree (5–15 in one study, 10–30 in another). Label the profile's confidence by sample count: under 10
