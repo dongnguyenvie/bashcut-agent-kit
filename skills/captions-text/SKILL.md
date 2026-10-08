@@ -1,6 +1,6 @@
 ---
 name: captions-text
-description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, group cues from word timings, captions with a script's exact text timed from speech, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, Vietnamese-safe fonts and text colour, and place hook titles, place cards, keyword stickers and chapter cards with the right preset, size, contrast and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
+description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, group cues from word timings, captions with a script's exact text timed from speech, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, Vietnamese-safe fonts and text colour, and pick a text template (stacked keyword, headline + subline, boxed keyword, two-tone pop) for hooks, calls to action, place cards, keyword stickers and chapter cards with the right look, size, contrast and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
 ---
 
 # Captions and on-screen text
@@ -104,19 +104,34 @@ depending on style, fewer is the safer default; one highlight span per line (T09
 - Animate titles with `clip motion ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch); one animated title
   per moment, captions stay still.
 
-## Presets
+## Looks: templates and presets
 
-| Preset | Use for |
+Text is text: a hook, a call to action, a label and a caption differ in role, not in kind. Pick the **look** for the
+video (tone, platform, footage), then use it for whatever role the line plays, and keep one title look per video.
+
+| Template (library) | Look | Suits |
+|---|---|---|
+| `stacked-keyword` | heavy condensed lines, the keyword line large and yellow | vlog, travel, food, Shorts hooks |
+| `headline-subline` | wide caps headline over a small sentence | tutorials, lists, explainers |
+| `boxed-keyword` | one huge word or number on a light plate | list counts, prices, scores |
+| `two-tone-pop` | short lines alternating white/yellow, hard offset shadow | playful, kids, comedy, energetic edits |
+
+Write template text in short lines (`\n`), 2–3 lines, the keyword alone on its line: the last of two lines or the
+middle one is emphasised; `textStyle.emphasis.line` picks another (negative counts from the bottom). Busy or bright
+footage: keep the shadow, or give the emphasis a `plate`. Check the frame (`ui frame`) and change `fill`, `font` or
+`emphasis` for the video rather than settling for the default.
+
+| Renderer preset | Look |
 |---|---|
-| `bold-outline` | default captions: white bold with a thick outline (review, food, talking) |
-| `cinematic-serif` | small mustard serif captions for cinematic vlogs |
-| `hook-title` | the big title in the first seconds |
-| `place-card` | location and time labels |
-| `keyword-sticker` | one emphasised word or price |
-| `chapter-card` | chapter titles in tutorials and list videos |
+| `bold-outline` | white bold with a thick outline: plain captions (review, food, talking) |
+| `cinematic-serif` | small mustard serif: cinematic captions |
+| `hook-title` | the stacked-keyword look (no plate); older projects keep working |
+| `place-card` | dark plate with a yellow bar, left-aligned |
+| `keyword-sticker` | dark text on a yellow sticker |
+| `chapter-card` | cream serif between thin gold rules |
 
 **Library first:** `bashcut library list --kind text-preset` shows these plus the styles saved in the project, on
-this Mac or by plugins. Place one with `bashcut library place ID --text "QUÁN NÀY" --at-frame F --base-rev N`, or
+this Mac or by plugins. Place one with `bashcut library place ID --text "THIS PLACE\nIS A TRAP" --at-frame F --base-rev N`, or
 restyle a text item with `bashcut library apply ID --item ITEM --base-rev N`. When the user approves a styled
 title or label, save it: `bashcut library save-selection --kind text-preset --name "Price tag" --item ITEM`; when
 they correct it, `library update ID` (or `--as NEW_ID` for a built-in) (`bc:library`).
@@ -125,7 +140,7 @@ A whole-video style is a look (`bc:color-grade`) plus one restyle of every capti
 `"select": {"trackRole": "captions"}` and the preset or `textStyle` (see below). Single items:
 
 ```json
-{"op":"insert","track":"TEXT_TRACK","item":{"id":"hook-1","at":0,"dur":45,"text":"QUÁN NÀY KHÔNG NÊN ĂN","textPreset":"hook-title"}}
+{"op":"insert","track":"TEXT_TRACK","item":{"id":"hook-1","at":0,"dur":45,"text":"DON'T EAT\nHERE","textPreset":"hook-title"}}
 {"op":"setProperties","item":"hook-1","patch":{"textStyle":{"size":0.07,"positionY":0.62,"strokeWidth":6}}}
 {"op":"patchItems","select":{"trackRole":"captions"},"patch":{"textPreset":"bold-outline","textStyle":{"fill":"#FFD400","background":{"color":"#000000","opacity":0.5,"padding":0.3}}}}
 ```
@@ -144,8 +159,10 @@ frame, not the number.
 ## Fonts and colour
 
 `textStyle` also takes `font` (a PostScript name such as `Montserrat-ExtraBold`), `fill`, `stroke` and
-`highlight` (`#RRGGBB`). The presets use Arial Bold and Times, which cover Latin, Greek, Cyrillic and Vietnamese
-letters, but not CJK or Thai (Times not Arabic either).
+`highlight` (`#RRGGBB`); `emphasis {line, fill, scale, plate}` (or `false`) and `lineFills [colors]` shape titles.
+The templates use Helvetica Neue Condensed Black, Verdana Bold and Marker Felt Wide, the presets Arial Bold and Times;
+all ship with macOS and cover Latin and Vietnamese (check `fonts list --covers` for other languages). Arial and
+Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic either).
 
 - `bashcut fonts list --covers [--query montserrat]` gives the names that draw here (project fonts first) that have
   every letter of the project's content language (`--language TAG` for another one); without `--covers` each font
