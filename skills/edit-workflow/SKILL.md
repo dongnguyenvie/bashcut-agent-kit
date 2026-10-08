@@ -126,6 +126,8 @@ bashcut checkpoint status
 - Show something cheap: G2 a sheet of the candidate hook and section shots (`media frames --sheet` or
   `timeline sheet`), G3 `timeline sheet --cuts` with the duration against the plan, G4 the script text, G5 the
   normalized draft. Never render an export only to earn a gate that a sheet can show (T00 §4).
+- New project: ask what the prompt does not say (language, platform, length) in one round before `project create`;
+  there is no default language. Detail: `<skill_dir>/REFERENCE.md`, "Starting a project".
 - G1: ask only what the footage and the prompt cannot tell. When the prompt already names the platform and the
   length, do not ask those again; write them as `stated` in the brief. The gate itself is still requested when it is
   `ask`: the summary is then a short "here is what I understood".

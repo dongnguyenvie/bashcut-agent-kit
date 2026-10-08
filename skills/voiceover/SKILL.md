@@ -11,17 +11,18 @@ choose from with the measurements in hand. Measure → change → measure again.
 ## Provider and voice
 
 `voice speak` uses the project's `voice.synthesize` provider. Check with `capabilities get voice.synthesize`:
-`reason: missing` → `plugins search --capability voice.synthesize` and ask the user to install one (for Vietnamese:
-VieNeu TTS); `not_configured` → tell the user what the provider's `detail` says (turn it on, trust it again);
+`reason: missing` → `plugins search --capability voice.synthesize` and ask the user to install one whose voices
+speak the content language (`project get` › `contentLanguage`; ask the user when it is not set); `not_configured` → tell the user what the provider's `detail` says (turn it on, trust it again);
 `unhealthy` → the failing dependency is in `detail`.
 
 ```sh
 bashcut capabilities get voice.synthesize --voices   # voices: per voice language, region, style, gender, supportsRate, measuredRate; per provider clones
-bashcut plugins options bashcut.vieneu-tts
-bashcut plugins option bashcut.vieneu-tts --option voice --value <voice>
+bashcut plugins options <plugin>
+bashcut plugins option <plugin> --option voice --value <voice>
 ```
 
-- Pick voices by their facts (language, region, style, measured rate), then audition 2–3 on the **hardest** line,
+- Only voices with `speaksContentLanguage: true` read the script naturally; none → say so and offer a provider that
+  has one (or a recorded voiceover). Pick among them by their facts (region, style, measured rate), then audition 2–3 on the **hardest** line,
   not the first; the first voice is rarely the pick (T10 §2).
 - Cloning: only the user's own voice or one whose owner agreed. A provider that `clones` refuses without
   `--clone-consent`; pass it only when the user said yes in this conversation, never by default (T10 §6). If

@@ -6,9 +6,24 @@ Detail for `bc:edit-workflow`. Read the section you need; the stage order, gates
 
 ```sh
 bashcut project create --name "Market vlog" --dir ~/Movies/BashCut --footage /abs/path/footage \
-  --canvas portrait --fps 29.97 --language vi
+  --canvas portrait --fps 29.97 --language <tag>      # the user's language, e.g. en, vi, ja
 bashcut media list                        # media IDs, fps, frames, hasAudio, proxy state
 ```
+
+A new project has no default language. Before `project create`, read what the prompt already says and ask the
+rest in **one** round of questions (AskUserQuestion in Claude Code, plain questions in Codex), never one by one:
+
+| Question | Skip it when | Options to offer |
+|---|---|---|
+| Language of the speech and captions | the prompt or a project brief names it | the language the user writes in first, then English, then "Other" |
+| Where it will be posted | the prompt names the platform or shape | TikTok/Reels/Shorts (portrait), YouTube (landscape), both |
+| Length | the prompt gives a length or range | the platform's usual ranges |
+
+The language the user writes in is a good first option, not an answer: a Vietnamese prompt can ask for an English
+video, and footage can speak another language. Pass the answer as `--language` (BCP 47: `vi`, `en`, `en-US`, `ja`).
+It drives captions, speech-rate units, voices (`capabilities get --voices` › `speaksContentLanguage`) and fonts
+(`fonts list --covers`). When the user does not know yet, create the project without it and set it once the footage
+is transcribed (the transcript names the spoken language). Write the answers into the brief as `stated`.
 
 Pick the canvas from where the video will be watched: `portrait` for TikTok/Reels/Shorts, `landscape` (16:9)
 for YouTube and computers, `square` for feeds. Ask when it is not clear. It can change later with
