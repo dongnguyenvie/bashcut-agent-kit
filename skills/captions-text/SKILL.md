@@ -144,16 +144,20 @@ frame, not the number.
 ## Fonts and colour
 
 `textStyle` also takes `font` (a PostScript name such as `Montserrat-ExtraBold`), `fill`, `stroke` and
-`highlight` (`#RRGGBB`). The presets use Arial Bold and Times, which have every Vietnamese glyph.
+`highlight` (`#RRGGBB`). The presets use Arial Bold and Times, which cover Latin, Greek, Cyrillic and Vietnamese
+letters, but not CJK or Thai (Times not Arabic either).
 
-- `bashcut fonts list --vietnamese [--query montserrat]` gives the names that draw here (project fonts first) and
-  whether each has every Vietnamese letter. A font that is in neither draws as Helvetica; `review run` reports it.
-- Vietnamese-safe free fonts come from Google Fonts (`https://fonts.google.com/?subset=vietnamese`), for example
-  Montserrat ExtraBold for hook titles and Be Vietnam Pro (SemiBold or Medium) for captions.
+- `bashcut fonts list --covers [--query montserrat]` gives the names that draw here (project fonts first) that have
+  every letter of the project's content language (`--language TAG` for another one); without `--covers` each font
+  says `covers` true or false. A font that is in neither draws as Helvetica; `review run` reports it, and reports
+  text whose characters the chosen font lacks.
+- Free fonts for a language come from Google Fonts, filtered by its subset
+  (`https://fonts.google.com/?subset=<subset>`: `latin-ext`, `vietnamese`, `cyrillic`, `japanese`, `thai`…);
+  check the result with `fonts list --covers` after importing.
 - Download the static files from the family's list (JSON after a 4-character prefix):
-  `curl -s "https://fonts.google.com/download/list?family=Be%20Vietnam%20Pro" | tail -c +5` →
+  `curl -s "https://fonts.google.com/download/list?family=<Family%20Name>" | tail -c +5` →
   `manifest.fileRefs[]` with `filename` and `url`. Licence: SIL Open Font License. Ask before downloading, save
-  under the project's `media/`, then `bashcut fonts import /abs/media/BeVietnamPro-SemiBold.ttf` (it travels with
+  under the project's `media/`, then `bashcut fonts import /abs/media/<Family>-SemiBold.ttf` (it travels with
   the project). Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font needs
   that font imported in the next project too.
 - Contrast is measured, not assumed: `review layout --contrast` gives each item's WCAG ratio and `lightRatio` /

@@ -73,7 +73,8 @@ bashcut library place packing-card --at-frame F --size 1 --position center --bas
 - Composition rules (hyperframes): every frame is a pure function of time — one paused GSAP timeline registered in
   `window.__timelines["main"]`, no clocks, `Math.random`, video or network; fonts and scripts local. The body stays
   transparent; the card carries its own plate (opacity 0.75–0.9 reads over busy footage).
-- Text: Vietnamese needs a font with full diacritics (system Helvetica Neue / Arial / SF work); keep 60 px+ from
+- Text: use a font that has every letter of the content language (`bashcut fonts list --covers`; accents and tone
+  marks included) and ship it with the card (fonts are local); keep 60 px+ from
   the frame edges and out of the platform's bottom band (`platforms get <id>` › safe zones).
 - `npx --yes hyperframes@0.8.140 lint <dir>` before rendering; `check` also measures contrast and overflow.
 - The user's own Remotion or HyperFrames project: they render it themselves (ProRes 4444 or HEVC with alpha) and you

@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 200 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 202 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -50,7 +50,7 @@ Create a project folder (media, footage, render…) like the New Project wizard 
 - `canvas`: string, one of auto, portrait, landscape, square, default "auto". Canvas; auto starts portrait and lets the first video or image clip set the shape
 - `resolution`: string, one of 720, 1080, 2160, default "1080". Short-side resolution
 - `fps`: string, one of 29.97, 30, 24, 60, default "29.97". Frame rate
-- `language`: string, default "vi". Content language tag
+- `language`: string. Content language (BCP 47) of speech and captions, from the user's prompt or answer; no default
 - `saveCurrent`: boolean, default false. Save the open project first when it has unsaved changes
 - `discardCurrent`: boolean, default false. Drop unsaved changes of the open project
 
@@ -653,6 +653,12 @@ List installed plugins with a newer compatible version in the registry.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_plugins_updates`
 
+### `bashcut plugins bundles`
+
+List the registry's plugin bundles (Plugins › Browse › Recommended): each plugin with whether it starts checked, whether this Mac can still install it or why not, and its download and setup size. Install one with plugins install --bundle.
+
+- Mode: read · Runs: immediately · MCP: `bashcut_plugins_bundles`
+
 ### `bashcut plugins validate [<path>] [--url <url>] [--ref <ref>] [--sha256 <sha256>]`
 
 Check a plugin that is not in the registry (a folder, its plugin.json, a .zip or .bashcutplugin archive, or a link) without installing or running it: its id, version and capabilities, every problem with the field and the fix (library packs included: each pack.json and the files it names, inside the plugin), and for a link the commit or release it resolved to.
@@ -663,12 +669,14 @@ Check a plugin that is not in the registry (a folder, its plugin.json, a .zip or
 - `ref`: string. Tag, branch or commit for a GitHub repo link (release tag for a release link)
 - `sha256`: string. Expected SHA-256 of the downloaded archive
 
-### `bashcut plugins install [<plugin>] [--version <version>] [--path <path>] [--url <url>] [--ref <ref>] [--sha256 <sha256>] [--scope <scope>] [--link]`
+### `bashcut plugins install [<plugin>] [--bundle <bundle>] [--only <only>] [--version <version>] [--path <path>] [--url <url>] [--ref <ref>] [--sha256 <sha256>] [--scope <scope>] [--link]`
 
-Download a registry plugin (or its update), check its SHA-256 and manifest, and show the install approval in the Plugins sheet. With path or url instead, add a plugin that is not in the registry (Add Plugin…): a folder, its plugin.json or a .zip / .bashcutplugin file on this Mac, or a link, checked like plugins validate. Only the user can approve; the job ends when the approval is shown.
+Download a registry plugin (or its update), check its SHA-256 and manifest, and show the install approval in the Plugins sheet. With bundle instead, download every plugin of a bundle this Mac does not have and show one approval for all of them, each with a checkbox. With path or url instead, add a plugin that is not in the registry (Add Plugin…): a folder, its plugin.json or a .zip / .bashcutplugin file on this Mac, or a link, checked like plugins validate. Only the user can approve; the job ends when the approval is shown. While another install waits for approval or runs, a registry plugin or bundle is queued (approval: queued) and its approval opens after that one ends; do not ask again.
 
 - Mode: edit · Runs: as a background job (`jobs wait` until it ends) · MCP: `bashcut_plugins_install`
 - `plugin`: string. Plugin ID from plugins search (or use path)
+- `bundle`: string. Bundle ID from plugins bundles, such as starter
+- `only`: string. With bundle: comma-separated plugin IDs to check in the approval; each plugin's default otherwise
 - `version`: string. A specific registry version; the newest compatible by default
 - `path`: string, path. Plugin folder, plugin.json, or .zip / .bashcutplugin file on this Mac
 - `url`: string. Link to a .zip / .bashcutplugin file, a GitHub repo (or /tree/<ref>/<folder>, or its plugin.json) or a GitHub release; #sha256=<hex> pins it. A private link uses the access token saved in Add Plugin…
@@ -978,7 +986,7 @@ Cancel a queued or running job (plugin call or export).
 
 ### `bashcut capabilities get [<capability>] [--kind <kind>] [--voices]`
 
-Whether each plugin capability (or one) can serve now: available, else reason missing (no plugin provides it), not_configured (turned off, not approved, changed, outdated or missing a required plugin) or unhealthy (a dependency fails its health check). Lists each provider with plugin, priority, paid, state and detail, and the commands that call the capability. A command whose capability cannot serve fails with category capability_missing and the same reason. With voices, voices: the voices of every voice.synthesize provider (per provider plugin, name, availability, clones (voice speak then needs cloneConsent) and the voice its plugin is set to; per voice id, language, region, style, gender, supportsRate and measuredRate (rates measured on its takes, per language: samples, p10, p50, p90)); without a capability the result is then {capabilities, voices}.
+Whether each plugin capability (or one) can serve now: available, else reason missing (no plugin provides it), not_configured (turned off, not approved, changed, outdated or missing a required plugin) or unhealthy (a dependency fails its health check). Lists each provider with plugin, priority, paid, state and detail, and the commands that call the capability. A command whose capability cannot serve fails with category capability_missing and the same reason. With voices, voices: the voices of every voice.synthesize provider (per provider plugin, name, availability, clones (voice speak then needs cloneConsent) and the voice its plugin is set to; per voice id, language, region, style, gender, supportsRate, speaksContentLanguage (when the project has a content language) and measuredRate (rates measured on its takes, per language: samples, p10, p50, p90)); without a capability the result is then {capabilities, voices}.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_capabilities_get`
 - `capability`: string. Capability ID, such as captions.transcribe; all by default
@@ -1314,6 +1322,14 @@ Remove timeline items sent to the shown terminal tab with Send to Agent (ui acti
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_agent_detach`
 - `items`: string. Item IDs, comma-separated
+
+### `bashcut agent ask <questions.json> [--timeout <timeout>]`
+
+Ask the user multiple-choice questions in a card over the caller's terminal tab, the way Claude Code's AskUserQuestion does (BashCut's Claude tabs route that tool here with `bashcut agent hook`). Returns once the user answers: answers maps each question to the chosen labels (comma-separated) or the text typed under Other; answered is false when the user chose to answer in the terminal, closed the tab or timeout passed.
+
+- Mode: ui · Runs: immediately · MCP: `bashcut_agent_ask`
+- `questions`: array, required. AskUserQuestion's questions: question, header, multiSelect and options of label, description and optional preview
+- `timeout`: integer, 5…3600, default 900. Seconds to wait for the answer
 
 ## app
 
@@ -1952,14 +1968,15 @@ Write library items as a pack folder (pack.json and files) to share or import el
 
 ## fonts
 
-### `bashcut fonts list [--query <query>] [--project] [--vietnamese]`
+### `bashcut fonts list [--query <query>] [--project] [--language <language>] [--covers]`
 
-List fonts for text items (Inspector › Text › Font): the project's fonts folder first, then the fonts installed on this Mac, with PostScript names (textStyle.font) and Vietnamese coverage.
+List fonts for text items (Inspector › Text › Font): the project's fonts folder first, then the fonts installed on this Mac, with PostScript names (textStyle.font) and, for the content language (or --language), whether each has every letter of it (covers).
 
 - Mode: read · Runs: immediately · MCP: `bashcut_fonts_list`
 - `query`: string. Only names or families containing this text
 - `project`: boolean, default false. Only the project's own fonts
-- `vietnamese`: boolean, default false. Only fonts with every Vietnamese letter
+- `language`: string. BCP 47 tag to check letters for; default the content language
+- `covers`: boolean, default false. Only fonts with every letter of that language
 
 ### `bashcut fonts import <path>`
 
