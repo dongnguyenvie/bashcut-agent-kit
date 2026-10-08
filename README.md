@@ -26,6 +26,7 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 | `style-study` | Measuring a reference style and turning it into a memo, a library look and text presets |
 | `library` | Making a missing preset, effect, transition, look, sticker or sound; harvesting what to keep after an edit; fixing and pruning library items |
 | `self-learn` | Recording lessons in the project memo, project skills or kit changes |
+| `setup` | Installing the recommended plugins with one approval in the app, then checking they work. Only runs when the user types `/bc:setup` (Codex: `$bc-setup`) |
 
 Claude Code and Codex both show the skills under the plugin name: `bc:audio-mix`, `bc:edit-workflow`, …
 Kit 0.1.0 renamed them from `bashcut:bashcut-<name>`; BashCut's agent setup replaces the old `bashcut` plugin and
