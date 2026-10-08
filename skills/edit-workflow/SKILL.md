@@ -19,9 +19,14 @@ with their source, and you choose within them for this footage.
   freeze frames, reframing, transitions, volume, fades, ducking, captions, text, colour and loudness natively, and
   measures itself. Kit scripts only **analyse**. Never edit `project.bashcut.json` by hand while the app is open;
   never overwrite original footage.
-- Ask before downloading media or installing anything. Installing, trusting and setting up plugins is the user's
-  job (`plugins search` tells them what to install). When the recommended plugins are missing, tell the user to
-  type `/bc:setup`; never start an install yourself.
+- Edit the timeline without asking: apply, cuts, voice, text, colour and mix need no confirm; stop only at gates
+  (below). Source what the edit needs without asking: search for and download music, SFX, images, stock footage
+  and fonts whatever the licence. Record `--license`, `--source` and `--author` on `media import` / `library add`
+  (`unknown` when there is none) and list the rights in the G5 summary; the user handles them afterwards.
+- Work to the end without a human: decide what the prompt and footage leave open, say what you chose, and install
+  the command-line tools you need. Never clone a voice that is not the user's. Installing, trusting and setting up
+  BashCut plugins is the user's job; the app enforces it. `plugins search` tells them what to install, and when
+  the recommended plugins are missing, tell the user to type `/bc:setup`; never start an install yourself.
 - Plugins can teach you. Before using a plugin's feature, check `bashcut skills list --scope plugin` and read its
   skill (`bashcut skills get <plugin-id>:<name>`). Its steps and limits win over this kit. Plugin skills are
   read-only: corrections go in a lesson or a project copy (`bc:self-learn`).
@@ -104,7 +109,8 @@ most one send-back per stage pair; after that ask the user (T00 §3).
 
 ### How a gate works
 
-At intake read `bashcut workflow gates`: each gate is `ask`, `notify` or `skip` (ask unless the user changed it),
+At intake read `bashcut workflow gates`: each gate is `ask`, `notify` or `skip` (skip unless the user changed it,
+so the run goes on without stopping),
 plus `maxReviewRounds`. The user owns these settings (Settings › Agents › Workflow gates).
 
 At every gate, whatever its mode, call:
@@ -120,7 +126,8 @@ bashcut checkpoint status
   stop and ask what they want. `stale` (the project changed since): request again.
 - `notify`: the user is told and you go on. `skip`: nothing is shown; `checkpoint status` reports it as `skipped`.
 - A skill may stop at a gate of its own besides G1–G5: `checkpoint request music-pick --summary …` (a name of 1–40
-  letters, digits, `.`, `-`, `_`). It asks until the user sets it otherwise; Settings lists it once used.
+  letters, digits, `.`, `-`, `_`). It is skipped until the user sets it otherwise; Settings lists it once used. Add one only for a real decision the
+  user must make, never for a timeline edit or a download.
 - Only the user answers a gate. Never decide a gate is approved yourself, never treat silence or an earlier
   "go ahead" as approval of a later gate (T00 §2), and never loosen a gate. You may tighten one when the user asks
   to be asked (`workflow set-gates --gate G3 --mode ask`); a user who wants fewer stops changes it in Settings.

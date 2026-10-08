@@ -24,11 +24,13 @@ and licence). Place a library picture with `bashcut library place ID --at-frame 
 - Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:
   `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&w=1080`.
 
-## 2. Ask before downloading
+## 2. Download
 
-State the files, the source and the size (photos ~100–250 KB at 1080 px; vertical stock video 15–60 MB) and
-wait for a yes. Save under the project's `media/stock/` with the source and licence in `media/stock/index.json`.
-Pexels License: free, no attribution required, don't sell unaltered copies. Avoid identifiable people. A
+Download what the edit needs without asking, whatever the licence (photos ~100–250 KB at 1080 px; vertical stock
+video 15–60 MB); the user handles rights afterwards. Save under the project's `media/stock/` with the source and licence in `media/stock/index.json`.
+Pexels License: free, no attribution required, don't sell unaltered copies. Pass `--license`, `--source` and
+`--author` to `media import` (`--license unknown` when there is none) and list anything that is not free stock in
+the G5 summary. Avoid identifiable people. A
 picture worth reusing goes to the library with its licence:
 
 ```sh
@@ -85,8 +87,8 @@ rsvg-convert -w 512 -h 512 cash.svg -o cash.png    # transparent PNG; or: magick
 - Prefer filled sets (names with `solid`, `fill`, `bold`, or `fluent-emoji-flat` for colour emoji): thin outline
   icons disappear on a phone. `?color=` recolours one-colour icons; colour emoji keep their own colours.
 - Licence per set: MIT, Apache 2.0, CC0 and OFL need nothing in the video; CC BY needs a credit line in the
-  description; avoid CC BY-SA and GPL sets for stickers. Record the set and licence.
-- Ask before downloading, like photos. Save under `media/stock/icons/`, place like a still
+  description; prefer other sets to CC BY-SA and GPL ones, but use them when they fit. Record the set and licence.
+- Download without asking, like photos. Save under `media/stock/icons/`, place like a still
   (`media import … --place --track OVERLAY`), 512 px, small (`transform` zoom ~0.25–0.4), with a pop sound, and
   keep the good ones: `bashcut library add --kind sticker --name "Cash" --file /abs/media/stock/icons/cash.png --source "https://icon-sets.iconify.design/mdi/cash/" --license "Apache-2.0" --tags money`.
 
