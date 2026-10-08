@@ -20,7 +20,8 @@ with their source, and you choose within them for this footage.
   measures itself. Kit scripts only **analyse**. Never edit `project.bashcut.json` by hand while the app is open;
   never overwrite original footage.
 - Ask before downloading media or installing anything. Installing, trusting and setting up plugins is the user's
-  job (`plugins search` tells them what to install).
+  job (`plugins search` tells them what to install). When the recommended plugins are missing, tell the user to
+  type `/bc:setup`; never start an install yourself.
 - Plugins can teach you. Before using a plugin's feature, check `bashcut skills list --scope plugin` and read its
   skill (`bashcut skills get <plugin-id>:<name>`). Its steps and limits win over this kit. Plugin skills are
   read-only: corrections go in a lesson or a project copy (`bc:self-learn`).

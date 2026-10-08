@@ -28,6 +28,14 @@ for name in sorted(os.listdir(SKILLS)):
     for ref in re.findall(r"<skill_dir>/([\w.-]+)", text):
         if not os.path.exists(os.path.join(SKILLS, name, ref)):
             problems.append(f"{name}: <skill_dir>/{ref} does not exist")
+    # A user-only skill (/bc:<name>) must be user-only in Claude Code and in Codex alike.
+    user_only = meta.get("disable-model-invocation", "").strip() == "true"
+    policy = os.path.join(SKILLS, name, "agents", "openai.yaml")
+    codex_off = os.path.isfile(policy) and re.search(
+        r"^\s*allow_implicit_invocation:\s*false\s*$", open(policy, encoding="utf-8").read(), re.M) is not None
+    if user_only != codex_off:
+        problems.append(f"{name}: disable-model-invocation: true and agents/openai.yaml "
+                        "policy.allow_implicit_invocation: false go together")
     lines = text.count("\n")
     if lines > 250:
         problems.append(f"{name}: {lines} lines; move detail into REFERENCE.md")
