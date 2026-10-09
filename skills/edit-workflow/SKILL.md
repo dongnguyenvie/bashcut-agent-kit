@@ -1,6 +1,6 @@
 ---
 name: edit-workflow
-description: Plan and run a whole edit in BashCut from raw footage to export — brief, survey, story options, rough cut, rhythm, script and voiceover, sound, text, colour, effects, review, draft, export, learning — through the user's workflow gates, and pick the right skill for each stage. Use when the user asks to edit/cut a video, make a vlog, review, short or montage from a folder of footage, revise an edit, or asks "where do I start". Also tool demos and tutorials from a screen recording plus a presenter camera. Triggers: "dựng video", "cắt video", "làm vlog", "dựng giúp", "sửa lại video", "edit this", "bắt đầu từ đâu", "video giới thiệu tool", "video desktop làm nền", "người đọc ở trên video".
+description: Plan and run a whole edit in BashCut from raw footage to export — intake, recipe, survey, story options, rough cut, rhythm, script and voiceover, sound, text, colour, effects, review, draft, export, learning — through the user's workflow gates, a checklist with evidence and independent audits, and pick the one skill to read for each stage. Use when the user asks to edit/cut a video, make a vlog, an ad, a review, short or montage from a folder of footage, revise an edit, or asks "where do I start". Also tool demos and tutorials from a screen recording plus a presenter camera. Triggers: "dựng video", "cắt video", "làm vlog", "làm video quảng cáo", "dựng giúp", "sửa lại video", "edit this", "bắt đầu từ đâu", "video giới thiệu tool", "video desktop làm nền", "người đọc ở trên video".
 ---
 
 # Editing a video in BashCut
@@ -8,219 +8,203 @@ description: Plan and run a whole edit in BashCut from raw footage to export —
 Reply in the user's language. Detail (project setup, the brief and plan JSON, story, screen recordings, the
 hand-off report) is in `<skill_dir>/REFERENCE.md`.
 
-BashCut does the editing. Every change goes through the `bashcut_*` MCP tools (or the `bashcut` CLI on PATH):
-one validated, undoable edit per call, visible in the app. BashCut's own agent instructions explain each command;
-this kit explains **what to do and why**. Core measures and acts; editorial numbers live in the skills as ranges
-with their source, and you choose within them for this footage.
+This skill is the one engine for every edit. A **recipe** (a plugin skill such as `bashcut.vlog:product-ad`) never
+re-runs the process: it writes data into the plan (stages, checks, promise, intake questions) that this skill, the
+checklist and the critic read. With no recipe, the kit's defaults and generic checks apply.
+
+Editorial numbers are **ranges with their source**, never fixed values: choose within them for this footage and say
+why in the plan. Leave a range when the footage or the idea earns it (`"deliberate": true` with the reason); review
+keeps that as info. Two edits of the same kind should not come out the same.
 
 ## Hard rules
 
-- Never pre-render picture or sound with ffmpeg to fake an effect, a mix or captions. BashCut does cuts, speed,
-  freeze frames, reframing, transitions, volume, fades, ducking, captions, text, colour and loudness natively, and
-  measures itself. Kit scripts only **analyse**. Never edit `project.bashcut.json` by hand while the app is open;
-  never overwrite original footage.
-- Edit the timeline without asking: apply, cuts, voice, text, colour and mix need no confirm; stop only at gates
-  (below). Source what the edit needs without asking: search for and download music, SFX, images, stock footage
-  and fonts whatever the licence. Record `--license`, `--source` and `--author` on `media import` / `library add`
-  (`unknown` when there is none) and list the rights in the G5 summary; the user handles them afterwards.
-- Work to the end without a human: decide what the prompt and footage leave open, say what you chose, and install
-  the command-line tools you need. Never clone a voice that is not the user's. Installing, trusting and setting up
-  BashCut plugins is the user's job; the app enforces it. `plugins search` tells them what to install, and when
-  the recommended plugins are missing, tell the user to type `/bc:setup`; never start an install yourself.
-- Plugins can teach you. Before using a plugin's feature, check `bashcut skills list --scope plugin` and read its
-  skill (`bashcut skills get <plugin-id>:<name>`). Its steps and limits win over this kit. Plugin skills are
-  read-only: corrections go in a lesson or a project copy (`bc:self-learn`).
-- Recipes. With the `bashcut.vlog` plugin ready, start a vlog with `bashcut.vlog:plan` (topic recipe, outputs, review
-  ranges, hook and sections). A project set up that way has `recipe.skill` in `project get`: use that skill's ranges
-  wherever a kit skill gives one. No plugin: use this kit's ranges and suggest `plugins search vlog`.
-- Read before you edit: `context get`, then `timeline get --format text`. Track IDs and roles come from the read,
-  never from memory. Every edit needs the latest `--base-rev`.
-- Say why. On `timeline apply`, pass `--why` (one sentence) and `--evidence` (`;`-separated: review issue IDs,
-  transcript ranges, measurements) next to the stage label. A batch you checked with `--dry-run` goes in with
-  `--expect-fingerprint <its fingerprint>`. When resuming or revising, read `timeline changes` (what was done, by whom
-  and why) instead of guessing from the timeline.
-- Respect an attached scope. A request starting with a `[Scope]` block, or a `scope` list in `context get`, names the
-  items the user picked with Send to Agent: change only those (their linked sound or picture follows). New items
-  such as a title or an adjustment layer are fine inside their frame range. Ask before touching anything else.
-  Never run `chat attach` or `chat detach`.
-- BashCut may enforce the scope (`scope.mode` in `context get`). An edit outside it fails with `-32004`; never retry
-  it or work around it:
-  - `held: true`: the user is being asked in the app. Say what the edit does and wait; `scope.last.outcome` becomes
-    `applied` (re-read, go on), `rejected` (ask what they want instead) or `failed` with a stale revision (re-read;
-    send again only if still wanted).
-  - No `held`: the user rejected it or the guard blocks such edits. Stop and ask. `-32003` while an edit is held: wait.
-  - `-32002` (stale revision) comes before the scope: re-read the timeline and retry with the new `--base-rev`.
-- Errors say what to do in `error.data`: `category`, `retryable` and sometimes `remediation.command` (the read that explains it). Retry only
-  a `retryable` one, after its remediation (`stale_revision`: re-read; `busy_dialog`: `ui dialog`, then answer it;
-  `busy_approval` or `busy_running`: wait). Never resend an `invalid_arguments` call unchanged. `unsupported_media`:
-  this Mac cannot decode that file (`data.media` names it and its frames); the black picture there is not the footage,
-  so do not judge it; ask the user to convert it to H.264 or HEVC and import the converted file (never render with ffmpeg yourself).
-  `context get` › `recentFailures.repeated` of 2 or more means the same call keeps failing the same way: stop,
-  rethink or ask.
-- **Plugin capabilities.** Before work that needs a plugin (transcripts, beats, loudness, voice, library search or
-  generate), `capabilities get [ID]` says whether it can serve now. A `capability_missing` error carries the same
-  `reason`: `missing` → find one with `plugins search` and ask the user to install it; `not_configured` → the user
-  turns it on or trusts it (quote the provider's `detail`); `unhealthy` → the user fixes the dependency named in
-  `detail`. Installing, trusting and enabling are never yours to do; continue with what does not need it.
-- `context get` › `agentPermissions` says what you may do without asking: `edits`, `autoApprove` (exports, kit setup,
-  library items and preferences run without waiting), `scopeGuard`, `allowAll`. Only the user changes these.
-- Library first: `bashcut library list --kind K` before building a text style, effect, transition, look, sound or
-  sticker; reuse with `library place` or `library apply`; make a missing one with `bc:library`.
-- Kit Python scripts run with `uv`, inside BashCut on its shared runtime folders: never `uv cache clean` or
-  `pip install` into the system Python.
-- Name folders and files you create in English, lowercase with hyphens (`survey/`, `renders/`, `draft-v1`).
-  Only text the viewer sees follows the video's language. Seconds → frames with the project fps (29.97 → 30000/1001).
+- **Tool rules are BashCut's.** How to call it (read before an edit, `--base-rev`, scope and held edits, error codes
+  and `error.data`, `capability_missing`, `agentPermissions`, library first, no ffmpeg pre-renders) comes with
+  BashCut's own agent instructions over MCP and `bashcut help`: follow them. This kit says **what to do and why**.
+- Edit the timeline without asking: apply, cuts, voice, text, colour and mix need no confirm; stop only at gates.
+  Source what the edit needs without asking (music, SFX, images, stock, fonts) and record `--license`, `--source`
+  and `--author` (`unknown` when there is none); list the rights in the G5 summary.
+- Ask once, then work to the end (Intake below). Never clone a voice that is not the user's. Installing, trusting
+  and setting up plugins is the user's job: `plugins search` names what to install; when the recommended plugins
+  are missing, tell the user to type `/bc:setup`.
+- Plugins teach you: read a plugin's skill (`skills get <plugin-id>:<name>`) before using its feature; its steps
+  and limits win over this kit. Plugin skills are read-only: corrections go in a lesson (`bc:self-learn`).
+- Load just in time: one recipe at intake, then **one stage skill per stage**, the one `context get` ›
+  `workflow.next` names. Never load every skill up front; rules that must outlive the context live in the plan.
+- Say why: every `timeline apply` carries a stage label, `--why` and `--evidence`. Resuming or revising, read
+  `timeline changes` instead of guessing from the timeline.
+- You never certify yourself. A stage is `done` only with evidence; "fixed" only from `review verify`; "exported"
+  only from `export status`; a pass only from an audit by someone who did not make the edit (or marked `self`).
+  You cannot hear: say which sound you did not check.
+- Kit Python scripts run with `uv`; never `pip install` into the system Python. Name files and folders you create
+  in English, lowercase with hyphens (`survey/`, `draft-v1`). Seconds → frames with the project fps.
+
+## Stage 0: intake and the recipe
+
+1. `context get` and `knowledge get` (taste, facts, lessons; `<skill_dir>/REFERENCE.md`, "Taste of the user").
+2. **Route.** The user named a recipe (or a slash command): read it. Otherwise pick one here and read it with
+   `skills get` (`skills list --scope plugin` shows what is installed):
+
+   | Request | With the plugin | Without |
+   |---|---|---|
+   | ad, TVC, "quảng cáo", "video bán hàng", a channel teaser | `bashcut.vlog:product-ad` | kit defaults |
+   | vlog, trip, food, a day, product review, talking head, tutorial, podcast clips | `bashcut.vlog:plan` (picks the recipe) | kit defaults |
+
+   No fitting plugin: go on with kit defaults and name the missing recipe in the hand-off report (`plugins search`).
+3. **Ask once.** Before `project create`, one round of at most 4 questions about what the prompt does not say:
+   language, platform, length, and the recipe's `askAtIntake` fields (AskUserQuestion in Claude Code, plain
+   questions elsewhere). No answer, the user is away or said "don't ask": decide, write the field as `inferred` in
+   the brief, and the strategy audit checks the guess. Never ask again later; never guess a name, a handle or a
+   claim silently.
+4. Create or open the project (`<skill_dir>/REFERENCE.md`, "Starting a project"), write the **brief**, and let the
+   recipe write its plan data (below). Request **G1**.
+
+## The plan as data
+
+Brief and plan are project data (`project set-data brief|plan`, `--merge` for one part); `context get` summarises
+both, so after a context reset resume from them and `run log`, not from memory. Shapes:
+`<skill_dir>/REFERENCE.md`, "The brief and the plan as data". Fields a recipe writes, all optional:
+
+| Field | Holds |
+|---|---|
+| `recipe` | `{skill, version}`: the recipe in charge; its ranges win over a kit skill's |
+| `promise` | `{hook, payoff}`: the question the opening raises and the line that closes it; every video has one |
+| `stages` | per stage id, only deviations: `{required, why}`, `{skill}`, `{rules: [...]}` |
+| `checks` | at most 8 recipe checks `{id, text, source}`; the kit's generic checks are always added |
+| `askAtIntake` | brief fields the recipe will not guess |
+
+Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `decisions`, `ranges`.
 
 ## Modes
 
-Set the mode in the plan (`project set-data plan`, field `mode`) before the story stage:
+- **create**: footage and a goal. Compare 2–3 story options before choosing; show them at G2.
+- **directed**: the user said what to make. One option; say where the footage cannot support it.
+- **revision**: changes to an existing edit. Work **in place** on the same project: re-enter at the stage that owns
+  the change, label each edit (`--label "v2: shorter hook"`), mark untouched sections `frozen: true`, and export
+  `draft-v2` next to `draft-v1`; undo history and `timeline changes` keep v1. Use `variants create` only for a real
+  A/B test that changes one thing (two hooks), never to keep an old version. The latest feedback wins.
 
-- **create**: the user gave footage and a goal. Compare 2–3 story options before choosing (T00 §3) and show them at G2.
-- **directed**: the user said what to make ("hook = the sunset, then the market in order"). One option: do what was
-  asked, and say where the footage cannot support it.
-- **revision**: the user asks for changes to an existing edit. Re-enter at the stage that owns the change (a new hook →
-  story; "music too loud" → sound). Sections the user did not name are frozen: mark them `frozen: true` in the plan
-  and do not touch them. The latest feedback is the source of truth (T00 §2).
+## Stages, checklist and gates
 
-## Stages and gates
+Each stage is one or a few labelled edits, so the user can undo it as a whole. Lock the cut (rough-cut, rhythm)
+before music and SFX: changing clip lengths later breaks every sync point.
 
-Thirteen stages (T00 §9). Each stage is one or a few labelled edits (`--label "Rough cut: market section"`), so the
-user can undo it as a whole. Lock the cut (stages 3–4) before music and SFX: changing clip lengths afterwards breaks
-every sync point.
-
-| # | Stage | Skill | Gate after it |
+| # | Stage id | Default skill | Gate or audit after it |
 |---|---|---|---|
-| 0 | Intake: brief (goal, outputs, length range, audience), mode | this skill | **G1 brief** |
-| 1 | Survey: what was shot, transcripts, coverage, missing shots | `bc:footage-survey` | — |
-| 2 | Story options: hook, sections, what is said; strategy in 4–8 sentences + section table (T00 §3) | this skill, `bashcut.vlog:plan` | **G2 strategy** |
-| 3 | Rough cut: selects by quote, placed in story order; no music, titles or grade | `bc:rough-cut` | **G3 rough-cut sheet** |
-| 4 | Rhythm: beat or sentence cuts, punch-ins | `bc:beat-cut` | — |
-| 5 | Script and voiceover (when needed) | `bc:voiceover` | **G4 script**, before speech is made |
-| 6 | Sound: levels, fades, music, ducking, SFX | `bc:audio-mix` | — |
-| 7 | Captions and text | `bc:captions-text` | — |
-| 8 | Colour | `bc:color-grade` | — |
-| 9 | Effects, only where a moment needs one; graphics where words need an example or number; stock where footage lacks | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
-| 10 | Review: measure, look, critic, fix (rounds capped) | `bc:review` | **G5 draft**, the user watches and listens |
-| 11 | Export per output (the user approves each export in the app) | this skill | — |
-| 12 | Learn: lessons, preferences, library harvest | `bc:self-learn`, `bc:library` | — |
+| 0 | `intake` | this skill, the recipe | **G1 brief** |
+| 1 | `survey` | `bc:footage-survey` | — |
+| 2 | `story`: options, promise, sections (strategy in 4–8 sentences + section table) | this skill (REFERENCE "Story"), the recipe | **strategy audit**, **G2** |
+| 3 | `rough-cut`: selects by quote, no music, titles or grade | `bc:rough-cut` | **G3 rough-cut sheet** |
+| 4 | `rhythm` | `bc:beat-cut` | — |
+| 5 | `voiceover` (when needed) | `bc:voiceover` | **G4 script**, before speech is made |
+| 6 | `sound` | `bc:audio-mix` | — |
+| 7 | `captions` and text | `bc:captions-text` | — |
+| 8 | `colour` | `bc:color-grade` | — |
+| 9 | `effects`, graphics, stock (only where a moment needs one) | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
+| 10 | `review` | `bc:review` | **draft audit**, **G5 draft** |
+| 11 | `export` per output | this skill | — |
+| 12 | `learn` | `bc:self-learn`, `bc:library` | **process audit** first |
 
-Missing coverage found at G3 sends you back to stage 1 or 9 (stock, generation or a reshoot: ask the user). At
-most one send-back per stage pair; after that ask the user (T00 §3).
-
-### How a gate works
-
-At intake read `bashcut workflow gates`: each gate is `ask`, `notify` or `skip` (skip unless the user changed it,
-so the run goes on without stopping),
-plus `maxReviewRounds`. The user owns these settings (Settings › Agents › Workflow gates).
-
-At every gate, whatever its mode, call:
+At every stage start: `context get` › `workflow.next` gives `{stage, skill, skillRead}`; read that one skill (Skill
+tool for `bc:*`, `skills get` for plugin skills) and set `stage` in the plan. Reads are recorded by BashCut and the
+kit's hook; an agent without hooks (Codex, chat agents) records its own with `run append skill --name <skill>`.
+At every stage end, record the outcome:
 
 ```sh
-bashcut checkpoint request G2 --summary "Strategy: open on the sunset, then the market in time order …" \
-  --attach renders/story-sheet.png
+bashcut run append stage --stage survey --status done --evidence "survey/contact-sheet.png;media transcribe job 41"
+bashcut run append stage --stage colour --status skipped --reason "screen recording, no grade wanted"
+bashcut run checklist
+```
+
+`done` without `--evidence` counts as unverified; `skipped` needs `--reason`; a stage the plan marks
+`required: false` is `n/a` already. `run checklist` (and `context get` › `workflow.checklist`) derives the list from
+the plan and the run log; its `open` list is what still needs attention and starts the hand-off report. If this
+BashCut has no `run checklist`, keep the same list yourself in `project set-data checklist` for the process audit.
+
+Missing coverage found at G3 sends you back to survey or effects (stock, generation or a reshoot: ask). At most one
+send-back per stage pair; then ask the user.
+
+### Gates
+
+Read `workflow gates` at intake: each gate is `ask`, `notify` or `skip` (skip unless the user changed it), plus
+`maxReviewRounds`. At every gate, whatever its mode, request it with something cheap to look at:
+
+```sh
+bashcut checkpoint request G2 --summary "Strategy: one message — …; hook → payoff …" --attach renders/story-sheet.png
 bashcut checkpoint status
 ```
 
-- `ask`: the user sees the summary and attachments in BashCut. Poll `checkpoint status` (backoff below) until it is
-  not `awaiting_user`. `approved`: go on. `changes`: apply the user's note, then request the gate again. `rejected`:
-  stop and ask what they want. `stale` (the project changed since): request again.
-- `notify`: the user is told and you go on. `skip`: nothing is shown; `checkpoint status` reports it as `skipped`.
-- A skill may stop at a gate of its own besides G1–G5: `checkpoint request music-pick --summary …` (a name of 1–40
-  letters, digits, `.`, `-`, `_`). It is skipped until the user sets it otherwise; Settings lists it once used. Add one only for a real decision the
-  user must make, never for a timeline edit or a download.
-- Only the user answers a gate. Never decide a gate is approved yourself, never treat silence or an earlier
-  "go ahead" as approval of a later gate (T00 §2), and never loosen a gate. You may tighten one when the user asks
-  to be asked (`workflow set-gates --gate G3 --mode ask`); a user who wants fewer stops changes it in Settings.
-- Show something cheap: G2 a sheet of the candidate hook and section shots (`media frames --sheet` or
-  `timeline sheet`), G3 `timeline sheet --cuts` with the duration against the plan, G4 the script text, G5 the
-  normalized draft. Never render an export only to earn a gate that a sheet can show (T00 §4).
-- New project: ask what the prompt does not say (language, platform, length) in one round before `project create`;
-  there is no default language. Detail: `<skill_dir>/REFERENCE.md`, "Starting a project".
-- G1: ask only what the footage and the prompt cannot tell. When the prompt already names the platform and the
-  length, do not ask those again; write them as `stated` in the brief. The gate itself is still requested when it is
-  `ask`: the summary is then a short "here is what I understood".
-- G4 comes before any speech synthesis (it costs time or money); G5 comes before the final exports.
+- `ask`: poll `checkpoint status` at 2 → 5 → 10 → 15 s until it is not `awaiting_user`. `approved`: go on;
+  `changes`: apply the note, request again; `rejected`: stop and ask; `stale`: request again.
+- `notify`: the user is told and you go on. `skip`: nothing is shown.
+- Only the user answers a gate: never treat silence or an earlier "go ahead" as approval, never loosen a gate. A
+  skill may add its own (`checkpoint request music-pick …`) only for a real decision the user must make.
+- Show: G2 a sheet of the hook and section shots, G3 `timeline sheet --cuts` with the duration against the plan, G4
+  the script, G5 the normalized draft. Never render an export only to earn a gate a sheet can show.
 
-## Brief and plan
+### Audits: a skipped gate is replaced by its audit
 
-Write what you decide as project data, not chat:
+A fresh agent that did not make the edit checks it from a packet only (`bc:review`, "If you were given a packet"):
 
-- **Brief** at stage 0: `project set-data brief brief.json --base-rev N`, each field `{value, status, source}`
-  (`stated`, `inferred`, `confirmed` once G1 is approved). Outputs also go to `project format --outputs`.
-- **Plan** from stage 2: `project set-data plan plan.json --base-rev N` with the mode, the options compared,
-  sections with length ranges and reasons, planned shots, script beats, decisions with alternatives, and the review
-  ranges you chose with their source. Change one part later with `project set-data plan part.json --merge --base-rev
-  N`; set `stage` at each stage start. Other notes of your own go under their own key (`project set-data KEY`).
-- `context get` summarises both: after a context reset, resume from them and `run log`, not from memory.
+| Point | When | Checks |
+|---|---|---|
+| `strategy` | after story, before the rough cut | one message; `promise.payoff` answers `promise.hook`; fits the brief; the `inferred` brief fields; recipe checks that apply to a plan |
+| `draft` | review stage, before G5 | the generic checks + `plan.checks`, as a viewer |
+| `process` | learn stage | the checklist, run log and timeline changes: skipped required stages, `done` without evidence, claims not backed by the log |
 
-Shapes and an example: `<skill_dir>/REFERENCE.md`, "The brief and the plan as data".
+```sh
+bashcut review packet --point strategy        # the folder for the auditor
+bashcut run append audit --point strategy --verdict changes --findings 2 --by critic
+```
 
-## Working with BashCut efficiently
+G2 `skip` → the strategy audit is required; G5 `skip` → the draft audit is required. With `ask` or `notify` the
+audit still runs and its verdict goes in the gate summary. No sub-agent: audit yourself from the packet only, record
+`--by self`; it counts, but is reported as self-audited. BashCut refuses a non-draft `export start` without a
+passing draft audit (`audit_missing`, remediation `review packet --point draft`), and the rough cut without the
+recipe read (`recipe_unread`) or the strategy audit: run what the error names, never work around it.
 
-- **Read in order:** `context get` → `timeline get --format text` → targeted reads. `project get` only when a field
-  is missing. After an edit, its result is the new state; re-read the whole timeline only on `-32002` or when unsure.
-- **Look in batches.** Each image costs about 1000 tokens of context; one contact sheet is about 15× cheaper per
-  frame (T20 §3). Use one sheet of 12–24 cells (T20 §7) per question: `timeline sheet --cuts --text` for continuity
-  and text, `timeline sheet --every 2` for pace (a cell every 0.5–2 s, shorter for fast cuts, T16 §3),
-  `media frames --sheet` for footage. Open single frames (`ui frame F`, `--phone` for text) only on doubt, and
-  `review window F` only at a decision point, not in a scan loop (T16 §2).
-- **Frame budget.** Before a stage, decide how many images it needs (usually one sheet plus a few doubts) and stay
-  near it. Read text results first (`review run`, `review shots`, `timeline sheet` cells) and open images when the
-  numbers leave a question.
-- **Wait, don't poll.** Jobs (`media transcribe`, `review measure`, exports) return a job ID: call
-  `jobs wait <job> --timeout 25` again until its state is `completed`, `failed` or `cancelled`; it returns as soon as
-  the state or step changes, so never sleep between calls. After about 30 min, stop and give the user the job ID.
-  Poll `checkpoint status` at 2 → 5 → 10 → 15 s (T20 §3).
-- **Paid providers.** `voice speak` and `library generate` may call a provider that charges. Always pass a stable
-  `--request-id` (for example `vo-<section>-<n>`), so a retry after a timeout returns the same job instead of paying
-  twice. When the provider is `paid` (`--dry-run` says so), run `--dry-run` first and show the user the request and
-  the provider's `estimate`; never invent a price. Report each finished job's `usage` (`costUSD` only when the
-  provider reported it, `costSource: provider`).
-- **Retry rules.** Retry reads and polls freely. A mutation that timed out may have happened: re-read before sending
-  it again. `-32002`: re-read, retry with the new `--base-rev`. After 2–3 identical failures of one step, stop and ask
-  (T00 §3, T20 §3), and record the tooling problem with `bc:self-learn`.
-- **Claims need proof.** Say "fixed" only after `review verify <id>` reports it fixed; "exported" only from
-  `export status`; "placed" only from the edit's result. Never infer completion or cost from elapsed time. You
-  cannot hear: say which sound you did not check and ask the user to listen at G5.
+## Working efficiently
+
+- **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
+  (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
+  `media frames --sheet` for footage. Single frames (`ui frame F --phone`) only on doubt; `review window F` only at
+  a decision point (T16 §2). Decide each stage's frame budget first; read text results before images.
+- **Wait, don't poll.** Jobs return an ID: `jobs wait <job> --timeout 25` until `completed`, `failed` or
+  `cancelled`. After about 30 min, give the user the job ID.
+- **Paid providers** (`voice speak`, `library generate`): a stable `--request-id`; `--dry-run` first when the
+  provider is `paid`, show its `estimate`, never invent a price; report each job's `usage`.
+- After 2–3 identical failures of one step, stop and rethink or ask, and record it with `bc:self-learn`.
 
 ## Run log
 
-The run log is the record of this run; use it instead of the chat for hand-off and for `bc:self-learn`:
-
 ```sh
 bashcut run append start --text "Market vlog, create mode, reels + tiktok"
-bashcut run append stage --stage rough-cut --text "12 selects kept of 20"
 bashcut run append round --round 1 --fixed 3 --left 2
 bashcut run append measured --measured picture,loudness,layout --not-measured sound-by-ear
 bashcut run append end --text "Draft approved, exports queued"
-bashcut run log
 ```
 
-Append a `stage` entry at every stage start and a `round` entry after every review round. Gate entries are written
-by `checkpoint request` and the user's answer; never write them yourself. End with `end`, then build the hand-off
-report from `run log` (`<skill_dir>/REFERENCE.md`, "The hand-off report").
+Stage entries come from the checklist commands above; gate entries from `checkpoint request` and the user's answer,
+never from you. End with `end`, then build the hand-off report from `run checklist` › `open` and `run log`
+(`<skill_dir>/REFERENCE.md`, "The hand-off report").
 
 ## Review, draft and export
 
-Stage 10 follows `bc:review`: set the review profile from sourced ranges, measure, look, send a `review packet` to a
-fresh critic when you can, fix, verify every fix, and stop within the round cap (1–3 rounds, T16 §3, and never more
-than `maxReviewRounds`). Then make the normalized draft and request **G5**:
+Stage 10 follows `bc:review` (profile, measure, look, fix, verify, rounds capped by `maxReviewRounds`), then the
+draft audit, then the normalized draft and **G5**:
 
 ```sh
 bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio
 bashcut export status
-bashcut timeline sheet --cuts --text
-bashcut checkpoint request G5 --summary "Draft v1 (render/draft-v1.mp4): 0:58, 2 review rounds, 1 issue kept …" \
-  --attach <the sheet path timeline sheet returned>
+bashcut checkpoint request G5 --summary "Draft v1: 0:58, 2 review rounds, draft audit pass, 1 issue kept …" \
+  --attach renders/draft-sheet.png
 ```
 
-After G5 is approved, export each output (`export start --preset reels …`); each waits for the user's approval in
-the app unless `agentPermissions.autoApprove` is on. `export cover <frame>` and `export chapters --write` make the
-cover stills and the chapter list from real frames and section markers. Never call the video done while an error is
-unexplained.
+`review run` status `incomplete` is never a pass. After G5, export each output (`export start --preset reels …`);
+`export cover <frame>` and `export chapters --write` make covers and chapters from real frames. Never call the video
+done while an error is unexplained.
 
 ## Learn
 
-At the end (stage 12): read `run log`, record what went wrong or what the user corrected with `bc:self-learn`, and
-propose what to keep (a grade, an effect, a sound) with `bc:library`. Follow the user's taste from `context get` and
-`knowledge get` throughout (`<skill_dir>/REFERENCE.md`, "Taste of the user").
+Stage 12: run the process audit (`review packet --point process`), then `bc:self-learn` turns its findings and the
+user's corrections into lessons, and `bc:library` proposes what to keep (a grade, an effect, a sound).

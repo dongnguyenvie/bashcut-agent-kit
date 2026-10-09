@@ -11,19 +11,23 @@ bashcut media list                        # media IDs, fps, frames, hasAudio, pr
 ```
 
 A new project has no default language. Before `project create`, read what the prompt already says and ask the
-rest in **one** round of questions (AskUserQuestion in Claude Code, plain questions in Codex), never one by one:
+rest in **one** round of at most 4 questions (AskUserQuestion in Claude Code, plain questions in Codex), never one
+by one. The recipe's `askAtIntake` fields join the round; drop the least important question to stay at 4:
 
 | Question | Skip it when | Options to offer |
 |---|---|---|
 | Language of the speech and captions | the prompt or a project brief names it | the language the user writes in first, then English, then "Other" |
 | Where it will be posted | the prompt names the platform or shape | TikTok/Reels/Shorts (portrait), YouTube (landscape), both |
 | Length | the prompt gives a length or range | the platform's usual ranges |
+| A recipe's `askAtIntake` field (a truth source, a channel name) | the prompt or the knowledge facts give it | what the recipe suggests |
 
 The language the user writes in is a good first option, not an answer: a Vietnamese prompt can ask for an English
 video, and footage can speak another language. Pass the answer as `--language` (BCP 47: `vi`, `en`, `en-US`, `ja`).
 It drives captions, speech-rate units, voices (`capabilities get --voices` › `speaksContentLanguage`) and fonts
 (`fonts list --covers`). When the user does not know yet, create the project without it and set it once the footage
-is transcribed (the transcript names the spoken language). Write the answers into the brief as `stated`.
+is transcribed (the transcript names the spoken language). Write the answers into the brief as `stated`. Questions
+left unanswered are decided by you and written as `inferred` with the reason in `source`; the strategy audit's
+packet lists them so the critic checks each guess. They are not asked again later.
 
 Pick the canvas from where the video will be watched: `portrait` for TikTok/Reels/Shorts, `landscape` (16:9)
 for YouTube and computers, `square` for feeds. Ask when it is not clear. It can change later with
@@ -70,6 +74,31 @@ reason}`) and `notes`. `context get` summarises both, so a later session (or you
 them; `review run` compares section lengths and the brief's length and outputs with the edit, as info;
 `review coverage` says which described shot each clip plays (match it with the planned shots yourself), and
 `script check` the beats (or `--beats`/`--text` you give) with the words heard.
+
+A recipe adds its data to the same plan, only what differs from the defaults:
+
+```json
+{
+  "recipe": {"skill": "bashcut.vlog:product-ad", "version": "0.0.2"},
+  "promise": {"hook": "Can one prompt cut a whole ad?", "payoff": "Yes — follow @handle for the next one"},
+  "stages": {
+    "voiceover": {"required": true},
+    "effects": {"required": true, "skill": "bc:motion-graphics", "why": "price card, CTA card"},
+    "captions": {"rules": ["no captions while a title or card is on screen"]},
+    "colour": {"required": false, "why": "screen recording"}
+  },
+  "checks": [
+    {"id": "cta-handle", "text": "@handle and logo visible through the CTA", "source": "bashcut.vlog:product-ad"}
+  ],
+  "askAtIntake": ["truthSource", "placement", "channelName"]
+}
+```
+
+`stages` keys are the stage ids of SKILL.md (never a skill name); `skill` replaces the stage's default skill;
+`required: false` with `why` marks a stage `n/a` up front. `checks` are
+the recipe's own (at most 8); the kit's generic checks (`bc:review`) are always added. `promise` is generic: every
+video opens a question and must close it. `context get` summarises the recipe, the promise, the checks count and the
+required or `n/a` stages, so these rules survive a context reset without re-reading the recipe.
 
 Update `stage` with `project set-data plan --merge` at each stage start, so the plan and the run log agree.
 
@@ -119,7 +148,9 @@ project folder). Record taste with `knowledge set-pref`, project facts with `kno
 
 ## The hand-off report
 
-Build it from `run log`, not from memory of the chat: the stages run, each gate with the user's answer, the review
+Build it from `run checklist` and `run log`, not from memory of the chat. Start with the checklist's `open` items
+(required stages skipped, `done` without evidence, missing audits), then each audit's verdict (say "self-audited"
+for `by: self`), the missing recipe when none was installed, the stages run, each gate with the user's answer, the review
 rounds (fixed, left), what was measured and what was not (sound not listened to, plugin checks that timed out),
 every kept issue with its reason and the `needs_user` items. Example: "Review: 2 rounds. Closed a 1.2 s black gap at
 0:41, raised the caption out of the Reels bar. Profile: static shots up to 6 s, a calm travel vlog. Kept: the 9 s

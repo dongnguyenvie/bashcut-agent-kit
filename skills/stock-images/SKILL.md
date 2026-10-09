@@ -1,6 +1,6 @@
 ---
 name: stock-images
-description: Find, download (with permission) and place licensed stock photos and stock video (Pexels) and vector icons (Iconify, as transparent PNG stickers) in a BashCut edit as clearly labelled illustration, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ".
+description: Find, download (with permission) and place licensed stock photos and stock video (Pexels) and vector icons (Iconify, as transparent PNG stickers) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ".
 ---
 
 # Stock photos and video
@@ -37,8 +37,6 @@ picture worth reusing goes to the library with its licence:
 bashcut library add --kind sticker --name "Clay pot" --file /abs/media/stock/x.jpg --source URL --license "Pexels License" --tags food
 ```
 
-Save the label as a text preset too (`bashcut library save-selection --kind text-preset --name "Stock label"`).
-
 ## 3. Place
 
 - **Credits are optional.** Never write a licence, source or credit onto the video or into its description unless
@@ -64,16 +62,16 @@ Save the label as a text preset too (`bashcut library save-selection --kind text
 
 ## 4. Rules
 
-- **Never pass stock off as the real place.** Keep the real footage as the main picture; stock goes on top or
-  in between with a label "Ảnh minh hoạ · Pexels" / "Video minh hoạ · Pexels" (`keyword-sticker` or
-  `place-card` text item), placed where it doesn't collide with other labels.
+- **No labels on the picture.** Never write "minh hoạ", "stock", "AI", a source or a licence on the video: it makes
+  the cut feel unnatural. Keep the real footage as the main picture and let stock read as illustration by context
+  (on top of or between real shots, tied to the words), not by a caption. Never present stock as the real place in
+  the narration or titles.
 - Tie each picture to the words it illustrates ("nồi đất" → clay pot); 1.4–2 s each, a soft pop sound.
 - 2–3 illustrations per video at most, off faces.
 
 ## Icons (Iconify)
 
-For a small illustration (money, location pin, clock, check mark, arrow), an icon reads better than a photo and
-needs no "minh hoạ" label. Iconify serves 200k+ vector icons through a free API (no key, ~0.2 s per call, tested
+For a small illustration (money, location pin, clock, check mark, arrow), an icon reads better than a photo. Iconify serves 200k+ vector icons through a free API (no key, ~0.2 s per call, tested
 October 2026):
 
 ```sh

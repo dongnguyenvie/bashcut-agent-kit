@@ -25,8 +25,8 @@ bashcut plugins option <plugin> --option voice --value <voice>
   has one (or a recorded voiceover). Pick among them by their facts (region, style, measured rate), then audition 2–3 on the **hardest** line,
   not the first; the first voice is rarely the pick (T10 §2).
 - Cloning: only the user's own voice or one whose owner agreed. A provider that `clones` refuses without
-  `--clone-consent`; pass it only when the user said yes in this conversation, never by default (T10 §6). If
-  viewers could take the AI voice for a real recording, suggest disclosing it.
+  `--clone-consent`; pass it only when the user said yes in this conversation, never by default (T10 §6).
+  Never mark AI voiceover on the video (no "AI voice" text or sticker); the voice should simply sound natural.
 
 ## 1. Measure before writing
 

@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review a BashCut edit before export as a capped critic loop — set the review profile from sourced ranges, measure, look at the edit in batches, judge findings by what a viewer perceives (blocker, polish, taste, needs user), fix one labelled edit per finding, prove each fix with review verify, keep deliberate choices with a reason, and report what was and was not checked. Also the brief for a fresh critic sub-agent given only a review packet folder. Use at the review stage of any edit, before a draft or export, when the user asks to check or critique a video, or when you were handed a review packet. Triggers: "review", "kiểm tra video", "soát lỗi", "xem lại bản dựng", "chấm bản dựng", "critic", "QC", "trước khi xuất".
+description: Review a BashCut edit before export as a capped critic loop — set the review profile from sourced ranges, measure, look at the edit in batches, judge findings by what a viewer perceives (blocker, polish, taste, needs user), fix one labelled edit per finding, prove each fix with review verify, keep deliberate choices with a reason, and report what was and was not checked (pass, fail or incomplete). A fresh critic (or a self-audit from the packet only) is always part of it. Also the brief for that critic given only a review packet folder: the strategy, draft or process audit, with the generic checks every video gets. Use at the review stage of any edit, before a draft or export, when the user asks to check or critique a video, or when you were handed a review packet. Triggers: "review", "kiểm tra video", "soát lỗi", "xem lại bản dựng", "chấm bản dựng", "critic", "QC", "trước khi xuất".
 ---
 
 # Reviewing an edit in BashCut
@@ -14,8 +14,21 @@ quantified" (T16 §2, guizang). Look at the pixels.
 
 ## If you were given a packet
 
-You are a fresh critic: you got a folder from `review packet` and this skill, nothing else. You did not make the
-edit and you have none of the maker's reasons, on purpose (T16 §4). Judge what is on screen against the plan.
+You are a fresh critic: you got a folder from `review packet --point strategy|draft|process` and this skill, nothing
+else. You did not make the edit and you have none of the maker's reasons, on purpose (T16 §4). `README` says which
+point you audit. Judge what is there against the brief and the plan, never against what the maker meant.
+
+| Point | You get | You check |
+|---|---|---|
+| `strategy` (before the rough cut) | brief (with `inferred` fields), plan (options, `promise`, sections, `checks`), a story sheet | one message; the payoff answers the hook; fits the brief; each `inferred` field is a fair guess; the recipe checks that apply to a plan |
+| `draft` (before G5) | the files below + `plan.checks` | the generic checks and `plan.checks` as a viewer; the measured issues |
+| `process` (at the end) | `run checklist`, `run log`, `timeline changes` | below, "Process audit" |
+
+**Generic checks** (every video, whatever the recipe): one message; `promise.payoff` answers `promise.hook`; text
+and speech in the opening (`hookSeconds`) say the same thing; understandable with the sound off; captions never repeat text that
+is on screen; nothing on screen the brief did not ask for: no credits, no "AI voice", "minh hoạ", "stock" or effect labels.
+
+The draft packet:
 
 | File | What it holds | Use it to |
 |---|---|---|
@@ -35,12 +48,24 @@ How to work: read `README`, `plan.json` and `measured.json` first; then `issues.
 
 Return, as text, briefed "to roast, not to praise" (T16 §2):
 
-1. A verdict: `pass` (no blocker) or `fail`.
+1. A verdict: `pass` (no blocker), `changes` (blockers the maker can fix) or `fail` (the strategy or the cut is
+   wrong). A check you could not judge is not a pass: name it under 5.
 2. Findings, blockers first: time (m:ss.s) or frame, severity (below), what the viewer perceives, the evidence (file
    and field, or sheet cell), and which stage owns the fix (story, rough cut, rhythm, sound, text, colour, effects).
 3. The 3–5 fixes to do first (T16 §7).
 4. `needs_user`: taste choices and missing material, kept apart from defects.
 5. What you could not judge: sound by ear, motion between sheet cells, anything `measured.json` lists as not measured.
+
+Record the verdict (it is a log entry, not an edit): `run append audit --point draft --verdict changes --findings 4
+--by critic`. Without the CLI, return it and the maker records exactly your verdict and count with `--by critic`.
+
+### Process audit
+
+Read the checklist first, then the log and the changes. Flag: a required stage `skipped` or missing; `done` without
+evidence or with evidence that is not in the log; a skill marked unread for a stage that ran; a missing or `self`
+audit; a gate request without the user's answer; claims in the summary (`end`, gate summaries) that no entry or
+change backs ("fixed" without `review verify`, "exported" without an export). Return the verdict as above and the
+lessons, each as symptom → cause → what to do, for `bc:self-learn`.
 
 ## Severity: what the viewer perceives
 
@@ -95,7 +120,9 @@ Each round:
 
 1. **Measure, then read.** `review run --summary` returns the issues and `checks`: `measured`, `stale` (an older
    revision: measure again), `notChecked` (with how to measure it), `failed` (plugin checks that timed out),
-   `unreliable` (picture that barely changes: not a pass) and `unsetLimits`. Errors come first. Info issues
+   `unreliable` (picture that barely changes: not a pass) and `unsetLimits`, plus `status`: `pass`, `fail` (errors)
+   or `incomplete` (no errors, but `unsetLimits` or `notChecked` is not empty: the editorial checks did not run).
+   `incomplete` is never reported as passing: set the profile or say what was not checked. Errors come first. Info issues
    `voice-text-changed-*`, `captions-source-changed-*` and `beats-source-changed-*` mean a result was made from an
    older text or file: run their fix (speak, transcribe or detect again) before judging that voice, those captions
    or that beat grid.
@@ -103,9 +130,10 @@ Each round:
    `review window F --span S --step K` only at cuts in doubt: ±0.4–1.5 s at 10–12 fps, wider for dialogue cuts,
    narrower for beat cuts (T16 §3; at 30 fps about `--span 12`–`45` with `--step 3`). `ui frame F --phone` for text
    at the width a viewer sees (360–420 px, T16 §3). `review coverage` (which described shot each clip plays) and `script check` against the plan.
-3. **Critic.** When you can start a sub-agent, run `review packet` and give it only the folder and `bc:review` (the
-   section above). It has none of your reasons, so it sees what a viewer sees. Otherwise judge yourself, from the
-   evidence, not from what you intended.
+3. **Critic, always.** Run `review packet --point draft` and give a sub-agent only the folder and `bc:review` (the
+   section above): it has none of your reasons, so it sees what a viewer sees. No sub-agent: audit yourself from
+   the packet only, as if you had not made the edit, and record `--by self`. Either way record the verdict with
+   `run append audit`; a skipped G5 needs it.
 4. **Decide each finding** by severity: fix it (one labelled edit; the issue's `fix` when it has one), change the
    profile when the limit is wrong for this video (say so and why), accept it with a reason, or list it for the user.
 5. **Verify each fix.** `review verify <id>` re-measures the issue's range and returns before and after numbers, the
@@ -161,7 +189,8 @@ bashcut review run --summary --min-severity warning
 
 ## Report
 
-Report the loop in a few lines, from `run log` and the last `review run --summary`: rounds; what was fixed
+Report the loop in a few lines, from `run log` and the last `review run --summary`: its `status`; the audit verdicts
+(and whether self-audited); rounds; what was fixed
 (issue → edit → `review verify` numbers); profile changes with the reason; every accepted issue with its reason;
 `needs_user`; and coverage: copy `checks.notChecked`, `failed` and `unreliable`, and say "not listened to" for sound
 you could not hear. Example: "Review: 2 rounds. Closed a 1.2 s black gap at 0:41 (verified: 0 black frames), raised

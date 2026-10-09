@@ -76,7 +76,7 @@ longer), fewer than 3 families when there are 5+ cuts, one ease on more than hal
   ~1.02–1.1; T08 §3).
 - Fast-forward: 1.5–2× when narrated over, 4–20× for silent waiting (digitalsamba, vlog tutorial; T19 §3).
   `setSpeed` takes up to 16×. One example: a 65 s typing stretch read clearly at 18× (3.6 s) with no presenter
-  or captions and one label saying what happens.
+  or captions and one label saying what happens (the action, never the speed or effect name).
 
 **Graphic moves and transitions.** Durations in seconds: frames change meaning with fps (T08 §3).
 
