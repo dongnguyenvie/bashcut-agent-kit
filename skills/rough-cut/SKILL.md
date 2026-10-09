@@ -1,6 +1,6 @@
 ---
 name: rough-cut
-description: Build the rough cut in BashCut by choosing moments by what is said — read the transcript, pick lines by quote, resolve each quote to a word-exact source range, store it as a select with its quote, reason and evidence, let the user override in the Media panel, then place the kept selects in story order. Also long → short — finding self-contained clips in a podcast, talk, stream or long recording, a blind second pass with verdict tiers, the standalone test, length and padding ranges, and one derived project per short. Use at the rough-cut stage of a talking video, tutorial or interview, when cutting a long recording into shorts, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
+description: Build the rough cut in BashCut by choosing moments by what is said — read the transcript, pick lines by quote, resolve each quote to a word-exact source range, store it as a select with its quote, reason and evidence, let the user override in the Media panel, then place the kept selects in story order. Also long → short — finding self-contained clips in a podcast, talk, stream or long recording, a blind second pass with verdict tiers, the standalone test, length ranges, and one derived project per short. Use at the rough-cut stage of a talking video, tutorial or interview, when cutting a long recording into shorts, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
 ---
 
 # Rough cut by quote
@@ -45,8 +45,10 @@ It returns `from`/`to` seconds, in and out frames, the matched text, and for eac
 
 - An edge `midSentence` is allowed only when you mean it (a deliberate interruption). Otherwise move it to the
   nearest sentence edge the result gives and resolve again.
-- **Padding** (T06 §3): start 50–150 ms before the first word, end 80–300 ms after the last. Tighter for montage
-  energy; looser for documentary, trailing reactions, and synthesized or AI speech. Never past the next word's start.
+- **Cut on the `resolve-range` result as it is; never add padding by hand.** In connected speech the next word starts
+  within ~0.1 s: a 0.1 s pad pulled the neighbouring words in (lesson, one ad edit). To hold a breath or a reaction,
+  resolve a wider quote or move the edge to a sentence edge the result gives, then check the trim with
+  `--dry-run` (`cutsInsideWord` must be empty) before applying.
 - **Gaps as cut points** (T06 §3, video-use): ≥400 ms of quiet is a clean cut; 150–400 ms needs a look at the picture;
   <150 ms is unsafe. Whisper-style word ends hide pauses, so trust `media speech-map` gaps over word ends (T06 §4).
 - **Takes**: default to the last complete take ("people warm up", T06 §3), then confirm by reading or asking. A

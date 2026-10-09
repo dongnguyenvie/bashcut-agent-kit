@@ -165,6 +165,9 @@ summary and the export report (`project credits`). Dead ends: Bensound, BBC SFX,
 - Before export: `audio measure --timeline --curve` for silences and jumps between sections (one source keeps
   chapters within 2 LU, another warns at ±1 LU, T11 §3), and `review run` (voices too close, music not ducked,
   dead air, a music bed that drops out, speech coverage).
+- **Camera-mic speech with short peaks** (laughs, plosives, bangs) caps normalization: the true-peak ceiling stops the
+  gain, and one edit stayed at −16 LUFS against a −14 target. BashCut has no limiter: lower the clip gain (or a
+  volume keyframe) on each loud line until the peaks sit with the rest, then normalize again.
 - After a normalized export, read the receipt (`export status`: `lufs`, `truePeakDbTP`); `review run` checks it
   against that export's target. Renderers can move the true peak, so trust the delivered file, not the setting.
 - Report the numbers with "I cannot listen", and list the joins and voiceover windows for the user to play

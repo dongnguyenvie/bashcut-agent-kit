@@ -79,6 +79,10 @@ those words fall in are replaced, their style kept). Break at meaning (phrase en
 Rule mode needs all three limits, chosen from the table; core has no default. Read the result: each cue's seconds,
 chars and cps, and the gaps and overlaps between cues in frames. Fix outliers by regrouping, or `timeline undo`.
 
+**After every cut, regroup from what is heard:** `captions group --source heard` with indices from `transcript
+words --heard`. Captions made before the cut keep the words of lines that were cut away (one edit showed half a
+dropped sentence).
+
 ## 3. Script text, speech timing
 
 When a script or voiceover text exists, show the script's exact words, never the recogniser's paraphrase (T09 §2,
@@ -199,6 +203,9 @@ Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic eithe
   first words, and the project sets `hookSeconds`.
 - Copy budget (T09 §3): hook text 3–8 words, overlays ≤ 6; on-screen text repeats only the key word or number of
   the spoken line.
+- **No captions while a title or card is on screen.** Remove or shorten the cues under a hook title, a price card
+  or a CTA card: the same words twice read as a mistake (captions repeated the title and the price card in one ad;
+  the critic flagged it). `review layout` `captionOverlap` finds them.
 - Place card at each location change, with the real place and time. Chapter cards only in tutorials and list
   videos: in one narrative vlog, cards with a flash and boom at every section felt disjointed; a hard cut, a
   bridging voiceover sentence and a small quiet date label worked better.
