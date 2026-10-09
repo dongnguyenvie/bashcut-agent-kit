@@ -25,7 +25,7 @@ point you audit. Judge what is there against the brief and the plan, never again
 | `process` (at the end) | `run checklist`, `run log`, `timeline changes` | below, "Process audit" |
 
 **Generic checks** (every video, whatever the recipe): one message; `promise.payoff` answers `promise.hook`; text
-and speech in the first 3 s say the same thing; understandable with the sound off; captions never repeat text that
+and speech in the opening (`hookSeconds`) say the same thing; understandable with the sound off; captions never repeat text that
 is on screen; nothing on screen the brief did not ask for: no credits, no "AI voice", "minh hoạ", "stock" or effect labels.
 
 The draft packet:

@@ -12,6 +12,10 @@ This skill is the one engine for every edit. A **recipe** (a plugin skill such a
 re-runs the process: it writes data into the plan (stages, checks, promise, intake questions) that this skill, the
 checklist and the critic read. With no recipe, the kit's defaults and generic checks apply.
 
+Editorial numbers are **ranges with their source**, never fixed values: choose within them for this footage and say
+why in the plan. Leave a range when the footage or the idea earns it (`"deliberate": true` with the reason); review
+keeps that as info. Two edits of the same kind should not come out the same.
+
 ## Hard rules
 
 - **Tool rules are BashCut's.** How to call it (read before an edit, `--base-rev`, scope and held edits, error codes

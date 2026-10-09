@@ -88,7 +88,7 @@ A recipe adds its data to the same plan, only what differs from the defaults:
     "colour": {"required": false, "why": "screen recording"}
   },
   "checks": [
-    {"id": "cta-handle", "text": "@handle and logo visible in the last 3 s", "source": "bashcut.vlog:product-ad"}
+    {"id": "cta-handle", "text": "@handle and logo visible through the CTA", "source": "bashcut.vlog:product-ad"}
   ],
   "askAtIntake": ["truthSource", "placement", "channelName"]
 }
