@@ -206,6 +206,10 @@ Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic eithe
 - **No captions while a title or card is on screen.** Remove or shorten the cues under a hook title, a price card
   or a CTA card: the same words twice read as a mistake (captions repeated the title and the price card in one ad;
   the critic flagged it). `review layout` `captionOverlap` finds them.
+- **Content only, no production notes.** On-screen text says what the viewer needs (a word, a price, a place),
+  never how the video was made: no "AI voice", "minh hoạ", "stock", "AI-generated", effect or speed names
+  ("x8", "slow motion"), sources or credits. Such labels make the video feel unnatural; credits only when the user
+  asks (`bc:stock-images`).
 - Place card at each location change, with the real place and time. Chapter cards only in tutorials and list
   videos: in one narrative vlog, cards with a flash and boom at every section felt disjointed; a hard cut, a
   bridging voiceover sentence and a small quiet date label worked better.
