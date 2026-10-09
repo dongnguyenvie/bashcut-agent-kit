@@ -5,8 +5,8 @@ description: Grow and look after the user's BashCut library — make a missing p
 
 # Library: make, harvest, look after
 
-Reply in the user's language. The library holds reusable items in seven kinds: `text-preset`, `sticker`,
-`effect-preset`, `transition-preset`, `look`, `audio` and `voice`. Items live in four scopes, searched in this
+Reply in the user's language. The library holds reusable items in eight kinds: `text-preset`, `sticker`,
+`effect-preset`, `transition-preset`, `look`, `audio`, `voice` and `clip` (footage). Items live in four scopes, searched in this
 order: the project (`.bashcut/library`), this Mac (`user`), plugin packs, built-ins. Built-in and plugin items are
 read-only.
 
@@ -25,9 +25,10 @@ The user wants an effect, transition, look, text style, sticker or sound, and no
    A close item with other numbers is not missing: apply it with `--set`, or copy it with
    `library update ID --as NEW_ID` and change the copy.
 2. **Ask a plugin.** When a provider is installed: `bashcut library search "camera shutter" --kind audio` or
-   `bashcut library generate "gold star burst" --kind sticker` (jobs; `jobs status` lists candidates with their
-   preview, source and licence). Show the candidates, check the licence, then
-   `bashcut library add --from-result JOB:N`. No provider: say so; installing one is the user's job.
+   `bashcut library generate "gold star burst" --kind sticker --request-id sticker-star-1` (jobs; `jobs wait`
+   until done lists candidates with their preview, source and licence; a paid provider: `--dry-run` first). Show the candidates, check the licence, then
+   `bashcut library add --from-result JOB:N`. No provider (`capabilities get library.generate --kind sticker` says why): say so; installing or turning one on
+   is the user's job.
 3. **Build it on the timeline, then save it.** This is the most reliable way: make the effect with the usual
    commands (`bc:effects`, `bc:color-grade`, `bc:audio-mix`, `bc:captions-text`), let the user approve, then
    `bashcut library save-selection --kind effect-preset --name "Food reveal" --item CLIP`.
@@ -84,6 +85,12 @@ the user listened (`library preview ID`). Set `{"loopable": true}` only for a be
 or a `.mov` with alpha (HEVC alpha or ProRes 4444), with optional `size` (width, 0.01–1 of the frame), `position`
 and `animation` (a clip motion preset). GIFs place as their first frame for now; Lottie is not supported. Pictures
 from the web need a licence: `bc:stock-images`.
+
+**clip**: footage kept for reuse, a B-roll shot or a still (`.mov`/`.mp4`/`.m4v` or an image) via `--file`;
+`library add` measures `seconds`, `width`, `height` and `hasAudio`, and any other params (a generator's `model`,
+`prompt`) are kept. `library place ID --track OVERLAY --at-frame F --duration N` copies it into the project's
+`clips/` and places it like `media place` (main layer by default). Generated ones come from `library generate
+"<shot>" --kind clip` when a provider serves it: `bc:stock-images`.
 
 **text-preset**: `{"textPreset": "<built-in renderer preset>", "text": "sample", "textStyle": {"size": 0.07,
 "positionY": 0.62, "strokeWidth": 6, "font": "Montserrat-ExtraBold", "fill": "#FFD400", "stroke": "#000000"},

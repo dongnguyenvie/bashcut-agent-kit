@@ -10,6 +10,9 @@ Reply in the user's language. A problem solved in chat but not written down **wi
 Run it after the problem is solved (you need the real cause), not in the middle of the user's step. At the end
 of a session, sweep the conversation for anything missed.
 
+When a process audit ran (`bc:review`, "Process audit"), start from its lessons: they come from the checklist and
+the run log, not from your memory of the session. Add what the user corrected on top.
+
 Signals worth recording: the user corrects you ("không, dùng X", "thật ra…", "X chứ không phải Y") or rejects an
 action you proposed; the user says to remember ("nhớ là…", "lần sau đừng…"); a `bashcut` command fails or a
 result had to be redone. A question, a one-off instruction for this clip or vague feedback ("chưa ổn") is not a

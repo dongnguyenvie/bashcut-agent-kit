@@ -11,18 +11,22 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 
 | Skill | Use it for |
 |---|---|
-| `edit-workflow` | The whole edit from footage to export, and which skill to use when |
-| `footage-survey` | Contact sheets and specs before editing; coverage, silent or broken clips (`survey.py`); camera ↔ screen sync (`media sync`) |
+| `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
+| `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), padding and length ranges, a blind second pass, long → short with `project derive` |
+| `review` | The critic loop before export: pass/fail/incomplete, severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for the fresh critic of each audit (`review packet --point strategy\|draft\|process`) and the generic checks |
+| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media inventory`, `media frames --sheet`, `media describe`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
 | `beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `voiceover` | Text-to-speech lines that read right, checked and placed |
 | `captions-text` | Captions from speech, hook titles, place and chapter cards |
-| `color-grade` | Looks, LUTs (`grade.py`: matte-cinematic, warm-film, faded-memory), adjustment layers, style kits |
+| `color-grade` | Measured grading: probe, `color measure`, candidate looks and LUTs with ranges (`grade.py` measures and reports), check and back off; library looks |
 | `effects` | Which effect for which moment, made with native transitions, speed ramps, freeze, reframe |
+| `motion-graphics` | Designed graphics over footage (checklist and stat cards, counters, diagrams): whether a sentence needs one, anchoring to the payoff word, hold and density ranges, and HyperFrames overlays rendered as `.mov` with alpha |
 | `stock-images` | Licensed stock photos and video, labelled as illustration; Iconify icons as transparent PNG stickers |
-| `style-study` | Measuring a reference style and turning it into a memo, look and style kit |
+| `style-study` | Measuring a reference style and turning it into a memo, a library look and text presets |
 | `library` | Making a missing preset, effect, transition, look, sticker or sound; harvesting what to keep after an edit; fixing and pruning library items |
 | `self-learn` | Recording lessons in the project memo, project skills or kit changes |
+| `setup` | Installing the recommended plugins with one approval in the app, then checking they work. Only runs when the user types `/bc:setup` (Codex: `$bc-setup`) |
 
 Claude Code and Codex both show the skills under the plugin name: `bc:audio-mix`, `bc:edit-workflow`, …
 Kit 0.1.0 renamed them from `bashcut:bashcut-<name>`; BashCut's agent setup replaces the old `bashcut` plugin and
@@ -67,7 +71,9 @@ sh bashcut-agent-kit/scripts/install-codex.sh --uninstall
 .claude-plugin/plugin.json        plugin "bc" (skills show as bc:<name> in Claude Code and Codex)
 .claude-plugin/marketplace.json   marketplace "bashcut-agent-kit"
 .mcp.json                         BashCut MCP server for Claude Code
+hooks/hooks.json                  Claude Code hook: records each bc:* skill read in BashCut's run log (record-skill.sh)
 skills/*/SKILL.md                 the skills (Agent Skills format, shared by Claude Code and Codex)
+skills/*/REFERENCE.md             detail a skill reads on demand (kept out of SKILL.md's 250-line limit)
 scripts/bashcut-mcp.sh            finds and starts bashcut-mcp
 scripts/install-codex.sh          Codex setup
 scripts/check.py                  checks every skill's frontmatter, size and referenced files

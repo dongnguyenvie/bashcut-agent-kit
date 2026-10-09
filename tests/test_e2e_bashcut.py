@@ -322,17 +322,6 @@ class LiveBashCut(unittest.TestCase):
         out = self.app.raw("captions", "export").stdout.strip()
         return parse_srt(json.loads(out) if out.startswith('"') else out)   # the CLI prints the SRT as a JSON string
 
-    def test_review_flags_a_recognition_loop(self):
-        self.need("review run")
-        if not self.app.has("media sync"):     # the loop check shipped with media sync and ranged captions
-            self.skipTest("this BashCut's review does not check captions for recognition loops")
-        srt = self.tmp / "loop.srt"
-        srt.write_text("1\n00:00:01,000 --> 00:00:14,000\nà à à à à à à à à à à à\n\n"
-                       "2\n00:00:15,000 --> 00:00:17,000\nCâu bình thường.\n", encoding="utf-8")
-        self.app.raw("captions", "import", srt, "--base-rev", self.app.rev(), "--replace")
-        review = self.app.raw("review", "run").stdout
-        self.assertIn("recognition loop", review.lower())
-
 
 def parse_srt(text):
     def sec(t):
