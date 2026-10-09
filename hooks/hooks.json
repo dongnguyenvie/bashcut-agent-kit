@@ -1,0 +1,13 @@
+{
+  "description": "Records each bc:* skill read in BashCut's run log, so the checklist knows which stage skills were read.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/record-skill.sh\"", "timeout": 10}
+        ]
+      }
+    ]
+  }
+}
