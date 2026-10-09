@@ -1,6 +1,6 @@
 ---
 name: edit-workflow
-description: Plan and run a whole edit in BashCut from raw footage to export — intake, recipe, survey, story options, rough cut, rhythm, script and voiceover, sound, text, colour, effects, review, draft, export, learning — through the user's workflow gates, a checklist with evidence and independent audits, and pick the one skill to read for each stage. Use when the user asks to edit/cut a video, make a vlog, an ad, a review, short or montage from a folder of footage, revise an edit, or asks "where do I start". Also tool demos and tutorials from a screen recording plus a presenter camera. Triggers: "dựng video", "cắt video", "làm vlog", "làm video quảng cáo", "dựng giúp", "sửa lại video", "edit this", "bắt đầu từ đâu", "video giới thiệu tool", "video desktop làm nền", "người đọc ở trên video".
+description: Plan and run a whole edit in BashCut from raw footage to export — intake, recipe, survey, story options, rough cut, rhythm, script and voiceover, sound, text, colour, effects, review, draft, export, learning — through the user's workflow gates, a checklist with evidence and independent audits, and pick the one skill to read for each stage. Use when the user asks to edit/cut a video, make a vlog, an ad, a review, short or montage from a folder of footage, revise an edit, or asks "where do I start". Also tool demos and tutorials from a screen recording plus a presenter camera. Triggers: "dựng video", "cắt video", "làm vlog", "làm video quảng cáo", "dựng giúp", "sửa lại video", "edit this", "bắt đầu từ đâu", "video giới thiệu tool", "video desktop làm nền", "người đọc ở trên video", "talking head", "talk head", "video nói chuyện".
 ---
 
 # Editing a video in BashCut
@@ -41,23 +41,33 @@ keeps that as info. Two edits of the same kind should not come out the same.
 
 ## Stage 0: intake and the recipe
 
+Intake always runs these steps, in order, before any edit, even when the request looks simple:
+
 1. `context get` and `knowledge get` (taste, facts, lessons; `<skill_dir>/REFERENCE.md`, "Taste of the user").
-2. **Route.** The user named a recipe (or a slash command): read it. Otherwise pick one here and read it with
-   `skills get` (`skills list --scope plugin` shows what is installed):
+2. **Look at what was given.** The files or folder the prompt names: shape, length, speech, and what else sits next
+   to them (a screen recording of the same session, a second camera). Read only; nothing is imported yet.
+3. **Match a recipe.** `skills list --scope plugin`: the recipes are the plugin skills whose description starts
+   with "Recipe for". Match the request and step 2 against each description; keep the best match and a close
+   second. Read the best match now with `skills get` (its Plan data and `askAtIntake` shape the questions). The
+   user named a recipe or a slash command: take it. No recipe listed: `plugins list` says whether the recipe
+   plugin is installed but untrusted or off; tell the user (`/bc:setup`) and never read its files from disk.
+   Nothing installed: kit defaults, and `plugins search` names the missing recipe for the hand-off report.
+4. **Draft the steps.** The stage table below, minus what the recipe marks `required: false`, plus what it adds.
+   When words carry the video (talking head, tutorial, explainer, review, podcast clip, voiceover), add
+   `visuals` after `voiceover` yourself if the recipe did not.
+5. **Ask once, suggesting.** One round of at most 4 questions (`<skill_dir>/REFERENCE.md`, "Intake questions"):
+   the recipe, the steps, then what the prompt does not say (length, platform, language, the recipe's
+   `askAtIntake` fields). Every question's first option is your own choice, "AI chọn: <the concrete choice>",
+   marked recommended. No answer, the user is away or said "don't ask": take those choices, write each as
+   `inferred` in the brief, and the strategy audit checks them. Never ask again later; never guess a name, a
+   handle or a claim silently.
+6. Create or open the project (`<skill_dir>/REFERENCE.md`, "Starting a project"), write the **brief**, then the
+   plan: the recipe's plan data (below; a recipe that runs after a plugin planner such as `bashcut.vlog:plan`:
+   read the planner, telling it which recipe was chosen) and the steps as answered in `stages`. `run checklist`
+   must list the same steps. Request **G1**.
 
-   | Request | With the plugin | Without |
-   |---|---|---|
-   | ad, TVC, "quảng cáo", "video bán hàng", a channel teaser | `bashcut.vlog:product-ad` | kit defaults |
-   | vlog, trip, food, a day, product review, talking head, tutorial, podcast clips | `bashcut.vlog:plan` (picks the recipe) | kit defaults |
-
-   No fitting plugin: go on with kit defaults and name the missing recipe in the hand-off report (`plugins search`).
-3. **Ask once.** Before `project create`, one round of at most 4 questions about what the prompt does not say:
-   language, platform, length, and the recipe's `askAtIntake` fields (AskUserQuestion in Claude Code, plain
-   questions elsewhere). No answer, the user is away or said "don't ask": decide, write the field as `inferred` in
-   the brief, and the strategy audit checks the guess. Never ask again later; never guess a name, a handle or a
-   claim silently.
-4. Create or open the project (`<skill_dir>/REFERENCE.md`, "Starting a project"), write the **brief**, and let the
-   recipe write its plan data (below). Request **G1**.
+From here the steps drive the work: at each stage start read the skill `workflow.next` names through the Skill
+tool or `skills get`, never from disk, even when you think you know it.
 
 ## The plan as data
 
@@ -73,7 +83,9 @@ both, so after a context reset resume from them and `run log`, not from memory. 
 | `checks` | at most 8 recipe checks `{id, text, source}`; the kit's generic checks are always added |
 | `askAtIntake` | brief fields the recipe will not guess |
 
-Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `decisions`, `ranges`.
+Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `visuals`, `decisions`, `ranges`.
+`stages` may also add a stage of its own (`{"skill": "…", "after": "<stage id>"}`): BashCut lists it right after
+that stage, so new work goes where it belongs (`visuals` after the cut is locked).
 
 ## Modes
 
@@ -97,10 +109,11 @@ before music and SFX: changing clip lengths later breaks every sync point.
 | 3 | `rough-cut`: selects by quote, no music, titles or grade | `bc:rough-cut` | **G3 rough-cut sheet** |
 | 4 | `rhythm` | `bc:beat-cut` | — |
 | 5 | `voiceover` (when needed) | `bc:voiceover` | **G4 script**, before speech is made |
+| 5b | `visuals` (added by the plan when words carry the video, `after: "voiceover"`) | `bc:visual-plan` | — |
 | 6 | `sound` | `bc:audio-mix` | — |
 | 7 | `captions` and text | `bc:captions-text` | — |
 | 8 | `colour` | `bc:color-grade` | — |
-| 9 | `effects`, graphics, stock (only where a moment needs one) | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
+| 9 | `effects`, graphics, stock (the rows of `plan.visuals`, else only where a moment needs one) | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
 | 10 | `review` | `bc:review` | **draft audit**, **G5 draft** |
 | 11 | `export` per output | this skill | — |
 | 12 | `learn` | `bc:self-learn`, `bc:library` | **process audit** first |
