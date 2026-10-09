@@ -94,7 +94,7 @@ Filename clocks lie (82 s and 101 s apart by name, 2.44 s by sound once the reco
 ```sh
 bashcut media sync --media CAMERA_ID --to SCREEN_ID [--item CAMERA_CLIP]   # job: screen time = camera time + offset
 bashcut media sync --media SCREEN_ID --to RENDER_ID                        # a render played on screen starts at −offset
-bashcut jobs wait JOB_ID --timeout 25
+bashcut jobs wait JOB_ID --done --timeout 100
 ```
 
 Both files must be project media (`media import`). It correlates loudness envelopes and checks each half of the

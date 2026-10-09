@@ -77,11 +77,14 @@ hundreds of single edits. A 45 s ad should take about 25–30 turns.
 
 1. **Intake** as above (one round of questions).
 2. **Survey in batches**: `project create`, `media import <folder>` (the whole folder in one call),
-   `media transcribe` (every media with sound), `jobs wait ID1,ID2 --timeout 30`, `media inventory`, then one or two
-   `media frames --sheet` (`bc:footage-survey` only when the footage is long or mixed).
+   `media transcribe` (every media with sound), `jobs wait ID1,ID2 --done --timeout 100`, `media inventory`, then one
+   or two `media frames --sheet` (`bc:footage-survey` only when the footage is long or mixed). Hand the reading to a
+   **survey sub-agent** ("Keep the context small").
 3. **Story as data**: the brief, then the plan with `promise`, `sections` (with length ranges) and **`cut`**: clips in
    order by quote (`{media, quote, section}`), `cover` for pictures over a line (B-roll), `titles` anchored to a
-   clip, one `music` bed (the shape is in `plan check`'s own description). Write it with `project set-data plan --merge`.
+   clip by preset name only (`hook-title`, `place-card`, or a template ID such as `stacked-keyword`; `style` only to
+   change a field), `captions: {from: "speech"}` when the words should show, one `music` bed with `duckDb` (the
+   shape is in `plan check`'s own description) with `project set-data plan --merge`; revise it whole, not field by field.
 4. **Check, no edit**: `plan check` resolves every quote, places everything on a scratch copy and returns the clips
    (edges inside words, described size, orientation), titles (chars per second), problems and the review of the
    edit as it would be. Fix the list and check again until `ok` is true and the warnings are ones you mean.
@@ -90,9 +93,10 @@ hundreds of single edits. A 45 s ad should take about 25–30 turns.
 5. **Build once**: `plan apply --base-rev N --why "…"` (one undoable edit), then `timeline sheet --cuts --text`
    as the storyboard for **G3**. A change ("hook ngắn lại", "đổi cảnh 3") is a change to `plan.cut` and another
    `plan apply`: it replaces only what an apply built.
-6. **Finish only what the plan needs**: voiceover, captions (`captions generate`), sound (`audio mix-measure`,
-   ducking), colour, effects. Read the stage skill for a stage you run beyond one command.
-7. **Review**: `review run --summary`, fix, `review verify`; a self draft audit from the packet; the normalized
+6. **Finish only what the plan cannot say** (captions, titles, speech tags and ducking came with the apply):
+   voiceover, colour, effects, a mix `audio mix-measure` finds off; the stage skill for anything beyond one command.
+7. **Review**: `review measure` + `jobs wait --done`, `review run --summary`, fix in `plan.cut` and apply again,
+   `review verify`; the draft audit from the packet by a **critic sub-agent** (else `--by self`); the normalized
    draft and **G5**; export.
 
 The full path adds a fresh critic sub-agent at each audit (`bc:review`) and every stage skill.
@@ -171,10 +175,10 @@ Read `workflow gates` at intake: each gate is `ask`, `notify` or `skip` (skip un
 
 ```sh
 bashcut checkpoint request G2 --summary "Strategy: one message — …; hook → payoff …" --attach renders/story-sheet.png
-bashcut checkpoint status --wait 30
+bashcut checkpoint status --wait 100
 ```
 
-- `ask`: repeat `checkpoint status --wait 30` while `awaiting_user` (it returns when the user answers). `approved`:
+- `ask`: repeat `checkpoint status --wait 100` while `awaiting_user` (it returns when the user answers). `approved`:
   go on; `changes`: apply the note, request again; `rejected`: stop and ask; `stale`: request again.
 - `notify`: the user is told and you go on. `skip`: nothing is shown.
 - Only the user answers a gate: never treat silence or an earlier "go ahead" as approval, never loosen a gate. A
@@ -205,23 +209,18 @@ recipe read (`recipe_unread`) or the strategy audit: run what the error names, n
 
 ## Working efficiently
 
-Measured on real runs: one ad took 778 BashCut calls (159 `context get`, 119 `media import`, 110 `jobs wait`, 37
-`export status`, 36 `ui frame`); a vlog spent 12M tokens before its first cut. Every one of those calls was a turn.
+Every call is a turn, and every result read stays in the context, paid again on each later turn (one ad took 778
+BashCut calls; a vlog spent 12M tokens before its first cut). The rules, with numbers:
+`<skill_dir>/REFERENCE.md`, "Working efficiently". In short:
 
-- **One call for many things.** `media import <folder>`; `media transcribe` without `--media` (every media);
-  `jobs wait ID1,ID2,…`; the cut as `plan.cut` + `plan apply`; several `timeline apply` ops in one call. In a shell,
-  chain commands whose output you do not need to read (`run append … && run append …`); with MCP tools, send
-  independent calls together in one turn.
-- **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
-  (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
-  `media frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames
-  (`ui frame F --phone`) only on doubt; `review window F` only at a decision point (T16 §2). Read text results
-  before images.
-- **Wait, don't poll.** Jobs: `jobs wait <job> --timeout 30` until `completed`, `failed` or `cancelled`; an export
-  is a job too (never loop on `export status`). Gates: `checkpoint status --wait 30`. After about 30 min, give the
-  user the job ID.
-- **Read once.** `context get` when you start or resume and after a gate, not before every command; `timeline get`
-  only before hand-written ops (`plan check` and `review run` already say what you need).
+- **One call for many things**: `media import <folder>`, `media transcribe` (every media), `jobs wait ID1,ID2,…`,
+  the cut as `plan.cut` + `plan apply`, several ops in one `timeline apply`; independent MCP calls in one turn.
+- **Sub-agents read, you decide.** When your agent can start one (Claude Code's Agent tool), the **survey**
+  (transcripts, contact sheets, `media describe`; candidate quotes with exact words into `plan.shots`, an answer
+  under 300 words) and the **draft audit** go to a sub-agent. You never read frames or a whole transcript.
+- **Look in batches** (sheets, not single frames), **wait, don't poll** (`jobs wait <job> --done --timeout 100`,
+  `checkpoint status --wait 100`, never loop on `export status`), **read once** (`context get` at start, resume
+  and after a gate), and filter big output in the same call (`--summary`, `| python3 -c …`, `head -c 2000`).
 - **Paid providers** (`voice speak`, `library generate`): a stable `--request-id`; `--dry-run` first when the
   provider is `paid`, show its `estimate`, never invent a price; report each job's `usage`.
 - After 2–3 identical failures of one step, stop and rethink or ask, and record it with `bc:self-learn`.

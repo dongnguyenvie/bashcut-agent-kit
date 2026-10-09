@@ -164,9 +164,13 @@ frame, not the number.
 
 `textStyle` also takes `font` (a PostScript name such as `Montserrat-ExtraBold`), `fill`, `stroke` and
 `highlight` (`#RRGGBB`); `emphasis {line, fill, scale, plate}` (or `false`) and `lineFills [colors]` shape titles.
-The templates use Helvetica Neue Condensed Black, Verdana Bold and Marker Felt Wide, the presets Arial Bold and Times;
-all ship with macOS and cover Latin and Vietnamese (check `fonts list --covers` for other languages). Arial and
-Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic either).
+The hook title and the templates use `System-CondensedBlack` (the Mac's own San Francisco; `System-` + an optional
+Condensed, Compressed or Expanded + Regular…Black), Verdana Bold and Marker Felt Wide, the other presets Arial Bold
+and Times; all ship with macOS and draw Vietnamese tone marks right (check `fonts list --covers` for other
+languages). Helvetica Neue's condensed faces have the letters but misplace stacked marks (Ắ, Ở): avoid them for
+Vietnamese. Arial and Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic either). In an edit
+built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by name, `style` with these fields);
+`plan check` flags a font that lacks the content language.
 
 - `bashcut fonts list --covers [--query montserrat]` gives the names that draw here (project fonts first) that have
   every letter of the project's content language (`--language TAG` for another one); without `--covers` each font

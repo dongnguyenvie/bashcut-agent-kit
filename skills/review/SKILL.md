@@ -112,7 +112,7 @@ The platform's own numbers (length, loudness target, safe zones) come from `plat
 
 ```sh
 bashcut review measure                      # a job: picture checks, plugin checks
-bashcut jobs wait <job> --timeout 25       # repeat until completed, failed or cancelled
+bashcut jobs wait <job> --done --timeout 100       # returns when it ends (repeat on timedOut)
 bashcut review run --summary --min-severity warning
 ```
 

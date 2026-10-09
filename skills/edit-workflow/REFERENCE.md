@@ -161,6 +161,36 @@ lessons, preferences and project facts: follow them. At the start of every edit 
 project folder). Record taste with `knowledge set-pref`, project facts with `knowledge set-fact` and lessons with
 `knowledge add-lesson` (see `bc:self-learn`).
 
+## Working efficiently
+
+Measured on real runs: one ad took 778 BashCut calls (159 `context get`, 119 `media import`, 110 `jobs wait`, 37
+`export status`, 36 `ui frame`); a vlog spent 12M tokens before its first cut. A headless ad run on the quick path
+(kit 0.1.27) took 108 turns and 13.4M input tokens: its context grew from 34k to 180k because every transcript,
+image, skill and schema it read stayed, and each later turn paid for it again.
+
+- **One call for many things.** `media import <folder>`; `media transcribe` without `--media` (every media);
+  `jobs wait ID1,ID2,…`; the cut as `plan.cut` + `plan apply`; several `timeline apply` ops in one call. In a shell,
+  chain commands whose output you do not need to read (`run append … && run append …`); with MCP tools, send
+  independent calls together in one turn.
+- **Sub-agents read, you decide.** Give the reading-heavy stages to a sub-agent with a short brief and the project
+  path. The survey sub-agent reads the transcripts (as phrases) and the contact sheets, writes `media describe`,
+  and puts candidate lines into `plan.shots` with their exact words, media and seconds; it answers in under 300
+  words with what exists, what is missing and the strongest lines. The draft-audit sub-agent gets only the packet
+  folder (`bc:review`, "If you were given a packet"). Without sub-agents (some agents have none), read the
+  transcript in pieces and look at sheets only.
+- **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
+  (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
+  `media frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames
+  (`ui frame F --phone`) only on doubt; `review window F` only at a decision point (T16 §2). Read text results
+  before images.
+- **Wait, don't poll.** Jobs: `jobs wait <job> --done --timeout 100` returns when it ends (again only on
+  `timedOut`); an export is a job too (never loop on `export status`). Gates: `checkpoint status --wait 100`. After
+  about 30 min, give the user the job ID.
+- **Read once, read little.** `context get` when you start or resume and after a gate, not before every command;
+  `timeline get` only before hand-written ops (`plan check` and `review run` already say what you need). Filter big
+  JSON in the same call; command shapes are in `bashcut help` and each command's description, so read `schema get`
+  only for a field the description does not name. A skill you load stays for the rest of the run.
+
 ## Run log
 
 ```sh
