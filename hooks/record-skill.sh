@@ -12,7 +12,12 @@ esac
 case "$name" in
   *[!A-Za-z0-9:._-]*) exit 0 ;;
 esac
-cli=${BASHCUT_CLI:-bashcut}
-command -v "$cli" >/dev/null 2>&1 || exit 0
+# The CLI of the running app first (it must match the app it talks to), then $BASHCUT_CLI, then PATH.
+running=$(ps -axo comm= 2>/dev/null | grep '/BashCut.app/Contents/MacOS/BashCutApp$' | head -n 1 | sed 's|/BashCutApp$|/bashcut|')
+cli=
+for candidate in "$BASHCUT_CLI" "$running" "$(command -v bashcut 2>/dev/null)"; do
+  if [ -n "$candidate" ] && [ -x "$candidate" ]; then cli=$candidate; break; fi
+done
+[ -n "$cli" ] || exit 0
 "$cli" run append skill --name "$name" --verified-by hook >/dev/null 2>&1
 exit 0
