@@ -128,7 +128,7 @@ trim, `timeline apply ops.json --base-rev N --dry-run` reports `cutsInsideWord`;
 (`bc:review`); look at doubtful cuts with `review window F`.
 
 Then request **G3** (`bc:edit-workflow`): `checkpoint request G3 --summary "<duration> against <plan range>, N
-selects, what was dropped and why" --attach <sheet path>`. Wait for the user's answer before rhythm, sound and text.
+selects, what was dropped and why" --attach <sheet path>`. When G3 is `ask`, wait for the user's answer before rhythm, sound and text; otherwise go on.
 
 ## Several shorts from one source
 

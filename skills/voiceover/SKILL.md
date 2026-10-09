@@ -11,8 +11,10 @@ choose from with the measurements in hand. Measure → change → measure again.
 ## Provider and voice
 
 `voice speak` uses the project's `voice.synthesize` provider. Check with `capabilities get voice.synthesize`:
-`reason: missing` → `plugins search --capability voice.synthesize` and ask the user to install one whose voices
-speak the content language (`project get` › `contentLanguage`; ask the user when it is not set); `not_configured` → tell the user what the provider's `detail` says (turn it on, trust it again);
+`reason: missing` → `plugins search --capability voice.synthesize` and name one whose voices speak the content
+language (`project get` › `contentLanguage`; the footage's language when it is not set) for the user to install;
+`not_configured` → tell the user what the provider's `detail` says (turn it on, trust it again). Either way finish
+the rest of the edit without voiceover (captions or on-screen text carry the lines) and say so in the final summary;
 `unhealthy` → the failing dependency is in `detail`.
 
 ```sh
