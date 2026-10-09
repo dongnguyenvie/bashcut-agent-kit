@@ -11,9 +11,9 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 
 | Skill | Use it for |
 |---|---|
-| `edit-workflow` | The whole edit from footage to export: 13 stages, the user's workflow gates (`checkpoint request`), create/directed/revision modes, brief and plan as project data, the run log, and which skill to use when |
+| `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
 | `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), padding and length ranges, a blind second pass, long → short with `project derive` |
-| `review` | The critic loop before export: severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for a fresh critic given a `review packet` |
+| `review` | The critic loop before export: pass/fail/incomplete, severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for the fresh critic of each audit (`review packet --point strategy\|draft\|process`) and the generic checks |
 | `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media inventory`, `media frames --sheet`, `media describe`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
 | `beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
@@ -71,6 +71,7 @@ sh bashcut-agent-kit/scripts/install-codex.sh --uninstall
 .claude-plugin/plugin.json        plugin "bc" (skills show as bc:<name> in Claude Code and Codex)
 .claude-plugin/marketplace.json   marketplace "bashcut-agent-kit"
 .mcp.json                         BashCut MCP server for Claude Code
+hooks/hooks.json                  Claude Code hook: records each bc:* skill read in BashCut's run log (record-skill.sh)
 skills/*/SKILL.md                 the skills (Agent Skills format, shared by Claude Code and Codex)
 skills/*/REFERENCE.md             detail a skill reads on demand (kept out of SKILL.md's 250-line limit)
 scripts/bashcut-mcp.sh            finds and starts bashcut-mcp

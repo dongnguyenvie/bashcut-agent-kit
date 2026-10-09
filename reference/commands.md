@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 202 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 203 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -10,7 +10,7 @@ approval are explained in the [automation guide](../guides/automation.md#permiss
 
 ### `bashcut context get`
 
-Read the project path, revision, playhead and selection, and a summary of the agent knowledge: active lessons, preferences, project facts and the number of proposals; scope lists the timeline items attached to your tab's request (edit only those), with the scope guard's mode, a held edit and the user's answer to the last one (last); agentPermissions tells what you may do without asking; analysis lists running analysis jobs and the media not yet measured (media.analyze), transcribed (media.transcribe) or described (media.describe), so a plan does not use defaults where measurements are missing; plan summarises the brief (goal, outputs, length) and the edit plan (mode, stage, section/shot/beat counts, frozen sections); recentFailures lists your session's failed requests of the last 15 minutes (method, code, category, message) and repeated, how many in a row at the newest end share a method and category: stop and rethink after repeated ones.
+Read the project path, revision, playhead and selection, and a summary of the agent knowledge: active lessons, preferences, project facts and the number of proposals; scope lists the timeline items attached to your tab's request (edit only those), with the scope guard's mode, a held edit and the user's answer to the last one (last); agentPermissions tells what you may do without asking; analysis lists running analysis jobs and the media not yet measured (media.analyze), transcribed (media.transcribe) or described (media.describe), so a plan does not use defaults where measurements are missing; plan summarises the brief (goal, outputs, length) and the edit plan (mode, stage, section/shot/beat counts, frozen sections); workflow.checklist is a compact run checklist and workflow.next {stage, skill, skillRead} names the one skill to read now; recentFailures lists your session's failed requests of the last 15 minutes (method, code, category, message) and repeated, how many in a row at the newest end share a method and category: stop and rethink after repeated ones.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_context_get`
 
@@ -426,7 +426,7 @@ Review the timeline before export: issues {id, kind, severity error|warning|info
 - Mode: read · Runs: immediately · MCP: `bashcut_review_run`
 - `sinceRev`: integer, ≥ 0. Compare with the review of this revision (this session)
 - `minSeverity`: string, one of error, warning, info. Leave out issues less severe than this
-- `summary`: boolean. Wrap the issues with counts and a pass flag
+- `summary`: boolean. Wrap the issues with counts, status (pass, fail when errors, incomplete when unsetLimits or notChecked is not empty) and passed (status == pass). CLI exit code: 0 pass, 1 fail, 2 incomplete
 
 ### `bashcut review measure [--picture <picture>] [--plugins <plugins>]`
 
@@ -453,11 +453,12 @@ Prove a fix: the issue as an earlier review of this session saw it (before, befo
 - Mode: read · Runs: immediately · MCP: `bashcut_review_verify`
 - `id`: string, required. Issue ID
 
-### `bashcut review packet`
+### `bashcut review packet [--point <point>]`
 
-Write an evidence folder for a fresh critic (a sub-agent with only this folder and bc:review): README, plan.json (brief, plan, review profile, outputs), digest.json (what changed since the last review round), issues.json (with the round diff), shots.json (review.shots with summary), word-landing.json (words against cuts and titles), coverage.json (described shot per clip, script beats heard), measured.json (what was and was not measured) and a contact sheet of every cut and title. No editor reasons are included.
+Write an evidence folder for a fresh critic (a sub-agent with only this folder and bc:review). point strategy: brief (inferred fields marked), plan (options, promise, sections, checks) and a story sheet; point process: run checklist, run log and timeline changes; point draft (default): README, plan.json (brief, plan, review profile, outputs), digest.json (what changed since the last review round), issues.json (with the round diff), shots.json (review.shots with summary), word-landing.json (words against cuts and titles), coverage.json (described shot per clip, script beats heard), measured.json (what was and was not measured) and a contact sheet of every cut and title. No editor reasons are included.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_review_packet`
+- `point`: string, one of strategy, draft, process. The audit the packet is for (default draft)
 
 ### `bashcut review compare --reference <reference> --ours <ours>`
 
@@ -1105,9 +1106,9 @@ The run log (.bashcut/run-log.jsonl, append-only): starts, stages, gates with th
 - `kind`: string. Only this kind
 - `limit`: integer, 1…10000. Last N entries
 
-### `bashcut run append <kind> [--data <data>] [--stage <stage>] [--text <text>] [--round <round>] [--fixed <fixed>] [--left <left>] [--measured <measured>] [--not-measured <notMeasured>]`
+### `bashcut run append <kind> [--data <data>] [--stage <stage>] [--text <text>] [--round <round>] [--fixed <fixed>] [--left <left>] [--measured <measured>] [--not-measured <notMeasured>] [--status <status>] [--evidence <evidence>] [--reason <reason>] [--name <name>] [--verified-by <verifiedBy>] [--point <point>] [--verdict <verdict>] [--findings <findings>] [--by <by>]`
 
-Append to the run log: an entry of any kind (start opens a run; stage, round, measured, note and end are the usual ones; gate is reserved for checkpoints) with the fields given and any data object. The revision, author and time are added.
+Append to the run log: an entry of any kind (start opens a run; stage, round, measured, note and end are the usual ones; gate is reserved for checkpoints) with the fields given and any data object. stage takes status done|skipped with evidence (done without it is stored unverified) or reason (required for skipped); skill records a skill read (name; verified only when written by the hook); audit records an auditor's verdict. The revision, author and time are added.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_run_append`
 - `kind`: string, required. Entry kind (1–40 characters; not gate)
@@ -1119,6 +1120,21 @@ Append to the run log: an entry of any kind (start opens a run; stage, round, me
 - `left`: integer, ≥ 0. Issues left
 - `measured`: string. Comma-separated checks measured
 - `notMeasured`: string. Comma-separated checks not measured
+- `status`: string, one of done, skipped. Stage outcome
+- `evidence`: string. `;`-separated evidence for a done stage (files, job IDs, review issue IDs)
+- `reason`: string. Why a stage was skipped
+- `name`: string. Skill name (kind skill)
+- `verifiedBy`: string. hook when a Claude Code hook writes it
+- `point`: string, one of strategy, draft, process. Audit point (kind audit)
+- `verdict`: string, one of pass, changes, fail. Audit verdict
+- `findings`: integer, ≥ 0. Number of findings
+- `by`: string, one of critic, self. Who audited
+
+### `bashcut run checklist`
+
+The checklist derived from the plan and the run log: stages [{id, skill, skillRead, required, status done|unverified|skipped|n/a|open, evidence, reason}], audits {strategy, draft, process} and open (what still needs attention).
+
+- Mode: read · Runs: immediately · MCP: `bashcut_run_checklist`
 
 ## script
 
