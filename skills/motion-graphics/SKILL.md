@@ -12,6 +12,9 @@ inside them from this video's speech, genre and frame, and say why. Captions and
 
 ## 1. Does this sentence need a graphic?
 
+With `plan.visuals` (`bc:visual-plan`), its `graphic` rows are the answer: build those, at their `at` word, showing
+their `show`; question a row only when building it shows it does not work, and update the plan. Without one:
+
 A graphic shows what the words don't: the example, the number, the relationship, the consequence. Before adding
 one, read the words (`transcript words --from F --to F2`) and ask what the speaker just made the viewer imagine.
 - Skip it when the card would restate the caption: captions and on-screen text take one role each, never both

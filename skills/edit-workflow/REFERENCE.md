@@ -68,7 +68,8 @@ platform) or `confirmed` (the user approved your guess at G1). Fields: `goal`, `
 The plan (`project set-data plan plan.json --base-rev N`, later `--merge` to change one field) holds how you mean to make it:
 `mode` (create, directed, revision), `stage`, `options` (the story options you compared), `sections`
 (`{id, label, lengthSeconds {min, max}, reason, frozen}`), `shots` (planned shots: `purpose`, `size`, `mustShow`,
-`source` footage, stock or generated), `beats` (script lines: `{id, section, text}`), `decisions`
+`source` footage, stock, graphic or generated), `beats` (script lines: `{id, section, text}`), `visuals` (what the
+viewer sees per line: `{line, from, to, at, treatment, show, why}`, `bc:visual-plan`), `decisions`
 (`{text, …}`, with the alternatives and the reason), `ranges` (the review limits you chose, `{min, max, source,
 reason}`) and `notes`. `context get` summarises both, so a later session (or you after a context reset) resumes from
 them; `review run` compares section lengths and the brief's length and outputs with the edit, as info;
@@ -94,7 +95,8 @@ A recipe adds its data to the same plan, only what differs from the defaults:
 }
 ```
 
-`stages` keys are the stage ids of SKILL.md (never a skill name); `skill` replaces the stage's default skill;
+`stages` keys are the stage ids of SKILL.md (never a skill name); `skill` replaces the stage's default skill; a
+key that is not one of them adds a stage, placed right after the stage its `after` names (else before review);
 `required: false` with `why` marks a stage `n/a` up front. `checks` are
 the recipe's own (at most 8); the kit's generic checks (`bc:review`) are always added. `promise` is generic: every
 video opens a question and must close it. `context get` summarises the recipe, the promise, the checks count and the

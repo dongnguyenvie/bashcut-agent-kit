@@ -21,6 +21,7 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 | `captions-text` | Captions from speech, hook titles, place and chapter cards |
 | `color-grade` | Measured grading: probe, `color measure`, candidate looks and LUTs with ranges (`grade.py` measures and reports), check and back off; library looks |
 | `effects` | Which effect for which moment, made with native transitions, speed ramps, freeze, reframe |
+| `visual-plan` | What the viewer sees on every line of a talking video: one treatment per line (speaker, punch-in, own B-roll, stock, icon, text, designed graphic, generated, screen, nothing), anchored to a word, balanced over the video from the reference, researched, written as `plan.visuals` for the building skills |
 | `motion-graphics` | Designed graphics over footage (cards, counters, kinetic type, diagrams): whether a sentence needs one, anchoring to the payoff word, hold and density ranges; the graphic itself comes from a `graphics.render` plugin such as HyperFrames Graphics |
 | `stock-images` | Licensed stock photos and video, labelled as illustration; Iconify icons as transparent PNG stickers |
 | `style-study` | Measuring a reference style and turning it into a memo, a library look and text presets |

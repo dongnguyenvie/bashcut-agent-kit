@@ -73,7 +73,9 @@ both, so after a context reset resume from them and `run log`, not from memory. 
 | `checks` | at most 8 recipe checks `{id, text, source}`; the kit's generic checks are always added |
 | `askAtIntake` | brief fields the recipe will not guess |
 
-Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `decisions`, `ranges`.
+Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `visuals`, `decisions`, `ranges`.
+`stages` may also add a stage of its own (`{"skill": "…", "after": "<stage id>"}`): BashCut lists it right after
+that stage, so new work goes where it belongs (`visuals` after the cut is locked).
 
 ## Modes
 
@@ -97,10 +99,11 @@ before music and SFX: changing clip lengths later breaks every sync point.
 | 3 | `rough-cut`: selects by quote, no music, titles or grade | `bc:rough-cut` | **G3 rough-cut sheet** |
 | 4 | `rhythm` | `bc:beat-cut` | — |
 | 5 | `voiceover` (when needed) | `bc:voiceover` | **G4 script**, before speech is made |
+| 5b | `visuals` (added by the plan when words carry the video, `after: "voiceover"`) | `bc:visual-plan` | — |
 | 6 | `sound` | `bc:audio-mix` | — |
 | 7 | `captions` and text | `bc:captions-text` | — |
 | 8 | `colour` | `bc:color-grade` | — |
-| 9 | `effects`, graphics, stock (only where a moment needs one) | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
+| 9 | `effects`, graphics, stock (the rows of `plan.visuals`, else only where a moment needs one) | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
 | 10 | `review` | `bc:review` | **draft audit**, **G5 draft** |
 | 11 | `export` per output | this skill | — |
 | 12 | `learn` | `bc:self-learn`, `bc:library` | **process audit** first |
