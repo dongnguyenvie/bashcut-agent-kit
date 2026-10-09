@@ -29,15 +29,15 @@ keeps that as info. Two edits of the same kind should not come out the same.
   are missing, tell the user to type `/bc:setup`.
 - Plugins teach you: read a plugin's skill (`skills get <plugin-id>:<name>`) before using its feature; its steps
   and limits win over this kit. Plugin skills are read-only: corrections go in a lesson (`bc:self-learn`).
-- Load just in time: one recipe at intake, then **one stage skill per stage**, the one `context get` ›
-  `workflow.next` names. Never load every skill up front; rules that must outlive the context live in the plan.
-- Say why: every `timeline apply` carries a stage label, `--why` and `--evidence`. Resuming or revising, read
-  `timeline changes` instead of guessing from the timeline.
+- Load just in time: one recipe at intake, then a stage skill only when the stage does more than the commands
+  named here. Rules that must outlive the context live in the plan.
+- **Every call is a turn** that resends the whole conversation (cost ≈ turns × context): batch ("Working
+  efficiently") and build the cut from one list (`plan.cut`), never clip by clip.
+- Say why: every `timeline apply` and `plan apply` carries `--why` (and `--evidence`); resuming, read `timeline changes`.
 - You never certify yourself. A stage is `done` only with evidence; "fixed" only from `review verify`; "exported"
   only from `export status`; a pass only from an audit by someone who did not make the edit (or marked `self`).
   You cannot hear: say which sound you did not check.
-- Kit Python scripts run with `uv`; never `pip install` into the system Python. Name files and folders you create
-  in English, lowercase with hyphens (`survey/`, `draft-v1`). Seconds → frames with the project fps.
+- Kit scripts run with `uv`, never `pip install`. Name new files in English, lowercase with hyphens (`draft-v1`).
 
 ## Stage 0: intake and the recipe
 
@@ -69,6 +69,34 @@ Intake always runs these steps, in order, before any edit, even when the request
 From here the steps drive the work: at each stage start read the skill `workflow.next` names through the Skill
 tool or `skills get`, never from disk, even when you think you know it.
 
+## The quick path (default)
+
+Use it for every edit unless the user asked for the full process, the video runs over ~3 min, or the recipe sets
+`plan.mode: "full"`. It runs the same stages and gates, but the cut is **one list** checked by BashCut, not
+hundreds of single edits. A 45 s ad should take about 25–30 turns.
+
+1. **Intake** as above (one round of questions).
+2. **Survey in batches**: `project create`, `media import <folder>` (the whole folder in one call),
+   `media transcribe` (every media with sound), `jobs wait ID1,ID2 --timeout 30`, `media inventory`, then one or two
+   `media frames --sheet` (`bc:footage-survey` only when the footage is long or mixed).
+3. **Story as data**: the brief, then the plan with `promise`, `sections` (with length ranges) and **`cut`**: clips in
+   order by quote (`{media, quote, section}`), `cover` for pictures over a line (B-roll), `titles` anchored to a
+   clip, one `music` bed (the shape is in `plan check`'s own description). Write it with `project set-data plan --merge`.
+4. **Check, no edit**: `plan check` resolves every quote, places everything on a scratch copy and returns the clips
+   (edges inside words, described size, orientation), titles (chars per second), problems and the review of the
+   edit as it would be. Fix the list and check again until `ok` is true and the warnings are ones you mean.
+   Then the strategy audit from the packet (`review packet --point strategy`, `--by self` here) and **G2** with the
+   promise and the section table from the check.
+5. **Build once**: `plan apply --base-rev N --why "…"` (one undoable edit), then `timeline sheet --cuts --text`
+   as the storyboard for **G3**. A change ("hook ngắn lại", "đổi cảnh 3") is a change to `plan.cut` and another
+   `plan apply`: it replaces only what an apply built.
+6. **Finish only what the plan needs**: voiceover, captions (`captions generate`), sound (`audio mix-measure`,
+   ducking), colour, effects. Read the stage skill for a stage you run beyond one command.
+7. **Review**: `review run --summary`, fix, `review verify`; a self draft audit from the packet; the normalized
+   draft and **G5**; export.
+
+The full path adds a fresh critic sub-agent at each audit (`bc:review`) and every stage skill.
+
 ## The plan as data
 
 Brief and plan are project data (`project set-data brief|plan`, `--merge` for one part); `context get` summarises
@@ -83,7 +111,8 @@ both, so after a context reset resume from them and `run log`, not from memory. 
 | `checks` | at most 8 recipe checks `{id, text, source}`; the kit's generic checks are always added |
 | `askAtIntake` | brief fields the recipe will not guess |
 
-Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `visuals`, `decisions`, `ranges`.
+Your own fields: `mode`, `stage`, `options`, `sections`, `shots`, `beats`, `visuals`, `decisions`, `ranges`,
+`cut` (the edit list `plan check` and `plan apply` read).
 `stages` may also add a stage of its own (`{"skill": "…", "after": "<stage id>"}`): BashCut lists it right after
 that stage, so new work goes where it belongs (`visuals` after the cut is locked).
 
@@ -91,10 +120,10 @@ that stage, so new work goes where it belongs (`visuals` after the cut is locked
 
 - **create**: footage and a goal. Compare 2–3 story options before choosing; show them at G2.
 - **directed**: the user said what to make. One option; say where the footage cannot support it.
-- **revision**: changes to an existing edit. Work **in place** on the same project: re-enter at the stage that owns
-  the change, label each edit (`--label "v2: shorter hook"`), mark untouched sections `frozen: true`, and export
-  `draft-v2` next to `draft-v1`; undo history and `timeline changes` keep v1. Use `variants create` only for a real
-  A/B test that changes one thing (two hooks), never to keep an old version. The latest feedback wins.
+- **revision**: changes to an existing edit, **in place** on the same project. Built by `plan apply`: change
+  `plan.cut` and apply again. Otherwise re-enter at the stage that owns the change, label each edit
+  (`--label "v2: shorter hook"`), mark untouched sections `frozen: true`, export `draft-v2` next to `draft-v1`.
+  `variants create` only for a real A/B test that changes one thing. The latest feedback wins.
 
 ## Stages, checklist and gates
 
@@ -118,10 +147,10 @@ before music and SFX: changing clip lengths later breaks every sync point.
 | 11 | `export` per output | this skill | — |
 | 12 | `learn` | `bc:self-learn`, `bc:library` | **process audit** first |
 
-At every stage start: `context get` › `workflow.next` gives `{stage, skill, skillRead}`; read that one skill (Skill
-tool for `bc:*`, `skills get` for plugin skills) and set `stage` in the plan. Reads are recorded by BashCut and the
+When you start or resume: `context get` › `workflow.next` gives `{stage, skill, skillRead}`; read that skill when
+the stage needs it (Skill tool for `bc:*`, `skills get` for plugin skills). Reads are recorded by BashCut and the
 kit's hook; an agent without hooks (Codex, chat agents) records its own with `run append skill --name <skill>`.
-At every stage end, record the outcome:
+At every stage end, record the outcome (several in one shell command when they are ready together):
 
 ```sh
 bashcut run append stage --stage survey --status done --evidence "survey/contact-sheet.png;media transcribe job 41"
@@ -131,11 +160,9 @@ bashcut run checklist
 
 `done` without `--evidence` counts as unverified; `skipped` needs `--reason`; a stage the plan marks
 `required: false` is `n/a` already. `run checklist` (and `context get` › `workflow.checklist`) derives the list from
-the plan and the run log; its `open` list is what still needs attention and starts the hand-off report. If this
-BashCut has no `run checklist`, keep the same list yourself in `project set-data checklist` for the process audit.
+the plan and the run log; its `open` list is what still needs attention and starts the hand-off report.
 
-Missing coverage found at G3 sends you back to survey or effects (stock, generation or a reshoot: ask). At most one
-send-back per stage pair; then ask the user.
+Missing coverage at G3 sends you back to survey or effects (stock, generation, a reshoot: ask), once per pair.
 
 ### Gates
 
@@ -144,11 +171,11 @@ Read `workflow gates` at intake: each gate is `ask`, `notify` or `skip` (skip un
 
 ```sh
 bashcut checkpoint request G2 --summary "Strategy: one message — …; hook → payoff …" --attach renders/story-sheet.png
-bashcut checkpoint status
+bashcut checkpoint status --wait 30
 ```
 
-- `ask`: poll `checkpoint status` at 2 → 5 → 10 → 15 s until it is not `awaiting_user`. `approved`: go on;
-  `changes`: apply the note, request again; `rejected`: stop and ask; `stale`: request again.
+- `ask`: repeat `checkpoint status --wait 30` while `awaiting_user` (it returns when the user answers). `approved`:
+  go on; `changes`: apply the note, request again; `rejected`: stop and ask; `stale`: request again.
 - `notify`: the user is told and you go on. `skip`: nothing is shown.
 - Only the user answers a gate: never treat silence or an earlier "go ahead" as approval, never loosen a gate. A
   skill may add its own (`checkpoint request music-pick …`) only for a real decision the user must make.
@@ -171,35 +198,36 @@ bashcut run append audit --point strategy --verdict changes --findings 2 --by cr
 ```
 
 G2 `skip` → the strategy audit is required; G5 `skip` → the draft audit is required. With `ask` or `notify` the
-audit still runs and its verdict goes in the gate summary. No sub-agent: audit yourself from the packet only, record
-`--by self`; it counts, but is reported as self-audited. BashCut refuses a non-draft `export start` without a
-passing draft audit (`audit_missing`, remediation `review packet --point draft`), and the rough cut without the
+audit still runs and its verdict goes in the gate summary. The quick path audits itself from the packet only
+(`--by self`: it counts, reported as self-audited); the full path gives each audit to a fresh critic. BashCut
+refuses a non-draft `export start` without a passing draft audit (`audit_missing`, remediation `review packet --point draft`), and the rough cut without the
 recipe read (`recipe_unread`) or the strategy audit: run what the error names, never work around it.
 
 ## Working efficiently
 
+Measured on real runs: one ad took 778 BashCut calls (159 `context get`, 119 `media import`, 110 `jobs wait`, 37
+`export status`, 36 `ui frame`); a vlog spent 12M tokens before its first cut. Every one of those calls was a turn.
+
+- **One call for many things.** `media import <folder>`; `media transcribe` without `--media` (every media);
+  `jobs wait ID1,ID2,…`; the cut as `plan.cut` + `plan apply`; several `timeline apply` ops in one call. In a shell,
+  chain commands whose output you do not need to read (`run append … && run append …`); with MCP tools, send
+  independent calls together in one turn.
 - **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
   (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
-  `media frames --sheet` for footage. Single frames (`ui frame F --phone`) only on doubt; `review window F` only at
-  a decision point (T16 §2). Decide each stage's frame budget first; read text results before images.
-- **Wait, don't poll.** Jobs return an ID: `jobs wait <job> --timeout 25` until `completed`, `failed` or
-  `cancelled`. After about 30 min, give the user the job ID.
+  `media frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames
+  (`ui frame F --phone`) only on doubt; `review window F` only at a decision point (T16 §2). Read text results
+  before images.
+- **Wait, don't poll.** Jobs: `jobs wait <job> --timeout 30` until `completed`, `failed` or `cancelled`; an export
+  is a job too (never loop on `export status`). Gates: `checkpoint status --wait 30`. After about 30 min, give the
+  user the job ID.
+- **Read once.** `context get` when you start or resume and after a gate, not before every command; `timeline get`
+  only before hand-written ops (`plan check` and `review run` already say what you need).
 - **Paid providers** (`voice speak`, `library generate`): a stable `--request-id`; `--dry-run` first when the
   provider is `paid`, show its `estimate`, never invent a price; report each job's `usage`.
 - After 2–3 identical failures of one step, stop and rethink or ask, and record it with `bc:self-learn`.
 
-## Run log
-
-```sh
-bashcut run append start --text "Market vlog, create mode, reels + tiktok"
-bashcut run append round --round 1 --fixed 3 --left 2
-bashcut run append measured --measured picture,loudness,layout --not-measured sound-by-ear
-bashcut run append end --text "Draft approved, exports queued"
-```
-
-Stage entries come from the checklist commands above; gate entries from `checkpoint request` and the user's answer,
-never from you. End with `end`, then build the hand-off report from `run checklist` › `open` and `run log`
-(`<skill_dir>/REFERENCE.md`, "The hand-off report").
+**Run log**: `run append start|round|measured|end` frame the run; the hand-off report comes from `run checklist`
+and `run log` (`<skill_dir>/REFERENCE.md`, "Run log", "The hand-off report").
 
 ## Review, draft and export
 
@@ -207,8 +235,7 @@ Stage 10 follows `bc:review` (profile, measure, look, fix, verify, rounds capped
 draft audit, then the normalized draft and **G5**:
 
 ```sh
-bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio
-bashcut export status
+bashcut export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio   # then jobs wait JOB
 bashcut checkpoint request G5 --summary "Draft v1: 0:58, 2 review rounds, draft audit pass, 1 issue kept …" \
   --attach renders/draft-sheet.png
 ```

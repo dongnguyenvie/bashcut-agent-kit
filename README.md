@@ -11,7 +11,7 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 
 | Skill | Use it for |
 |---|---|
-| `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
+| `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, the quick path (the cut as one list, `plan.cut`: `plan check` without editing, then `plan apply` as one edit; batched calls), 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
 | `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), padding and length ranges, a blind second pass, long → short with `project derive` |
 | `review` | The critic loop before export: pass/fail/incomplete, severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for the fresh critic of each audit (`review packet --point strategy\|draft\|process`) and the generic checks |
 | `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media inventory`, `media frames --sheet`, `media describe`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |

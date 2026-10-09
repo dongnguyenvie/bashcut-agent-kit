@@ -6,8 +6,8 @@ description: Survey footage before editing in BashCut — inventory the clips (c
 # Footage survey
 
 Reply in the user's language. Run this **first**, before promising anything about the edit. Everything here is a
-BashCut command on project media: no ffmpeg, no scripts. Import the clips first (`media import /abs/clip --base-rev
-N`, one file per call, absolute paths, without `--place`); importing does not touch the timeline.
+BashCut command on project media: no ffmpeg, no scripts. Import the clips first (`media import /abs/footage-folder --base-rev
+N`: the whole folder in one call, absolute paths, without `--place`); importing does not touch the timeline.
 
 ```sh
 bashcut context get                               # analysis: running jobs, media not measured/transcribed/described

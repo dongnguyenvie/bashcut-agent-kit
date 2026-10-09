@@ -130,10 +130,10 @@ Each round:
    `review window F --span S --step K` only at cuts in doubt: ±0.4–1.5 s at 10–12 fps, wider for dialogue cuts,
    narrower for beat cuts (T16 §3; at 30 fps about `--span 12`–`45` with `--step 3`). `ui frame F --phone` for text
    at the width a viewer sees (360–420 px, T16 §3). `review coverage` (which described shot each clip plays) and `script check` against the plan.
-3. **Critic, always.** Run `review packet --point draft` and give a sub-agent only the folder and `bc:review` (the
-   section above): it has none of your reasons, so it sees what a viewer sees. No sub-agent: audit yourself from
-   the packet only, as if you had not made the edit, and record `--by self`. Either way record the verdict with
-   `run append audit`; a skipped G5 needs it.
+3. **Critic, always.** Run `review packet --point draft`. Full path: give a sub-agent only the folder and
+   `bc:review` (the section above): it has none of your reasons, so it sees what a viewer sees. Quick path, or no
+   sub-agent: audit yourself from the packet only, as if you had not made the edit, and record `--by self`. Either
+   way record the verdict with `run append audit`; a skipped G5 needs it.
 4. **Decide each finding** by severity: fix it (one labelled edit; the issue's `fix` when it has one), change the
    profile when the limit is wrong for this video (say so and why), accept it with a reason, or list it for the user.
 5. **Verify each fix.** `review verify <id>` re-measures the issue's range and returns before and after numbers, the

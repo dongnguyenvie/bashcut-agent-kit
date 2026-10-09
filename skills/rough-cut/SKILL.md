@@ -116,9 +116,13 @@ Never cut natural speech short to hit a quota or a "sweet spot" (T06 §4).
 
 ## Placing and checking
 
+The quick path (`bc:edit-workflow`) writes the kept lines straight into `plan.cut` (`{media, quote, section}`, with
+`cover` for pictures over a line) and builds them in one call; the selects stay as the record of what was picked:
+
 ```sh
-bashcut selects place --base-rev N                 # kept selects on Main, in order, one undoable edit
-bashcut timeline get --format text
+bashcut plan check                                  # quotes resolved, edges, lengths, the review as it would be
+bashcut plan apply --base-rev N --why "rough cut: 7 lines, hook first"   # one undoable edit; again to revise
+bashcut selects place --base-rev N                  # or: kept selects on Main, in order, one undoable edit
 bashcut timeline sheet --cuts
 ```
 
