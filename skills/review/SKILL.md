@@ -157,6 +157,7 @@ or ask the user when it is taste. Never hide a failure with a transition or a fl
 | loudness, true peak | the normalized draft, `platforms get <id>` | `bc:audio-mix` |
 | colour jumps between clips | `color measure --by clip`, `ui frame F` | `bc:color-grade` |
 | a promised shot or line missing | `review coverage`, `script check` | `bc:rough-cut`, `bc:stock-images`, ask |
+| a `plan.visuals` row not built, off its word by more than 0.3 s, or over the face | `timeline get` (items at each row's `at`), `review window F`, `media subjects` | the row's building skill (`bc:visual-plan` §2) |
 | a reference style drifts | `review compare --reference ID --ours ID` | `bc:style-study` |
 | a plugin's issue (`source`) | that plugin's skill | its `fix` |
 

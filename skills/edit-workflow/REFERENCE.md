@@ -10,17 +10,7 @@ bashcut project create --name "Market vlog" --dir ~/Movies/BashCut --footage /ab
 bashcut media list                        # media IDs, fps, frames, hasAudio, proxy state
 ```
 
-A new project has no default language. Before `project create`, read what the prompt already says and ask the
-rest in **one** round of at most 4 questions (AskUserQuestion in Claude Code, plain questions in Codex), never one
-by one. The recipe's `askAtIntake` fields join the round; drop the least important question to stay at 4:
-
-| Question | Skip it when | Options to offer |
-|---|---|---|
-| Language of the speech and captions | the prompt or a project brief names it | the language the user writes in first, then English, then "Other" |
-| Where it will be posted | the prompt names the platform or shape | TikTok/Reels/Shorts (portrait), YouTube (landscape), both |
-| Length | the prompt gives a length or range | the platform's usual ranges |
-| A recipe's `askAtIntake` field (a truth source, a channel name) | the prompt or the knowledge facts give it | what the recipe suggests |
-
+A new project has no default language: it is one of the intake questions (below) unless the prompt names it.
 The language the user writes in is a good first option, not an answer: a Vietnamese prompt can ask for an English
 video, and footage can speak another language. Pass the answer as `--language` (BCP 47: `vi`, `en`, `en-US`, `ja`).
 It drives captions, speech-rate units, voices (`capabilities get --voices` › `speaksContentLanguage`) and fonts
@@ -49,6 +39,29 @@ with `--place`). The CLI resolves relative paths against its own working directo
 Before planning, `context get` › `analysis` lists the media not yet measured, transcribed or described and the
 analysis jobs still running: wait for them or say what the plan does not know yet.
 
+## Intake questions
+
+One round, never one by one: AskUserQuestion in Claude Code, a numbered list in plain text elsewhere (Codex, chat
+agents). At most 4 questions, in this order; skip one the prompt, the brief or the knowledge facts already answer,
+and drop the least important to stay at 4 (a dropped one is decided and written `inferred`):
+
+| Question | Your choice, first option | Other options |
+|---|---|---|
+| Which recipe | the best match from intake step 3, with the reason from step 2 ("a 10 min portrait talk + a screen recording") | the close second; kit defaults |
+| The steps | "Đồng ý" with the step list from intake step 4 in the question text (`survey → story → rough-cut → … → export`) | drop a step (name it); add one |
+| Length | the range the recipe and the footage support ("1:45–2:15, the best lines") | the platform's usual ranges |
+| Where it will be posted | the shape of the footage (portrait → TikTok/Reels/Shorts) | YouTube (landscape); both |
+| Language of speech and captions | the language the user writes in, or the one heard | English; other |
+| A recipe's `askAtIntake` field (a truth source, a channel name) | only when the footage or knowledge facts give it; else ask without a guess | what the recipe suggests |
+
+Every first option names the concrete choice, never a bare "auto": `AI chọn: talking-head + chèn màn hình
+(Recommended)`, with the reason in its description. The user then knows what you will do, and the strategy audit can
+check it. Text-only agents end the list with "Không trả lời: mình làm theo lựa chọn 1 của mỗi câu".
+
+Answers go into the brief as `stated`; a first option taken because the user did not answer is `inferred` with your
+reason in `source`. The chosen steps become `plan.stages` (`required: false` with the user's reason for a dropped
+one, `{"skill", "after"}` for an added one).
+
 ## The brief and the plan as data
 
 The brief (`project set-data brief brief.json --base-rev N`) holds what the edit is for. Each field is
@@ -68,7 +81,8 @@ platform) or `confirmed` (the user approved your guess at G1). Fields: `goal`, `
 The plan (`project set-data plan plan.json --base-rev N`, later `--merge` to change one field) holds how you mean to make it:
 `mode` (create, directed, revision), `stage`, `options` (the story options you compared), `sections`
 (`{id, label, lengthSeconds {min, max}, reason, frozen}`), `shots` (planned shots: `purpose`, `size`, `mustShow`,
-`source` footage, stock or generated), `beats` (script lines: `{id, section, text}`), `decisions`
+`source` footage, stock, graphic or generated), `beats` (script lines: `{id, section, text}`), `visuals` (what the
+viewer sees per line: `{line, from, to, at, treatment, show, why}`, `bc:visual-plan`), `decisions`
 (`{text, …}`, with the alternatives and the reason), `ranges` (the review limits you chose, `{min, max, source,
 reason}`) and `notes`. `context get` summarises both, so a later session (or you after a context reset) resumes from
 them; `review run` compares section lengths and the brief's length and outputs with the edit, as info;
@@ -94,7 +108,8 @@ A recipe adds its data to the same plan, only what differs from the defaults:
 }
 ```
 
-`stages` keys are the stage ids of SKILL.md (never a skill name); `skill` replaces the stage's default skill;
+`stages` keys are the stage ids of SKILL.md (never a skill name); `skill` replaces the stage's default skill; a
+key that is not one of them adds a stage, placed right after the stage its `after` names (else before review);
 `required: false` with `why` marks a stage `n/a` up front. `checks` are
 the recipe's own (at most 8); the kit's generic checks (`bc:review`) are always added. `promise` is generic: every
 video opens a question and must close it. `context get` summarises the recipe, the promise, the checks count and the

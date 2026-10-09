@@ -67,7 +67,8 @@ bashcut library add --kind sticker --name "Clay pot" --file /abs/media/stock/x.j
   (on top of or between real shots, tied to the words), not by a caption. Never present stock as the real place in
   the narration or titles.
 - Tie each picture to the words it illustrates ("nồi đất" → clay pot); 1.4–2 s each, a soft pop sound.
-- 2–3 illustrations per video at most, off faces.
+- How many: the `stock` and `icon` rows of `plan.visuals` (`bc:visual-plan` balances them over the video). Without a
+  visual plan, 2–3 illustrations per video at most. Always off faces.
 
 ## Icons (Iconify)
 
