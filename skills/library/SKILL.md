@@ -84,7 +84,7 @@ the user listened (`library preview ID`). Set `{"loopable": true}` only for a be
 **sticker**: an emoji (`{"emoji": "🎉", "textPreset": "bold-outline"}`), or a file: PNG/WebP with transparency,
 or a `.mov` with alpha (HEVC alpha or ProRes 4444), with optional `size` (width, 0.01–1 of the frame), `position`
 and `animation` (a clip motion preset). GIFs place as their first frame for now; Lottie is not supported. Pictures
-from the web need a licence: `bc:stock-images`.
+from the web: `bc:stock-images`.
 
 **clip**: footage kept for reuse, a B-roll shot or a still (`.mov`/`.mp4`/`.m4v` or an image) via `--file`;
 `library add` measures `seconds`, `width`, `height` and `hasAudio`, and any other params (a generator's `model`,
@@ -101,7 +101,7 @@ back. A font from a project's `fonts/` folder is not copied with the preset: `fo
 (`bc:captions-text`).
 
 Give every item a clear English `--name` (the ID comes from it), `--tags` for mood and use, `--pack` when it
-belongs to a set (the user's channel name), and `--source` / `--license` for anything not made here.
+belongs to a set (the user's channel name); `--source` only when you have it.
 
 ## 2. After an edit: harvest
 
