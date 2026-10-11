@@ -25,7 +25,9 @@ this footage and say why in the plan (`"deliberate": true` with the reason to le
   the user's to install: missing ones → tell them `/bc:setup`.
 - Read a plugin's skill before using its feature; plugin skills are read-only (corrections: `bc:self-learn`).
 - **Every call is a turn that resends the whole context** (cost ≈ calls × context): one call for many things, the
-  cut as one list (`plan.cut`), never clip by clip; read big things in sub-agents, not yourself.
+  cut as one list (`plan.cut`), never clip by clip; read big things in sub-agents, not yourself. After your own
+  commands pass `--base-rev last` instead of reading the revision; `context get` again only when a stale error
+  says someone else changed the project.
 - Say why: every `plan apply` and `timeline apply` carries `--why` (and `--evidence`).
 - You never certify yourself: `done` needs evidence, "fixed" needs `review verify`, "exported" needs the job, a
   pass needs an audit by someone else (or marked `self`). You cannot hear: say which sound you did not check.
@@ -48,13 +50,14 @@ calls.
 3. **Project and survey, overlapped**: `project create` (REFERENCE "Starting a project"), then in **one call**
    `media import <folder>`, `media transcribe` and `media analyze` (every media; analyze waits by itself for a
    conversion of video this Mac cannot decode, AV1 or VP9). Wait only for the transcription (`jobs wait ID --done
-   --timeout 100`) and work from the words while the pictures are measured: `media digest`, the brief, the hook
-   candidates. Wait for the analyze job (`jobs wait ID --done`) only when you hand over the survey; never poll
+   --timeout 100`) and write the brief while the pictures are measured. Wait for the analyze job (`jobs wait ID --done`) only when you hand over the survey; never poll
    `jobs status`. Pictures read before a conversion lands are refused (busy, with the job). Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
    sub-agent given `<skill_dir>/../footage-survey/SURVEYOR.md` as its brief (Codex), else do it yourself by that
-   brief. It describes the shots into the project and returns candidates in under 300 words. You read
-   `media digest --from A --to B` only around its candidates (a long source's whole digest is as long as its
-   transcript), and you never open frames yourself before the build.
+   brief. It reads the whole transcript, describes the shots into the project and returns hook candidates and
+   exact quotes with times in under 450 words. **You never print a transcript or a whole digest and never open
+   source frames**: its answer is what you plan from (a 23-min transcript is ~10k tokens that every later turn
+   pays again). To check one line: `media transcript --media M --from A --to B --as text --format text` for that
+   window only.
 4. **Brief, plan and review limits in one call**: `project set-data brief`, `project set-data plan --merge` with
    `promise`, `sections` (length ranges), `recipe`, `checks` and **`cut`**: clips in order by quote (`{media, quote,
    section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`, `place-card`, a template ID
@@ -71,9 +74,11 @@ calls.
             "captions": {"from": "speech"}, "music": {"media": "S", "duckDb": -14}}}
    ```
 
-   A title anchors to a `clip` or a `section` (plus `offset`) and without `seconds` lasts to its end. Then
-   `project set-data review` with the recipe's review ranges (`minTextSize`, `minTextContrast`, shot lengths,
-   `hookSeconds`…): without them review stays incomplete. Request **G1** with the brief. No music in `library list --kind audio` and no music
+   A title anchors to a `clip` or a `section` (plus `offset`) and without `seconds` lasts to its end. Put the
+   review limits in the same list as `"review": {"minTextSize": …, "minTextContrast": …, "minShotSeconds": …}`,
+   each chosen from the recipe's ranges: `plan apply` writes them into the project. `plan check` warns
+   `review-profile-unset` with `facts.unsetLimits`, every limit this edit needs; set them all before the build,
+   or review stays incomplete and the review stage is never recorded. Request **G1** with the brief. No music in `library list --kind audio` and no music
    plugin: leave the bed out and list it as open; do not search the disk.
 5. **Check, no edit**: `plan check` resolves every quote and builds a scratch copy: clips (edges inside words),
    titles (`textShare`, chars per second), problems and the review as it would be. Fix the list and check again
@@ -92,13 +97,13 @@ calls.
    Fix a kind of problem once for every entry it touches (all titles get the plate, not one), apply the patch, then
    `review verify all` proves every fix in one call. Then the **draft audit**: `review packet --point draft`, and
    the `bc:critic` agent (or your sub-agent given `<skill_dir>/../review/CRITIC.md`, else `--by self`) judges the
-   packet. Fix its findings; look again only at what you changed (`timeline sheet --entries c2,t1`), never the
-   whole timeline, and send it back for a second look only for a blocker that no measurement proves. Record each
-   verdict with `run append audit --point draft`.
+   packet and returns its fixes as one `plan.cut` patch. Do not open the packet yourself: in **one call** record
+   the verdict (`run append audit --point draft --by critic`), apply the patch (`plan apply --patch … --base-rev
+   last`), `review verify all`, and `timeline sheet --entries` of the changed entries only. Send it back for a
+   second look only for a blocker that no measurement proves.
 9. **Draft and hand-off**: `export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio`
    returns the job: `jobs wait JOB --done --timeout 100`, then **G5** and the hand-off report (REFERENCE "The
-   hand-off report"). BashCut records rough-cut, captions, review and export itself; record the rest in one call
-   where it happens (below).
+   hand-off report"). BashCut records the stages itself (below); the two audits are yours.
 
 ## The plan as data
 
@@ -112,9 +117,10 @@ as data". A recipe writes `recipe {skill, version}`, `promise {hook, payoff}`, `
 
 Stage ids: `intake`, `survey`, `story`, `rough-cut`, `rhythm`, `voiceover`, `visuals`, `sound`, `captions`,
 `colour`, `effects`, `review`, `export`, `learn` (table and skills: FULL "Stages, checklist and gates"). BashCut
-writes `rough-cut` and `captions` (plan apply), `review` (a review run that passes) and `export` (an export that
-lands); record the others several at a time: `run append stage --stage survey --status done --evidence "a;b"`,
-`--status skipped --reason "…"`. Gates: `workflow gates` at intake; each is `ask`, `notify` or `skip`; request every one with
+writes `intake` (the brief set), `survey` (every media described), `story`, `rough-cut` and `captions` (plan
+apply), `review` (a review run that passes) and `export` (an export that lands). Optional stages you leave out
+(rhythm, voiceover, sound, colour, effects…) need no entry; a stage you do by hand: `run append stage --stage
+colour --status done --evidence "a;b"` in the call that finishes it. Gates: `workflow gates` at intake; each is `ask`, `notify` or `skip`; request every one with
 something cheap to look at (`checkpoint request G2 --summary "…" --attach sheet.png`, then `checkpoint status --wait
 100` while `awaiting_user`). Only the user answers a gate. A skipped G2 needs the strategy audit and a skipped G5
 the draft audit; BashCut refuses the rough cut without the recipe read and the strategy audit, and a final export

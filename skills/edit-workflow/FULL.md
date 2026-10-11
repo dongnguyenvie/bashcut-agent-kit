@@ -38,7 +38,9 @@ before music and SFX: changing clip lengths later breaks every sync point.
 When you start or resume: `context get` › `workflow.next` gives `{stage, skill, skillRead}`; read that skill when
 the stage needs it (Skill tool for `bc:*`, `skills get` for plugin skills). Reads are recorded by BashCut and the
 kit's hook; an agent without hooks (Codex, chat agents) records its own with `run append skill --name <skill>`.
-At every stage end, record the outcome (several in one shell command when they are ready together):
+BashCut records `intake` (brief set), `survey` (every media described), `story`, `rough-cut` and `captions` (plan
+apply), `review` (a passing review run) and `export` itself (`auto: true`). Record the other stages you work on at
+their end (several in one shell command when they are ready together):
 
 ```sh
 bashcut run append stage --stage survey --status done --evidence "survey/contact-sheet.png;media transcribe job 41"
