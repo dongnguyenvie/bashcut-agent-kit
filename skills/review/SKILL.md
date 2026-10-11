@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review a BashCut edit before export as a capped critic loop — set the review profile from sourced ranges, measure, look at the edit in batches, judge findings by what a viewer perceives (blocker, polish, taste, needs user), fix one labelled edit per finding, prove each fix with review verify, keep deliberate choices with a reason, and report what was and was not checked (pass, fail or incomplete). A fresh critic (or a self-audit from the packet only) is always part of it. Also the brief for that critic given only a review packet folder: the strategy, draft or process audit, with the generic checks every video gets. Use at the review stage of any edit, before a draft or export, when the user asks to check or critique a video, or when you were handed a review packet. Triggers: "review", "kiểm tra video", "soát lỗi", "xem lại bản dựng", "chấm bản dựng", "critic", "QC", "trước khi xuất".
+description: Review a BashCut edit before export as a capped loop — set the review profile from sourced ranges, measure, look in batches, judge findings by what a viewer perceives, fix one labelled edit per finding, prove each fix with review verify, and report what was and was not checked; an independent critic (or a self-audit from the packet) is always part of it, and the skill is also the critic's brief for a review packet. Use at the review stage, before a draft or export, or when asked to check a video. Triggers: "review", "kiểm tra video", "soát lỗi", "xem lại bản dựng", "chấm bản dựng", "critic", "QC", "trước khi xuất".
 ---
 
 # Reviewing an edit in BashCut
@@ -87,7 +87,7 @@ title trips "long still". Decide, then fix, adjust the profile, or accept with a
 Core has no editorial defaults. The project's `review` object holds the limits (`minShotSeconds`, `maxShotSeconds`,
 `maxStillSeconds`, `stillMotion`, `jumpCutChange`, `blackMinSeconds`, `hookSeconds`, `maxSilenceSeconds`,
 `maxMusicGapSeconds`, `voiceoverMarginSeconds`, `captionLineChars`, `captionMaxLines`, `minTextSize`,
-`minSpeechCoverage`, `loudnessToleranceLU`, `severities`, `platform`). A limit left unset reports only the measured
+`minTextContrast`, `minSpeechCoverage`, `loudnessToleranceLU`, `severities`, `platform`). A limit left unset reports only the measured
 value, as info, and `review run --summary` lists it under `checks.unsetLimits`. A vlog recipe sets them; otherwise
 choose from the ranges below for this genre and footage, write them with `timeline apply` (`setProjectProperties`
 `{"review": {…}}`), record each in the plan's `ranges` with its source and reason, and tell the user.
@@ -101,6 +101,7 @@ Ranges seen in other review tools (T16 §3), starting points, not defaults:
 | `maxShotSeconds` with `stillMotion` (static shot) | 3–6 s | genre: a calm daily vlog keeps long stills, a montage does not |
 | `maxSilenceSeconds` (dead air, whole mix) | 2–5 s | ASMR or a calm vlog tolerates more; a gap inside speech is another measure (~0.8 s) |
 | word landing (caption or title vs its word) | 0.1–0.3 s | correctness, not taste |
+| `minTextContrast` (text against the picture behind it, measured by `review measure`) | 3–4.5 : 1 | WCAG 2.x: 3:1 for large text such as titles, 4.5:1 for body-size text such as captions |
 | `loudnessToleranceLU` | 1–2 LU | the platform and the delivery file |
 | true peak | −1 to −0.5 dBTP | lossy codecs need −1 |
 | length vs plan | 2–15 % | strict for ads and fixed slots, loose for vlogs |
@@ -112,7 +113,7 @@ The platform's own numbers (length, loudness target, safe zones) come from `plat
 
 ```sh
 bashcut review measure                      # a job: picture checks, plugin checks
-bashcut jobs wait <job> --timeout 25       # repeat until completed, failed or cancelled
+bashcut jobs wait <job> --done --timeout 100       # returns when it ends (repeat on timedOut)
 bashcut review run --summary --min-severity warning
 ```
 
@@ -130,10 +131,11 @@ Each round:
    `review window F --span S --step K` only at cuts in doubt: ±0.4–1.5 s at 10–12 fps, wider for dialogue cuts,
    narrower for beat cuts (T16 §3; at 30 fps about `--span 12`–`45` with `--step 3`). `ui frame F --phone` for text
    at the width a viewer sees (360–420 px, T16 §3). `review coverage` (which described shot each clip plays) and `script check` against the plan.
-3. **Critic, always.** Run `review packet --point draft` and give a sub-agent only the folder and `bc:review` (the
-   section above): it has none of your reasons, so it sees what a viewer sees. No sub-agent: audit yourself from
-   the packet only, as if you had not made the edit, and record `--by self`. Either way record the verdict with
-   `run append audit`; a skipped G5 needs it.
+3. **Critic, always.** Run `review packet --point draft` and give the folder to the `bc:critic` agent (or your own
+   sub-agent with `<skill_dir>/CRITIC.md` as its brief): it has none of your reasons, so it sees what a viewer
+   sees. No sub-agent: audit yourself by that brief from the packet only and record `--by self`. Either way record
+   the verdict with `run append audit`; a skipped G5 needs it. A second look only for a blocker no measurement
+   proves; `review verify` proves the rest.
 4. **Decide each finding** by severity: fix it (one labelled edit; the issue's `fix` when it has one), change the
    profile when the limit is wrong for this video (say so and why), accept it with a reason, or list it for the user.
 5. **Verify each fix.** `review verify <id>` re-measures the issue's range and returns before and after numbers, the

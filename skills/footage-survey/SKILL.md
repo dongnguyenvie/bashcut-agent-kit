@@ -6,8 +6,8 @@ description: Survey footage before editing in BashCut — inventory the clips (c
 # Footage survey
 
 Reply in the user's language. Run this **first**, before promising anything about the edit. Everything here is a
-BashCut command on project media: no ffmpeg, no scripts. Import the clips first (`media import /abs/clip --base-rev
-N`, one file per call, absolute paths, without `--place`); importing does not touch the timeline.
+BashCut command on project media: no ffmpeg, no scripts. Import the clips first (`media import /abs/footage-folder --base-rev
+N`: the whole folder in one call, absolute paths, without `--place`); importing does not touch the timeline.
 
 ```sh
 bashcut context get                               # analysis: running jobs, media not measured/transcribed/described
@@ -27,6 +27,10 @@ to its media ID, exact source frame and second.
 **Then actually look at every sheet** with the image reader. That is the whole value of this skill.
 
 ## Run reading
+
+In the quick path this is a sub-agent's job: `bc:surveyor`, or your own sub-agent with `<skill_dir>/SURVEYOR.md` as
+its brief. `media digest` is the one short read of what is measured, described and said (`[again T]` marks a
+possible retake); read it before the longer commands below.
 
 Read in this order:
 
@@ -94,7 +98,7 @@ Filename clocks lie (82 s and 101 s apart by name, 2.44 s by sound once the reco
 ```sh
 bashcut media sync --media CAMERA_ID --to SCREEN_ID [--item CAMERA_CLIP]   # job: screen time = camera time + offset
 bashcut media sync --media SCREEN_ID --to RENDER_ID                        # a render played on screen starts at −offset
-bashcut jobs wait JOB_ID --timeout 25
+bashcut jobs wait JOB_ID --done --timeout 100
 ```
 
 Both files must be project media (`media import`). It correlates loudness envelopes and checks each half of the

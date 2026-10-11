@@ -1,6 +1,6 @@
 ---
 name: captions-text
-description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, group cues from word timings, captions with a script's exact text timed from speech, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, Vietnamese-safe fonts and text colour, and pick a text template (stacked keyword, headline + subline, boxed keyword, two-tone pop) for hooks, calls to action, place cards, keyword stickers and chapter cards with the right look, size, contrast and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
+description: Add captions and on-screen text in BashCut — captions from speech or a script, re-timed and grouped from word timings, SubRip import, word-by-word styles, animated titles, Vietnamese-safe fonts, and text templates (stacked keyword, headline + subline, boxed keyword, two-tone pop) for hooks, calls to action, place and chapter cards with the right size, contrast and safe-area position. Use when the video needs subtitles or titles, or captions are wrong or hard to read. Triggers: "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
 ---
 
 # Captions and on-screen text
@@ -164,9 +164,13 @@ frame, not the number.
 
 `textStyle` also takes `font` (a PostScript name such as `Montserrat-ExtraBold`), `fill`, `stroke` and
 `highlight` (`#RRGGBB`); `emphasis {line, fill, scale, plate}` (or `false`) and `lineFills [colors]` shape titles.
-The templates use Helvetica Neue Condensed Black, Verdana Bold and Marker Felt Wide, the presets Arial Bold and Times;
-all ship with macOS and cover Latin and Vietnamese (check `fonts list --covers` for other languages). Arial and
-Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic either).
+The hook title and the templates use `System-CondensedBlack` (the Mac's own San Francisco; `System-` + an optional
+Condensed, Compressed or Expanded + Regular…Black), Verdana Bold and Marker Felt Wide, the other presets Arial Bold
+and Times; all ship with macOS and draw Vietnamese tone marks right (check `fonts list --covers` for other
+languages). Helvetica Neue's condensed faces have the letters but misplace stacked marks (Ắ, Ở): avoid them for
+Vietnamese. Arial and Times also cover Greek and Cyrillic, but not CJK or Thai (Times not Arabic either). In an edit
+built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by name, `style` with these fields);
+`plan check` flags a font that lacks the content language.
 
 - `bashcut fonts list --covers [--query montserrat]` gives the names that draw here (project fonts first) that have
   every letter of the project's content language (`--language TAG` for another one); without `--covers` each font

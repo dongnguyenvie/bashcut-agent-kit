@@ -1,6 +1,6 @@
 ---
 name: rough-cut
-description: Build the rough cut in BashCut by choosing moments by what is said — read the transcript, pick lines by quote, resolve each quote to a word-exact source range, store it as a select with its quote, reason and evidence, let the user override in the Media panel, then place the kept selects in story order. Also long → short — finding self-contained clips in a podcast, talk, stream or long recording, a blind second pass with verdict tiers, the standalone test, length ranges, and one derived project per short. Use at the rough-cut stage of a talking video, tutorial or interview, when cutting a long recording into shorts, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
+description: Build the rough cut in BashCut by what is said — pick lines by quote, resolve each to a word-exact source range, keep them as selects with reason and evidence, and place them in story order; also long → short (self-contained clips from a podcast, talk or stream, a blind second pass, one derived project per short). Use at the rough-cut stage of a talking video, tutorial or interview, when cutting shorts from a long recording, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
 ---
 
 # Rough cut by quote
@@ -116,9 +116,13 @@ Never cut natural speech short to hit a quota or a "sweet spot" (T06 §4).
 
 ## Placing and checking
 
+The quick path (`bc:edit-workflow`) writes the kept lines straight into `plan.cut` (`{media, quote, section}`, with
+`cover` for pictures over a line) and builds them in one call; the selects stay as the record of what was picked:
+
 ```sh
-bashcut selects place --base-rev N                 # kept selects on Main, in order, one undoable edit
-bashcut timeline get --format text
+bashcut plan check                                  # quotes resolved, edges, lengths, the review as it would be
+bashcut plan apply --base-rev N --why "rough cut: 7 lines, hook first"   # one undoable edit; again to revise
+bashcut selects place --base-rev N                  # or: kept selects on Main, in order, one undoable edit
 bashcut timeline sheet --cuts
 ```
 

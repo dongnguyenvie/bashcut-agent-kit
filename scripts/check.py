@@ -20,6 +20,9 @@ for name in sorted(os.listdir(SKILLS)):
         problems.append(f"{name}: name '{meta.get('name')}' does not match the folder")
     if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", name) or len(name) > 64:
         problems.append(f"{name}: name must be lowercase words joined by '-' (max 64)")
+    # The model belongs to the Claude-only sub-agents (agents/*.md); SKILL.md front matter is shared with Codex.
+    if "model" in meta:
+        problems.append(f"{name}: no model in SKILL.md front matter (put it in agents/*.md)")
     desc = meta.get("description", "")
     if not desc:
         problems.append(f"{name}: no description")
@@ -40,5 +43,11 @@ for name in sorted(os.listdir(SKILLS)):
     if lines > 250:
         problems.append(f"{name}: {lines} lines; move detail into REFERENCE.md")
     print(f"{name:16s} {lines:4d} lines  description {len(desc):4d} chars")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sync_agents  # noqa: E402
+for agent in sync_agents.AGENTS:
+    path = os.path.join(ROOT, "agents", f"{agent}.md")
+    if not os.path.isfile(path) or open(path, encoding="utf-8").read() != sync_agents.render(agent):
+        problems.append(f"agents/{agent}.md is out of date: run scripts/sync_agents.py")
 print("\n".join(problems) or "OK")
 sys.exit(1 if problems else 0)

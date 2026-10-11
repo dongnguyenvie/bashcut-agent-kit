@@ -74,7 +74,7 @@ approved text minimally and tell the user which words changed.
 
 ```sh
 bashcut voice speak "Text of one line" --takes 3          # job; measures every take and keeps its file, places none
-bashcut jobs wait JOB_ID --timeout 25                       # repeat until done; every take's facts and file
+bashcut jobs wait JOB_ID --done --timeout 100                       # returns when done; every take's facts and file
 bashcut voice place TAKE_PROJECT_PATH --at-frame F         # put the take you picked on the Voiceover track
 bashcut voice speak "Text" --takes 1 --choose 1 --at-frame F   # one take, placed at once
 ```
