@@ -98,8 +98,8 @@ calls.
    list it as open; do not search the disk.
 5. **Check, no edit**: `plan check` resolves every quote and builds a scratch copy: clips (edges inside words),
    titles (`textShare`, chars per second), problems and the review as it would be. `same-framing` (two clips of one
-   camera at one size back to back) is a jump cut to come: give the second a `zoom` punch-in (size it from
-   `bc:beat-cut`'s ranges and the clip's headroom) or a `cover`, now rather than after review. `unknown-field` means
+   camera at one size back to back) is a jump cut to come: give the second a `zoom` punch-in (a size change at a
+   cut is 1.15–1.3, `bc:beat-cut` §5, within the clip's headroom; never over signs or text) or a `cover`, now rather than after review. `unknown-field` means
    a field changes nothing. Fix with `plan check --patch
    '{"clips": {"c2": {"to": 953.0}}}'` (it merges by entry ID and checks the result; never rewrite plan files with
    scripts) until `ok` and every warning is one you mean; a `cut-in-word` gives the word's `before`/`after` edges
