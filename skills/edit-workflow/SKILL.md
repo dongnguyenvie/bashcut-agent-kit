@@ -76,9 +76,14 @@ calls.
 
    A title anchors to a `clip` or a `section` (plus `offset`) and without `seconds` lasts to its end. Put the
    review limits in the same list as `"review": {"minTextSize": …, "minTextContrast": …, "minShotSeconds": …}`,
-   each chosen from the recipe's ranges: `plan apply` writes them into the project. `plan check` warns
-   `review-profile-unset` with `facts.unsetLimits`, every limit this edit needs; set them all before the build,
-   or review stays incomplete and the review stage is never recorded. Request **G1** with the brief. No music in `library list --kind audio` and no music
+   each chosen from the recipe's `Ranges` (fetch that section with the others at intake) and the table in
+   `sed -n '/^## Before round 1/,/^## The loop/p' <skill_dir>/../review/SKILL.md`: `plan apply` writes them into the
+   project. `plan check` warns `review-profile-unset` with `facts.unsetLimits` (every limit this edit needs) and
+   `facts.accepts` (what each can hold); set them all before the build, or review stays incomplete and the review
+   stage is never recorded. A limit no source gives a range for: choose one for this video and say so in
+   `ranges`. Change limits later with `plan apply --patch '{"review": {…}}'` (it merges; `setProjectProperties`
+   replaces the whole review object). Words the transcript misheard (names, places): `captions.replace`
+   `{"misheard": "right"}` in the same list, never by editing caption items. Request **G1** with the brief. No music in `library list --kind audio` and no music
    plugin: leave the bed out and list it as open; do not search the disk.
 5. **Check, no edit**: `plan check` resolves every quote and builds a scratch copy: clips (edges inside words),
    titles (`textShare`, chars per second), problems and the review as it would be. Fix the list and check again
@@ -94,8 +99,9 @@ calls.
 7. **Finish only what the plan cannot say**: voiceover, colour, effects, a mix `audio mix-measure` finds off; the
    stage skill for anything beyond one command.
 8. **Review**: `review measure` (`jobs wait --done`; it measures picture and text contrast), `review run --summary`.
-   Fix a kind of problem once for every entry it touches (all titles get the plate, not one), apply the patch, then
-   `review verify all` proves every fix in one call. Then the **draft audit**: `review packet --point draft`, and
+   Fix a kind of problem once for every entry it touches (all titles get the plate, not one) **in the edit list**:
+   `plan apply --patch` (titles, caption style, review limits, cover shots), never `timeline apply` on items the
+   plan built (the next apply replaces them). Then `review verify all` proves every fix in one call. Then the **draft audit**: `review packet --point draft`, and
    the `bc:critic` agent (or your sub-agent given `<skill_dir>/../review/CRITIC.md`, else `--by self`) judges the
    packet and returns its fixes as one `plan.cut` patch. Do not open the packet yourself: in **one call** record
    the verdict (`run append audit --point draft --by critic`), apply the patch (`plan apply --patch … --base-rev

@@ -91,8 +91,9 @@ Core has no editorial defaults. The project's `review` object holds the limits (
 value, as info, and `review run --summary` lists it under `checks.unsetLimits` (only the limits a check of this
 timeline reads: no music, no `maxMusicGapSeconds`). `plan check` lists the same set before the build; with the
 quick path write them in `plan.cut.review`. A vlog recipe sets them; otherwise
-choose from the ranges below for this genre and footage, write them with `timeline apply` (`setProjectProperties`
-`{"review": {…}}`), record each in the plan's `ranges` with its source and reason, and tell the user.
+choose from the ranges below for this genre and footage, write them with `project set-data review review.json
+--merge` (or `plan.cut.review`; a `setProjectProperties` patch replaces the whole review object and drops the other
+limits), record each in the plan's `ranges` with its source and reason, and tell the user.
 
 Ranges seen in other review tools (T16 §3), starting points, not defaults:
 
