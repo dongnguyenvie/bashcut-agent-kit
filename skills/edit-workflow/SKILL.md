@@ -39,31 +39,36 @@ For every edit unless the user asked for the full process, the video runs over ~
 (then FULL.md). Same gates and audits, but the cut is one list checked by BashCut. Target: a 45 s ad in about 25–30
 calls.
 
-1. **Intake, one call**: `context get` and `knowledge get` together; `ls`/`ffprobe` the files the prompt names
-   (shape, length, speech, a screen recording or second camera next to them). Match a recipe: `skills list --scope
-   plugin` (recipes start "Recipe for"); read only its working parts:
-   `skills get <recipe> --section "Plan data,Ranges,Review notes"`; the result lists all its `sections`, so fetch
-   any other you need the same way (an ad's brief, arc and truth rules).
-   No recipe plugin: `plugins list`, tell the user `/bc:setup`, use kit defaults.
+1. **Intake, one call**: `context get`, `knowledge get` and `workflow gates` together, plus the recipe: recipes are
+   plugin skills whose description starts "Recipe for" (your skill list shows them as `vlog-<kind>`; else `skills
+   list --scope plugin`). Read only its working parts, `skills get <recipe> --section "Plan data,Ranges,Review
+   notes"` (the result lists all its `sections`; fetch others you need, such as an ad's brief, arc and truth rules,
+   in the same call), and the review limit table `sed -n '/^## Before round 1/,/^## The loop/p'
+   <skill_dir>/../review/SKILL.md`. No recipe plugin: `plugins list`, tell the user `/bc:setup`, use kit defaults.
 2. **Ask once** (at most 4 questions, REFERENCE "Intake questions"), each led by your own choice "AI chọn: …".
    User away or "don't ask": take your choices and write them `inferred` in the brief. Never ask again later.
-3. **Project and survey, overlapped**: `project create` (REFERENCE "Starting a project"), then in **one call**
-   `media import <folder>`, `media transcribe` and `media analyze` (every media; analyze waits by itself for a
-   conversion of video this Mac cannot decode, AV1 or VP9). Wait only for the transcription (`jobs wait ID --done
-   --timeout 100`) and write the brief while the pictures are measured. Wait for the analyze job (`jobs wait ID --done`) only when you hand over the survey; never poll
-   `jobs status`. Pictures read before a conversion lands are refused (busy, with the job). Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
-   sub-agent given `<skill_dir>/../footage-survey/SURVEYOR.md` as its brief (Codex), else do it yourself by that
-   brief. It reads the whole transcript, describes the shots into the project and returns hook candidates and
-   exact quotes with times in under 450 words. **You never print a transcript or a whole digest and never open
-   source frames**: its answer is what you plan from (a 23-min transcript is ~10k tokens that every later turn
-   pays again). To check one line: `media transcript --media M --from A --to B --as text --format text` for that
-   window only (several windows: one command each, joined with `;`; the shell may be zsh, where `set -- $r` does
-   not split words).
-4. **Brief, plan and review limits in one call**: `project set-data brief`, `project set-data plan --merge` with
-   `promise`, `sections` (length ranges), `recipe`, `checks` and **`cut`**: clips in order by quote (`{media, quote,
-   section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`, `place-card`, a template ID
-   such as `stacked-keyword`; `style` only to change a field: `size` is a share of the short side, `strokeWidth` is
-   in points), `captions: {from: "speech"}` when words should show, one `music` bed with `duckDb`. The shape:
+3. **Project and survey, two calls**: `project create --name N --dir D --footage FOLDER --canvas
+   landscape|portrait|square --fps 30 --language <tag> --import` creates the project, imports every file in the
+   folder and starts transcription and picture analysis; the result has each file's `media` ID, `seconds` and
+   `jobs {transcribe, analyze}`. The canvas follows where it is watched (portrait for TikTok/Reels/Shorts,
+   landscape for YouTube); the language is the user's answer or the prompt's. When the prompt names one file in a
+   folder holding others, leave out `--import` and run `media import FILE`, `media transcribe` and `media analyze`
+   in one call. An "unsaved changes" error names a project you did not make: `--save-current`. Then hand the survey
+   to a sub-agent at once, with the media IDs and both job IDs (it waits for them; never poll yourself): the
+   `bc:surveyor` agent when your agent has it (Claude Code), else your own sub-agent given
+   `<skill_dir>/../footage-survey/SURVEYOR.md` as its brief (Codex), else do it yourself by that brief. It reads
+   the whole transcript, describes the shots into the project and returns hook candidates and exact quotes with
+   times in under 450 words. **You never print a transcript or a whole digest and never open source frames**: its
+   answer is what you plan from (a 23-min transcript is ~10k tokens that every later turn pays again). Its quotes
+   are copied from the transcript and resolve as they are; to read a few lines around them anyway, all windows in
+   one command: `media transcript --media M --ranges 640:652,1050:1058 --as text --format text`.
+4. **Brief, plan and review limits in one call**: `project format --outputs <preset> --base-rev last`, `project
+   set-data brief` (each field `{value, status: stated|inferred|confirmed, source}`: `goal`, `audience`, `outputs`,
+   `angle`, `lengthSeconds {min, max}`, `notes`), `project set-data plan --merge` with `promise`, `sections` (`{id,
+   label, lengthSeconds {min, max}, reason}`), `recipe`, `checks`, `decisions`, `ranges` and **`cut`**: clips in order
+   by quote (`{media, quote, section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`,
+   `place-card`, a template ID such as `stacked-keyword`), `captions: {from: "speech"}` when words should show, one
+   `music` bed with `duckDb`. The shape:
 
    ```json
    {"cut": {"clips": [{"id": "c1", "media": "M", "quote": "exact words as transcribed", "section": "hook"},
@@ -71,45 +76,52 @@ calls.
                        "cover": [{"media": "M", "from": 950.0}]}],
             "titles": [{"id": "t1", "text": "HOOK LINE", "clip": "c1", "preset": "hook-title"},
                        {"id": "t2", "text": "Place", "section": "proof", "offset": 0.5, "seconds": 2.5,
-                        "preset": "place-card", "style": {"background": {"color": "#000000", "opacity": 0.6}}}],
-            "captions": {"from": "speech"}, "music": {"media": "S", "duckDb": -14}}}
+                        "preset": "place-card", "style": {"positionY": 0.8}}],
+            "captions": {"from": "speech", "style": {"background": {"color": "#000000", "opacity": 0.6}}},
+            "music": {"media": "S", "duckDb": -14},
+            "review": {"minTextSize": 0.035, "minTextContrast": 3, "minShotSeconds": 0.6}}}
    ```
 
-   A title anchors to a `clip` or a `section` (plus `offset`) and without `seconds` lasts to its end. Put the
-   review limits in the same list as `"review": {"minTextSize": …, "minTextContrast": …, "minShotSeconds": …}`,
-   each chosen from the recipe's `Ranges` (fetch that section with the others at intake) and the table in
-   `sed -n '/^## Before round 1/,/^## The loop/p' <skill_dir>/../review/SKILL.md`: `plan apply` writes them into the
-   project. `plan check` warns `review-profile-unset` with `facts.unsetLimits` (every limit this edit needs) and
-   `facts.accepts` (what each can hold); set them all before the build, or review stays incomplete and the review
-   stage is never recorded. A limit no source gives a range for: choose one for this video and say so in
-   `ranges`. Change limits later with `plan apply --patch '{"review": {…}}'` (it merges; `setProjectProperties`
-   replaces the whole review object). Words the transcript misheard (names, places): `captions.replace`
-   `{"misheard": "right"}` in the same list, never by editing caption items. Request **G1** with the brief. No music in `library list --kind audio` and no music
-   plugin: leave the bed out and list it as open; do not search the disk.
+   `style` changes only the fields it names: `size` (share of the short side), `positionY` (baseline from the
+   bottom, 0–1) and `positionX`, `align`, `font`, `fill`, `stroke`, `strokeWidth` (points, unlike `size`),
+   `uppercase`, `background {color, opacity}`, `shadow`. Plain white text over daylight footage measured 1.2–2:1
+   contrast in past runs: decide plates for captions and titles here, not after review. A title anchors to a `clip`
+   or a `section` (plus `offset`) and without `seconds` lasts to its end; two texts on screen at once need different
+   `positionY`. **Review limits** go in the same list (`review`), each chosen from the recipe's `Ranges` and the
+   review table you read at intake; `plan apply` writes them into the project. `plan check` warns
+   `review-profile-unset` with `facts.unsetLimits` (every limit this edit needs) and `facts.accepts`; set them all
+   before the build, or review stays incomplete. A limit no source gives a range for: choose one for this video and
+   say so in `ranges`. Words the transcript misheard (names, places): `captions.replace` `{"misheard": "right"}`.
+   Request **G1** with the brief. No music in `library list --kind audio` and no music plugin: leave the bed out and
+   list it as open; do not search the disk.
 5. **Check, no edit**: `plan check` resolves every quote and builds a scratch copy: clips (edges inside words),
-   titles (`textShare`, chars per second), problems and the review as it would be. Fix the list and check again
-   until `ok` and every warning is one you mean. The **strategy audit** is yours here (`--by self`): judge the
-   promise, sections, the `inferred` brief fields and the recipe checks from the check's result, then
-   `run append audit --point strategy --verdict pass --findings N --by self` in the same call as G2
-   (`checkpoint request G2 --summary "…"`) and the apply.
-6. **Build once**: `plan apply --base-rev N --sheet --why "…"` builds it as one undoable edit and returns the
-   review's errors and warnings plus the storyboard sheet: look at that one sheet for G3. A change is
-   `plan apply --patch '{"clips": {"c2": {"cover": […]}}, "titles": {"t1": {"style": {…}}}}' --base-rev N`: only
-   what changes, by entry ID (`null` removes one), checked, saved to `plan.cut` and built in one call. Never edit
-   cut files with scripts.
+   titles (`textShare`, chars per second), problems and the review as it would be. Fix with `plan check --patch
+   '{"clips": {"c2": {"to": 953.0}}}'` (it merges by entry ID and checks the result; never rewrite plan files with
+   scripts) until `ok` and every warning is one you mean; a `cut-in-word` gives the word's `before`/`after` edges
+   in `facts`, so move the edge there in the same patch. The **strategy audit** is yours here (`--by self`): judge
+   the promise, sections, the `inferred` brief fields and the recipe checks from the check's result.
+6. **Build once, in the call that records the audit**: `run append audit --point strategy --verdict pass --findings
+   N --by self --evidence "…"`, G2 (`checkpoint request G2 --summary "…"` unless skipped), then `plan apply --base-rev last --sheet
+   --why "…"` (with `--patch '…'` carrying the changes that made the check ok: a check saves nothing): it builds the list as one undoable edit
+   and returns the review's errors and warnings plus the storyboard sheet; look at that one sheet for G3. Later
+   changes are `plan apply --patch …` too: only what changes, by entry ID (`null` removes one), checked, saved to
+   `plan.cut` and built in one call.
 7. **Finish only what the plan cannot say**: voiceover, colour, effects, a mix `audio mix-measure` finds off; the
    stage skill for anything beyond one command.
-8. **Review**: `review measure` (`jobs wait --done`; it measures picture and text contrast), `review run --summary`.
-   Fix a kind of problem once for every entry it touches (all titles get the plate, not one) **in the edit list**:
-   `plan apply --patch` (titles, caption style, review limits, cover shots), never `timeline apply` on items the
-   plan built (the next apply replaces them). Then `review verify all` proves every fix in one call. Then the **draft audit**: `review packet --point draft`, and
-   the `bc:critic` agent (or your sub-agent given `<skill_dir>/../review/CRITIC.md`, else `--by self`) judges the
-   packet and returns its fixes as one `plan.cut` patch. Do not open the packet yourself: in **one call** record
-   the verdict (`run append audit --point draft --by critic`), apply the patch (`plan apply --patch … --base-rev
-   last`), `review verify all`, and `timeline sheet --entries` of the changed entries only. Send it back for a
-   second look only for a blocker that no measurement proves.
-9. **Draft and hand-off**: `export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio`
-   returns the job: `jobs wait JOB --done --timeout 100`, then **G5** and the hand-off report (REFERENCE "The
+8. **Review**: `review run --measure --summary` measures this revision (picture and text contrast) and reviews it in
+   one call. Fix a kind of problem once for every entry it touches (all titles get the plate, not one) **in the edit
+   list**: `plan apply --patch` (titles, caption style, review limits, cover shots), never `timeline apply` on items
+   the plan built (the next apply replaces them), then in the same call `review run --measure --summary` and
+   `review verify all`. Then the **draft audit**: the `bc:critic` agent (or your sub-agent given
+   `<skill_dir>/../review/CRITIC.md`, else `--by self`) builds the draft packet itself, judges it and returns its
+   fixes as one `plan.cut` patch; give it the project, the revision and what you suspect, not the packet. Do not open
+   the packet yourself: in **one call** record the verdict (`run append audit --point draft --by critic`), apply the
+   patch (`plan apply --patch … --base-rev last`), `review run --measure --summary` and `review verify all`. Text
+   positions, sizes and overlaps are measured there; open a sheet (`timeline sheet --entries` of the changed entries)
+   only for a change no measurement covers. Send it back for a second look only for a blocker that no measurement
+   proves.
+9. **Draft and hand-off**: `export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio --wait
+   --save` returns the finished job and saves the project, then **G5** and the hand-off report (REFERENCE "The
    hand-off report"). BashCut records the stages itself (below); the two audits are yours.
 
 ## The plan as data

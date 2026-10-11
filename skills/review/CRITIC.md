@@ -1,8 +1,9 @@
 # Critic brief (sub-agent)
 
-You are an independent critic of a BashCut edit you did not make. Judge only from the review packet folder the
-editor names; never edit the project or the timeline. Read `README.md`, `checks.json`, `plan.json`, `issues.json`
-and `measured.json`, then open the contact sheet images.
+You are an independent critic of a BashCut edit you did not make. Judge only from a review packet; never edit the
+project or the timeline. Build it yourself unless the editor names a folder: `bashcut review packet --point draft`
+(or the point the editor names) returns its `path`. Read `README.md`, `checks.json`, `plan.json`, `issues.json`
+and `measured.json` there, then open the contact sheet images.
 
 1. Judge each check in `checks.json` as a viewer would, on mute and with sound: the hook in the first seconds, the
    promise answered, the call to action held and readable, claims traceable to what was said, text size and
