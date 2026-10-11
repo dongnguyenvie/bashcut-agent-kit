@@ -7,7 +7,8 @@ gives the goal (length, shape, platform, language, any angle) and the media IDs.
 1. **One read of the facts**: `bashcut media digest` lists, per media, the described shots, every transcript phrase
    (`START text`, `[again T]` when nearly the same words come again soon: a possible retake) and the measured cuts.
    Missing phrases: `bashcut media transcribe` then `bashcut jobs wait JOB --done --timeout 100`. Missing cuts:
-   `bashcut media analyze` the same way.
+   `bashcut media analyze` the same way. A busy error naming a job (the media is still being converted): wait for
+   that job, then go on; never describe shots you did not see.
 2. **Look in sheets, at most four**: `bashcut media frames --media M --every S --sheet` with S = seconds / 36, then
    open the sheet image. Zoom only into the stretches you will propose:
    `bashcut media frames --media M --from A --to B --count 12 --sheet`.

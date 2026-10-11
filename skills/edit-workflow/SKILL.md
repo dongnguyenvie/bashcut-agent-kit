@@ -46,8 +46,10 @@ calls.
 2. **Ask once** (at most 4 questions, REFERENCE "Intake questions"), each led by your own choice "AI chọn: …".
    User away or "don't ask": take your choices and write them `inferred` in the brief. Never ask again later.
 3. **Project and survey, batched**: `project create` (REFERENCE "Starting a project"), `media import <folder>`,
-   `media transcribe` and `media analyze` (every media), then `jobs wait ID1,ID2 --done --timeout 100` until both
-   end. Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
+   `media transcribe` (every media). Video this Mac cannot decode (AV1, VP9) is converted first: the import result
+   names that job (`proxy.job`); wait for it and the transcription together (`jobs wait ID1,ID2 --done --timeout
+   100`), then `media analyze` and wait again. Pictures read before the conversion lands are refused (busy, with
+   the job). Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
    sub-agent given `<skill_dir>/../footage-survey/SURVEYOR.md` as its brief (Codex), else do it yourself by that
    brief. It describes the shots into the project and returns candidates in under 300 words. You read
    `media digest --from A --to B` only around its candidates (a long source's whole digest is as long as its
@@ -56,7 +58,19 @@ calls.
    `promise`, `sections` (length ranges), `recipe`, `checks` and **`cut`**: clips in order by quote (`{media, quote,
    section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`, `place-card`, a template ID
    such as `stacked-keyword`; `style` only to change a field: `size` is a share of the short side, `strokeWidth` is
-   in points), `captions: {from: "speech"}` when words should show, one `music` bed with `duckDb`. Then
+   in points), `captions: {from: "speech"}` when words should show, one `music` bed with `duckDb`. The shape:
+
+   ```json
+   {"cut": {"clips": [{"id": "c1", "media": "M", "quote": "exact words as transcribed", "section": "hook"},
+                      {"id": "c2", "media": "M", "from": 642.8, "to": 648.0, "section": "proof",
+                       "cover": [{"media": "M", "from": 950.0}]}],
+            "titles": [{"id": "t1", "text": "HOOK LINE", "clip": "c1", "preset": "hook-title"},
+                       {"id": "t2", "text": "Place", "section": "proof", "offset": 0.5, "seconds": 2.5,
+                        "preset": "place-card", "style": {"background": {"color": "#000000", "opacity": 0.6}}}],
+            "captions": {"from": "speech"}, "music": {"media": "S", "duckDb": -14}}}
+   ```
+
+   A title anchors to a `clip` or a `section` (plus `offset`) and without `seconds` lasts to its end. Then
    `project set-data review` with the recipe's review ranges (`minTextSize`, `minTextContrast`, shot lengths,
    `hookSeconds`…): without them review stays incomplete. Request **G1** with the brief. No music in `library list --kind audio` and no music
    plugin: leave the bed out and list it as open; do not search the disk.
