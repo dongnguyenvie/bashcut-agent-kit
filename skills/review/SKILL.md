@@ -87,7 +87,7 @@ title trips "long still". Decide, then fix, adjust the profile, or accept with a
 Core has no editorial defaults. The project's `review` object holds the limits (`minShotSeconds`, `maxShotSeconds`,
 `maxStillSeconds`, `stillMotion`, `jumpCutChange`, `blackMinSeconds`, `hookSeconds`, `maxSilenceSeconds`,
 `maxMusicGapSeconds`, `voiceoverMarginSeconds`, `captionLineChars`, `captionMaxLines`, `minTextSize`,
-`minSpeechCoverage`, `loudnessToleranceLU`, `severities`, `platform`). A limit left unset reports only the measured
+`minTextContrast`, `minSpeechCoverage`, `loudnessToleranceLU`, `severities`, `platform`). A limit left unset reports only the measured
 value, as info, and `review run --summary` lists it under `checks.unsetLimits`. A vlog recipe sets them; otherwise
 choose from the ranges below for this genre and footage, write them with `timeline apply` (`setProjectProperties`
 `{"review": {…}}`), record each in the plan's `ranges` with its source and reason, and tell the user.
@@ -101,6 +101,7 @@ Ranges seen in other review tools (T16 §3), starting points, not defaults:
 | `maxShotSeconds` with `stillMotion` (static shot) | 3–6 s | genre: a calm daily vlog keeps long stills, a montage does not |
 | `maxSilenceSeconds` (dead air, whole mix) | 2–5 s | ASMR or a calm vlog tolerates more; a gap inside speech is another measure (~0.8 s) |
 | word landing (caption or title vs its word) | 0.1–0.3 s | correctness, not taste |
+| `minTextContrast` (text against the picture behind it, measured by `review measure`) | 3–4.5 : 1 | WCAG 2.x: 3:1 for large text such as titles, 4.5:1 for body-size text such as captions |
 | `loudnessToleranceLU` | 1–2 LU | the platform and the delivery file |
 | true peak | −1 to −0.5 dBTP | lossy codecs need −1 |
 | length vs plan | 2–15 % | strict for ads and fixed slots, loose for vlogs |
