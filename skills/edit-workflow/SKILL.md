@@ -101,7 +101,7 @@ calls.
    camera at one size back to back) is a jump cut to come: give the second a `zoom` punch-in (a size change at a
    cut is 1.15–1.3, `bc:beat-cut` §5, within the clip's headroom; never over signs or text) or a `cover`, now rather than after review. `unknown-field` means
    a field changes nothing. Fix with `plan check --patch
-   '{"clips": {"c2": {"to": 953.0}}}'` (it merges by entry ID and checks the result; never rewrite plan files with
+   '{"clips": {"c2": {"to": 953.0}}}'` (`from`/`to` on a quoted clip move its edges; it merges by entry ID and checks the result; never rewrite plan files with
    scripts) until `ok` and every warning is one you mean; a `cut-in-word` gives the word's `before`/`after` edges
    in `facts`, so move the edge there in the same patch. The **strategy audit** is yours here (`--by self`): judge
    the promise, sections, the `inferred` brief fields and the recipe checks from the check's result.
