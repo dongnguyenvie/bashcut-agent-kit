@@ -1,6 +1,6 @@
 ---
 name: captions-text
-description: Add captions and on-screen text in BashCut — transcribe speech into captions, clean and re-time them, group cues from word timings, captions with a script's exact text timed from speech, import SubRip, word-by-word (highlight, karaoke, reveal) captions, animated titles, Vietnamese-safe fonts and text colour, and pick a text template (stacked keyword, headline + subline, boxed keyword, two-tone pop) for hooks, calls to action, place cards, keyword stickers and chapter cards with the right look, size, contrast and safe-area position. Use when the video needs subtitles, captions are wrong or hard to read, a hook title, location label or chapter card is needed, or the user says "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
+description: Add captions and on-screen text in BashCut — captions from speech or a script, re-timed and grouped from word timings, SubRip import, word-by-word styles, animated titles, Vietnamese-safe fonts, and text templates (stacked keyword, headline + subline, boxed keyword, two-tone pop) for hooks, calls to action, place and chapter cards with the right size, contrast and safe-area position. Use when the video needs subtitles or titles, or captions are wrong or hard to read. Triggers: "phụ đề", "sub", "chữ trên hình", "nhãn địa điểm", "tiêu đề", "thẻ chương", "font", "phông chữ", "lỗi font tiếng Việt", "màu chữ".
 ---
 
 # Captions and on-screen text

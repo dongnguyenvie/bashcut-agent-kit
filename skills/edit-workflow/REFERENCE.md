@@ -166,18 +166,23 @@ project folder). Record taste with `knowledge set-pref`, project facts with `kno
 Measured on real runs: one ad took 778 BashCut calls (159 `context get`, 119 `media import`, 110 `jobs wait`, 37
 `export status`, 36 `ui frame`); a vlog spent 12M tokens before its first cut. A headless ad run on the quick path
 (kit 0.1.27) took 108 turns and 13.4M input tokens: its context grew from 34k to 180k because every transcript,
-image, skill and schema it read stayed, and each later turn paid for it again.
+image, skill and schema it read stayed, and each later turn paid for it again. With sub-agents (0.1.28) it took 54
+turns and 7.1M; a third of that went to a critic round over text a measurement would have caught (an outline of
+0.12 pt, a subline at 2% of the frame) and the skill and recipe text read whole at the start.
 
 - **One call for many things.** `media import <folder>`; `media transcribe` without `--media` (every media);
-  `jobs wait ID1,ID2,…`; the cut as `plan.cut` + `plan apply`; several `timeline apply` ops in one call. In a shell,
+  `jobs wait ID1,ID2,…`; the cut as `plan.cut` + `plan apply --sheet` (build, review and storyboard in one); several `timeline apply` ops in one call. In a shell,
   chain commands whose output you do not need to read (`run append … && run append …`); with MCP tools, send
   independent calls together in one turn.
-- **Sub-agents read, you decide.** Give the reading-heavy stages to a sub-agent with a short brief and the project
-  path. The survey sub-agent reads the transcripts (as phrases) and the contact sheets, writes `media describe`,
-  and puts candidate lines into `plan.shots` with their exact words, media and seconds; it answers in under 300
-  words with what exists, what is missing and the strongest lines. The draft-audit sub-agent gets only the packet
-  folder (`bc:review`, "If you were given a packet"). Without sub-agents (some agents have none), read the
-  transcript in pieces and look at sheets only.
+- **Sub-agents read, you decide.** The survey goes to `bc:surveyor` and the draft audit to `bc:critic` (Claude
+  Code's sub-agents, on a cheaper model); another agent gives its own sub-agent the brief file
+  (`<skill_dir>/../footage-survey/SURVEYOR.md`, `<skill_dir>/../review/CRITIC.md`). The surveyor stores shot
+  descriptions with `media describe` and answers in under 300 words; you then read `media digest` (shots and
+  words in one short read), never a whole transcript. Without sub-agents, follow the same briefs yourself and read
+  the digest a stretch at a time (`--from/--to`).
+- **Catch it in the plan, not in a critic round.** `plan check` gives each title's `textShare` and warns
+  `stroke-units` and `review-profile-unset`; set the review limits from the recipe before the build, so
+  `plan apply` and `review measure` report small text and low contrast themselves.
 - **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
   (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
   `media frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames
@@ -200,7 +205,7 @@ bashcut run append measured --measured picture,loudness,layout --not-measured so
 bashcut run append end --text "Draft approved, exports queued"
 ```
 
-Stage entries come from `run append stage` (SKILL.md, "Stages, checklist and gates"); gate entries from
+Stage entries come from `run append stage` (FULL.md, "Stages, checklist and gates"); gate entries from
 `checkpoint request` and the user's answer, never from you. End with `end`, then build the hand-off report below.
 
 ## The hand-off report

@@ -1,6 +1,6 @@
 ---
 name: rough-cut
-description: Build the rough cut in BashCut by choosing moments by what is said — read the transcript, pick lines by quote, resolve each quote to a word-exact source range, store it as a select with its quote, reason and evidence, let the user override in the Media panel, then place the kept selects in story order. Also long → short — finding self-contained clips in a podcast, talk, stream or long recording, a blind second pass with verdict tiers, the standalone test, length ranges, and one derived project per short. Use at the rough-cut stage of a talking video, tutorial or interview, when cutting a long recording into shorts, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
+description: Build the rough cut in BashCut by what is said — pick lines by quote, resolve each to a word-exact source range, keep them as selects with reason and evidence, and place them in story order; also long → short (self-contained clips from a podcast, talk or stream, a blind second pass, one derived project per short). Use at the rough-cut stage of a talking video, tutorial or interview, when cutting shorts from a long recording, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
 ---
 
 # Rough cut by quote

@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review a BashCut edit before export as a capped critic loop — set the review profile from sourced ranges, measure, look at the edit in batches, judge findings by what a viewer perceives (blocker, polish, taste, needs user), fix one labelled edit per finding, prove each fix with review verify, keep deliberate choices with a reason, and report what was and was not checked (pass, fail or incomplete). A fresh critic (or a self-audit from the packet only) is always part of it. Also the brief for that critic given only a review packet folder: the strategy, draft or process audit, with the generic checks every video gets. Use at the review stage of any edit, before a draft or export, when the user asks to check or critique a video, or when you were handed a review packet. Triggers: "review", "kiểm tra video", "soát lỗi", "xem lại bản dựng", "chấm bản dựng", "critic", "QC", "trước khi xuất".
+description: Review a BashCut edit before export as a capped loop — set the review profile from sourced ranges, measure, look in batches, judge findings by what a viewer perceives, fix one labelled edit per finding, prove each fix with review verify, and report what was and was not checked; an independent critic (or a self-audit from the packet) is always part of it, and the skill is also the critic's brief for a review packet. Use at the review stage, before a draft or export, or when asked to check a video. Triggers: "review", "kiểm tra video", "soát lỗi", "xem lại bản dựng", "chấm bản dựng", "critic", "QC", "trước khi xuất".
 ---
 
 # Reviewing an edit in BashCut
@@ -130,10 +130,11 @@ Each round:
    `review window F --span S --step K` only at cuts in doubt: ±0.4–1.5 s at 10–12 fps, wider for dialogue cuts,
    narrower for beat cuts (T16 §3; at 30 fps about `--span 12`–`45` with `--step 3`). `ui frame F --phone` for text
    at the width a viewer sees (360–420 px, T16 §3). `review coverage` (which described shot each clip plays) and `script check` against the plan.
-3. **Critic, always.** Run `review packet --point draft`. Full path: give a sub-agent only the folder and
-   `bc:review` (the section above): it has none of your reasons, so it sees what a viewer sees. Quick path, or no
-   sub-agent: audit yourself from the packet only, as if you had not made the edit, and record `--by self`. Either
-   way record the verdict with `run append audit`; a skipped G5 needs it.
+3. **Critic, always.** Run `review packet --point draft` and give the folder to the `bc:critic` agent (or your own
+   sub-agent with `<skill_dir>/CRITIC.md` as its brief): it has none of your reasons, so it sees what a viewer
+   sees. No sub-agent: audit yourself by that brief from the packet only and record `--by self`. Either way record
+   the verdict with `run append audit`; a skipped G5 needs it. A second look only for a blocker no measurement
+   proves; `review verify` proves the rest.
 4. **Decide each finding** by severity: fix it (one labelled edit; the issue's `fix` when it has one), change the
    profile when the limit is wrong for this video (say so and why), accept it with a reason, or list it for the user.
 5. **Verify each fix.** `review verify <id>` re-measures the issue's range and returns before and after numbers, the

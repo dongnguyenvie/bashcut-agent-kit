@@ -28,6 +28,10 @@ to its media ID, exact source frame and second.
 
 ## Run reading
 
+In the quick path this is a sub-agent's job: `bc:surveyor`, or your own sub-agent with `<skill_dir>/SURVEYOR.md` as
+its brief. `media digest` is the one short read of what is measured, described and said (`[again T]` marks a
+possible retake); read it before the longer commands below.
+
 Read in this order:
 
 1. `context get` › `analysis`: jobs still running and media not measured, transcribed or described. Wait for the

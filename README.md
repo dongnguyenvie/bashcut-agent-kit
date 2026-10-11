@@ -11,10 +11,10 @@ only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`
 
 | Skill | Use it for |
 |---|---|
-| `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, the quick path (the cut as one list, `plan.cut`: `plan check` without editing, then `plan apply` as one edit with captions, titles and ducking; batched calls; survey and draft audit in sub-agents to keep the context small), 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
+| `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, the quick path (the cut as one list, `plan.cut`: `plan check` without editing, then `plan apply` as one edit with captions, titles and ducking; batched calls; survey and draft audit in the `bc:surveyor` and `bc:critic` sub-agents on a cheaper model, `media digest` instead of whole transcripts; full path in FULL.md), 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
 | `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), padding and length ranges, a blind second pass, long → short with `project derive` |
 | `review` | The critic loop before export: pass/fail/incomplete, severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for the fresh critic of each audit (`review packet --point strategy\|draft\|process`) and the generic checks |
-| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media inventory`, `media frames --sheet`, `media describe`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
+| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media digest`, `media inventory`, `media frames --sheet`, `media describe`); the surveyor brief (`SURVEYOR.md`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
 | `beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
 | `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
 | `voiceover` | Text-to-speech lines that read right, checked and placed |
@@ -75,9 +75,12 @@ sh bashcut-agent-kit/scripts/install-codex.sh --uninstall
 hooks/hooks.json                  Claude Code hook: records each bc:* skill read in BashCut's run log (record-skill.sh)
 skills/*/SKILL.md                 the skills (Agent Skills format, shared by Claude Code and Codex)
 skills/*/REFERENCE.md             detail a skill reads on demand (kept out of SKILL.md's 250-line limit)
+skills/*/SURVEYOR.md, CRITIC.md   sub-agent briefs (Codex gives them to its own sub-agent)
+agents/*.md                       Claude Code sub-agents bc:surveyor and bc:critic (Sonnet), generated from the briefs
 scripts/bashcut-mcp.sh            finds and starts bashcut-mcp
 scripts/install-codex.sh          Codex setup
-scripts/check.py                  checks every skill's frontmatter, size and referenced files
+scripts/check.py                  checks every skill's frontmatter, size and referenced files, and agents/ in sync
+scripts/sync_agents.py            writes agents/*.md from the briefs
 ```
 
 ## Writing skills
