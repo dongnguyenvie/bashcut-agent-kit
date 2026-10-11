@@ -45,11 +45,10 @@ Same gates and audits; the cut is one list BashCut checks. Target: a 45 s ad in 
    user `/bc:setup`, use kit defaults.
 2. **Ask once** (at most 4 questions, REFERENCE "Intake questions"), each led by "AI chọn: …". User away: take your
    choices, write them `inferred` in the brief, never ask later.
-3. **Project and survey, two calls**: `project create --name N --dir D --footage FOLDER --canvas
+3. **Project and survey, two calls**: `project create --name N --dir D --footage FILE_OR_FOLDER --canvas
    landscape|portrait|square --fps 30 --language <tag> --import` imports the folder and starts transcription and
    analysis (result: `media` IDs, `jobs {transcribe, analyze}`). Portrait for TikTok/Reels/Shorts, landscape for
-   YouTube. One named file in a busy folder: no `--import`; `media import FILE`, `media transcribe`, `media analyze`
-   in one call. "Unsaved changes" about a project you did not make: `--save-current`. Then the survey sub-agent at
+   YouTube. A file imports only that file. "Unsaved changes" about a project you did not make: `--save-current`. Then the survey sub-agent at
    once, with media and job IDs (it waits): `bc:surveyor` (Claude Code), else a sub-agent briefed with
    `<skill_dir>/../footage-survey/SURVEYOR.md`, else that brief yourself. It returns hook candidates and exact
    quotes with times in under 450 words. **Never print a transcript or digest, never open source frames**; its quotes
@@ -82,10 +81,10 @@ Same gates and audits; the cut is one list BashCut checks. Target: a 45 s ad in 
    `font`, `fill`, `stroke`, `strokeWidth` (points), `uppercase`, `background {color, opacity}`, `shadow`. White
    text over daylight measured 1.2–2:1: plate captions and titles now; two texts at once need different
    `positionY`. **Sound**: a `music` bed unless the brief says none; `sfx` only where a moment needs one (whoosh on
-   a hard cut, pop as a title lands; `offset` -0.1 peaks on it). Library first (`library list --kind audio`), else
-   download without asking: `curl -s "https://api.openverse.org/v1/audio/?q=<mood>&category=music&page_size=10"`
-   (`results[].url`, `duration` ms; SFX: no `category`, `q=whoosh`), or Mixkit
-   (`https://mixkit.co/free-stock-music/tag/<mood>/`, `https://mixkit.co/free-sound-effects/<whoosh|pop>/`).
+   a hard cut, pop as a title lands; `offset` -0.1 peaks on it). Library first (`library list --kind audio`), else one
+   command finds, downloads and imports them, one short line per file with its `media` ID: `uv run
+   <skill_dir>/../audio-mix/fetch_audio.py --dest <project>/media/audio --music "<mood words>" --sfx whoosh,pop
+   --import`.
    **Review limits** (`review`) come from the recipe's `Ranges` and the review table; `plan check` lists any still
    unset in `review-profile-unset` (`facts.unsetLimits`, `facts.accepts`): set them all, else review stays
    incomplete; a limit no source covers: choose it and say so in `ranges`. Request **G1** with the brief.
