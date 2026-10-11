@@ -57,7 +57,8 @@ calls.
    exact quotes with times in under 450 words. **You never print a transcript or a whole digest and never open
    source frames**: its answer is what you plan from (a 23-min transcript is ~10k tokens that every later turn
    pays again). To check one line: `media transcript --media M --from A --to B --as text --format text` for that
-   window only.
+   window only (several windows: one command each, joined with `;`; the shell may be zsh, where `set -- $r` does
+   not split words).
 4. **Brief, plan and review limits in one call**: `project set-data brief`, `project set-data plan --merge` with
    `promise`, `sections` (length ranges), `recipe`, `checks` and **`cut`**: clips in order by quote (`{media, quote,
    section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`, `place-card`, a template ID
