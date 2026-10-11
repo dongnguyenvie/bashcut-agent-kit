@@ -62,12 +62,14 @@ calls.
    answer is what you plan from (a 23-min transcript is ~10k tokens that every later turn pays again). Its quotes
    are copied from the transcript and resolve as they are; to read a few lines around them anyway, all windows in
    one command: `media transcript --media M --ranges 640:652,1050:1058 --as text --format text`.
-4. **Brief, plan and review limits in one call**: `project format --outputs <preset> --base-rev last`, `project
-   set-data brief` (each field `{value, status: stated|inferred|confirmed, source}`: `goal`, `audience`, `outputs`,
-   `angle`, `lengthSeconds {min, max}`, `notes`), `project set-data plan --merge` with `promise`, `sections` (`{id,
-   label, lengthSeconds {min, max}, reason}`), `recipe`, `checks`, `decisions`, `ranges` and **`cut`**: clips in order
-   by quote (`{media, quote, section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`,
-   `place-card`, a template ID such as `stacked-keyword`), `captions: {from: "speech"}` when words should show, one
+4. **Brief, plan and review limits in one call**: `project format --outputs <preset> --base-rev last` (export
+   preset IDs: `youtube-1080`, `shorts`, `reels`, `tiktok`…), `project set-data brief brief.json --base-rev last`
+   (each field `{value, status: stated|inferred|confirmed, source}`: `goal`, `audience`, `outputs`, `angle`,
+   `lengthSeconds {min, max}`, `notes`) and `project set-data plan plan.json --merge --base-rev last` with `promise`,
+   `sections` (`{id, label, lengthSeconds {min, max}, reason}`), `recipe`, `checks`, `decisions`, `ranges` and
+   **`cut`**: clips in order by quote (`{media, quote, section}`), `cover` for pictures over a line, `zoom` (with
+   `pan`, `tilt`) on a clip or cover for a punch-in, `titles` by preset name (`hook-title`, `place-card`, a template
+   ID such as `stacked-keyword`), `captions: {from: "speech"}` when words should show, one
    `music` bed with `duckDb`. The shape:
 
    ```json
@@ -95,7 +97,10 @@ calls.
    Request **G1** with the brief. No music in `library list --kind audio` and no music plugin: leave the bed out and
    list it as open; do not search the disk.
 5. **Check, no edit**: `plan check` resolves every quote and builds a scratch copy: clips (edges inside words),
-   titles (`textShare`, chars per second), problems and the review as it would be. Fix with `plan check --patch
+   titles (`textShare`, chars per second), problems and the review as it would be. `same-framing` (two clips of one
+   camera at one size back to back) is a jump cut to come: give the second a `zoom` punch-in (size it from
+   `bc:beat-cut`'s ranges and the clip's headroom) or a `cover`, now rather than after review. `unknown-field` means
+   a field changes nothing. Fix with `plan check --patch
    '{"clips": {"c2": {"to": 953.0}}}'` (it merges by entry ID and checks the result; never rewrite plan files with
    scripts) until `ok` and every warning is one you mean; a `cut-in-word` gives the word's `before`/`after` edges
    in `facts`, so move the edge there in the same patch. The **strategy audit** is yours here (`--by self`): judge
