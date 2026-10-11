@@ -139,7 +139,9 @@ Each round:
 4. **Decide each finding** by severity: fix it (one labelled edit; the issue's `fix` when it has one), change the
    profile when the limit is wrong for this video (say so and why), accept it with a reason, or list it for the user.
 5. **Verify each fix.** `review verify <id>` re-measures the issue's range and returns before and after numbers, the
-   status (fixed or persisting) and a strip. Say "fixed" only with that result: "looks better" does not count (T16 §2).
+   status (fixed or persisting) and a strip; `review verify all` (or `ID1,ID2`) proves a whole round in one call,
+   with a strip only for what persists. Say "fixed" only with that result: "looks better" does not count (T16 §2).
+   After a fix, look again only at what changed (`timeline sheet --entries c2,t1`), not the whole timeline.
 6. **Log the round**: `run append round --round 1 --fixed 3 --left 2`.
 
 Applying a `fix`: `timeline.apply` → write `fix.arguments.ops` to a file and run `timeline apply ops.json --base-rev

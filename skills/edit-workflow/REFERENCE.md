@@ -190,7 +190,10 @@ turns and 7.1M; a third of that went to a critic round over text a measurement w
   before images.
 - **Wait, don't poll.** Jobs: `jobs wait <job> --done --timeout 100` returns when it ends (again only on
   `timedOut`); an export is a job too (never loop on `export status`). Gates: `checkpoint status --wait 100`. After
-  about 30 min, give the user the job ID.
+  about 30 min, give the user the job ID. Start long jobs together (`media transcribe` and `media analyze` right
+  after import) and do the work that does not need them while they run, instead of a wait per turn.
+- **Revise by patch.** `plan check|apply --patch '{"clips": {"c2": {…}}}'` changes entries by ID in one call;
+  never rewrite `cut.json` with a script turn by turn.
 - **Read once, read little.** `context get` when you start or resume and after a gate, not before every command;
   `timeline get` only before hand-written ops (`plan check` and `review run` already say what you need). Filter big
   JSON in the same call; command shapes are in `bashcut help` and each command's description, so read `schema get`
@@ -205,7 +208,9 @@ bashcut run append measured --measured picture,loudness,layout --not-measured so
 bashcut run append end --text "Draft approved, exports queued"
 ```
 
-Stage entries come from `run append stage` (FULL.md, "Stages, checklist and gates"); gate entries from
+Stage entries come from `run append stage` (FULL.md, "Stages, checklist and gates"), except the ones BashCut
+writes itself (`auto: true`): rough-cut and captions on `plan apply`, review on a `review run` that passes, export
+when an export lands. Gate entries come from
 `checkpoint request` and the user's answer, never from you. End with `end`, then build the hand-off report below.
 
 ## The hand-off report

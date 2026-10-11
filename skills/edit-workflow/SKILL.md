@@ -45,11 +45,12 @@ calls.
    No recipe plugin: `plugins list`, tell the user `/bc:setup`, use kit defaults.
 2. **Ask once** (at most 4 questions, REFERENCE "Intake questions"), each led by your own choice "AI chọn: …".
    User away or "don't ask": take your choices and write them `inferred` in the brief. Never ask again later.
-3. **Project and survey, batched**: `project create` (REFERENCE "Starting a project"), `media import <folder>`,
-   `media transcribe` (every media). Video this Mac cannot decode (AV1, VP9) is converted first: the import result
-   names that job (`proxy.job`); wait for it and the transcription together (`jobs wait ID1,ID2 --done --timeout
-   100`), then `media analyze` and wait again. Pictures read before the conversion lands are refused (busy, with
-   the job). Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
+3. **Project and survey, overlapped**: `project create` (REFERENCE "Starting a project"), then in **one call**
+   `media import <folder>`, `media transcribe` and `media analyze` (every media; analyze waits by itself for a
+   conversion of video this Mac cannot decode, AV1 or VP9). Wait only for the transcription (`jobs wait ID --done
+   --timeout 100`) and work from the words while the pictures are measured: `media digest`, the brief, the hook
+   candidates. Wait for the analyze job (`jobs wait ID --done`) only when you hand over the survey; never poll
+   `jobs status`. Pictures read before a conversion lands are refused (busy, with the job). Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
    sub-agent given `<skill_dir>/../footage-survey/SURVEYOR.md` as its brief (Codex), else do it yourself by that
    brief. It describes the shots into the project and returns candidates in under 300 words. You read
    `media digest --from A --to B` only around its candidates (a long source's whole digest is as long as its
@@ -81,18 +82,23 @@ calls.
    `run append audit --point strategy --verdict pass --findings N --by self` in the same call as G2
    (`checkpoint request G2 --summary "…"`) and the apply.
 6. **Build once**: `plan apply --base-rev N --sheet --why "…"` builds it as one undoable edit and returns the
-   review's errors and warnings plus the storyboard sheet: look at that one sheet for G3. A change is a change to
-   `plan.cut` and another apply (it replaces only what an apply built).
+   review's errors and warnings plus the storyboard sheet: look at that one sheet for G3. A change is
+   `plan apply --patch '{"clips": {"c2": {"cover": […]}}, "titles": {"t1": {"style": {…}}}}' --base-rev N`: only
+   what changes, by entry ID (`null` removes one), checked, saved to `plan.cut` and built in one call. Never edit
+   cut files with scripts.
 7. **Finish only what the plan cannot say**: voiceover, colour, effects, a mix `audio mix-measure` finds off; the
    stage skill for anything beyond one command.
-8. **Review**: `review measure` (`jobs wait --done`; it measures picture and text contrast), `review run --summary`,
-   fix in `plan.cut` and apply again, `review verify` each fix. Then the **draft audit**: `review packet --point
-   draft`, and the `bc:critic` agent (or your sub-agent given `<skill_dir>/../review/CRITIC.md`, else `--by self`)
-   judges the packet. Fix its findings; send it back for a second look only for a blocker that no measurement
-   proves (`review verify` proves the rest). Record each verdict with `run append audit --point draft`.
+8. **Review**: `review measure` (`jobs wait --done`; it measures picture and text contrast), `review run --summary`.
+   Fix a kind of problem once for every entry it touches (all titles get the plate, not one), apply the patch, then
+   `review verify all` proves every fix in one call. Then the **draft audit**: `review packet --point draft`, and
+   the `bc:critic` agent (or your sub-agent given `<skill_dir>/../review/CRITIC.md`, else `--by self`) judges the
+   packet. Fix its findings; look again only at what you changed (`timeline sheet --entries c2,t1`), never the
+   whole timeline, and send it back for a second look only for a blocker that no measurement proves. Record each
+   verdict with `run append audit --point draft`.
 9. **Draft and hand-off**: `export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio`
    returns the job: `jobs wait JOB --done --timeout 100`, then **G5** and the hand-off report (REFERENCE "The
-   hand-off report"). Record stage outcomes in one call where they happen (below).
+   hand-off report"). BashCut records rough-cut, captions, review and export itself; record the rest in one call
+   where it happens (below).
 
 ## The plan as data
 
@@ -105,9 +111,10 @@ as data". A recipe writes `recipe {skill, version}`, `promise {hook, payoff}`, `
 ## Checklist, gates and audits in short
 
 Stage ids: `intake`, `survey`, `story`, `rough-cut`, `rhythm`, `voiceover`, `visuals`, `sound`, `captions`,
-`colour`, `effects`, `review`, `export`, `learn` (table and skills: FULL "Stages, checklist and gates"). Record
-outcomes several at a time: `run append stage --stage survey --status done --evidence "a;b"`, `--status skipped
---reason "…"`. Gates: `workflow gates` at intake; each is `ask`, `notify` or `skip`; request every one with
+`colour`, `effects`, `review`, `export`, `learn` (table and skills: FULL "Stages, checklist and gates"). BashCut
+writes `rough-cut` and `captions` (plan apply), `review` (a review run that passes) and `export` (an export that
+lands); record the others several at a time: `run append stage --stage survey --status done --evidence "a;b"`,
+`--status skipped --reason "…"`. Gates: `workflow gates` at intake; each is `ask`, `notify` or `skip`; request every one with
 something cheap to look at (`checkpoint request G2 --summary "…" --attach sheet.png`, then `checkpoint status --wait
 100` while `awaiting_user`). Only the user answers a gate. A skipped G2 needs the strategy audit and a skipped G5
 the draft audit; BashCut refuses the rough cut without the recipe read and the strategy audit, and a final export
