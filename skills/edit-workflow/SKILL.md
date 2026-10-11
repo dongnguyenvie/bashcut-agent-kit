@@ -50,8 +50,8 @@ calls.
    end. Hand the survey to a sub-agent: the `bc:surveyor` agent when your agent has it (Claude Code), else your own
    sub-agent given `<skill_dir>/../footage-survey/SURVEYOR.md` as its brief (Codex), else do it yourself by that
    brief. It describes the shots into the project and returns candidates in under 300 words. You read
-   `media digest` (one short read of shots and words, `--from/--to` for a stretch), never a whole transcript, and
-   you never open frames yourself before the build.
+   `media digest --from A --to B` only around its candidates (a long source's whole digest is as long as its
+   transcript), and you never open frames yourself before the build.
 4. **Brief, plan and review limits in one call**: `project set-data brief`, `project set-data plan --merge` with
    `promise`, `sections` (length ranges), `recipe`, `checks` and **`cut`**: clips in order by quote (`{media, quote,
    section}`), `cover` for pictures over a line, `titles` by preset name (`hook-title`, `place-card`, a template ID
