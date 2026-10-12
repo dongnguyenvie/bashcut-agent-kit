@@ -72,6 +72,21 @@ approved text minimally and tell the user which words changed.
 
 ## 3. Synthesize
 
+**A whole script** (an explainer, a narrated ad, any edit whose picture follows the voice): write the lines into
+`plan.cut.voiceover` [{id, text, section, pause}] and voice them all in one job; `plan apply` then plays each line's
+best take one after another, with captions in the script's own words timed by the take:
+
+```sh
+bashcut voice lines --takes 2 --min-similarity 0.9   # job: every line voiced, transcribed and checked; kept
+bashcut jobs wait JOB_ID --done --timeout 600         # per line: best {projectPath, similarity, seconds}, unmatched
+bashcut voice lines --only l3,l7                     # after rewording those lines in plan.cut
+```
+
+A line that already has a passing kept take is not voiced again (`--force` does). Choose `--min-similarity` from
+§4. One line here, one sentence: the take is checked against it and the captions break on it.
+
+**One line at a time** (a fix, a dub, a line over a fixed shot):
+
 ```sh
 bashcut voice speak "Text of one line" --takes 3          # job; measures every take and keeps its file, places none
 bashcut jobs wait JOB_ID --done --timeout 100                       # returns when done; every take's facts and file
@@ -99,6 +114,7 @@ bashcut voice speak "Text" --takes 1 --choose 1 --at-frame F   # one take, place
 ```sh
 bashcut voice check --item ITEM            # job: similarity, words matched/substituted/missing, extra words
 bashcut voice check --media MEDIA --text "The text it should say"
+bashcut voice check --items all            # job: every voiceover item at once, similarity and unmatched words
 ```
 
 The model misreads, drops or repeats words, mostly **at the start** of a line. Read `words` and `extra`, not

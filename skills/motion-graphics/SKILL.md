@@ -63,7 +63,9 @@ what, where and when. `bashcut plugins list` shows whether one is ready:
 - **HyperFrames Graphics** (`bashcut.hyperframes`): its skill `bashcut.hyperframes:hyperframes` is the toolkit —
   design the composition for this video (HTML/CSS + GSAP, its examples and a catalog of 390+ blocks as raw
   material), look at frames (`snapshot`, also against a reference), render (`bashcut plugins invoke graphics.render`)
-  and place it. Read that skill before building the first graphic.
+  and place it. Read that skill before building the first graphic. Many graphics over a voice (an explainer):
+  list them in `plan.cut.graphics` with their `render` inputs and build them all with its `bin/graphic plan` in
+  one call (`"@words"` values land rows on their words) instead of placing them one by one.
 - None ready: `bashcut plugins search --capability graphics.render` names one to install; installing, trusting and
   Install Dependencies… are the user's (`bc:edit-workflow`). Meanwhile use native text and say what is missing.
 - The user's own Remotion or After Effects project: they render it themselves (ProRes 4444 or HEVC with alpha) and
