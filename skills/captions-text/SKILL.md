@@ -182,8 +182,10 @@ built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by nam
   "Be Vietnam Pro" --weights 600,800 --dest <project>/media/fonts --import` downloads the whole .ttf files from
   Google Fonts and runs `fonts import` (it travels with the project). Fontsource's own .ttf files are split per
   subset (the vietnamese file has no a–z): never import those. Download without asking; check with `fonts list
-  --covers`. Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font needs
-  that font imported in the next project too.
+  --covers`. Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font carries
+  the font file and brings it into the next project when placed (an unsaved project falls back to Helvetica).
+- Two fonts in one title: `text line-style ITEM --line 0 --font NAME --scale 1.4 --base-rev last` per line (`-1`
+  last), or `textStyle.lines` [{font, scale, fill, stroke}] in `setProperties`.
 - **Brand kit** (`project get` › `brand`) comes first. Tie titles to it with `brandRoles` (plan.cut title `style`:
   `{"brandRoles": {"fill": "text", "background.color": "accent", "font": "heading"}}`); `library apply <kit>` restyles them.
 - Contrast is measured, not assumed: `review layout --contrast` gives each item's WCAG ratio and `lightRatio` /

@@ -107,15 +107,21 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
    the edit, `ui frames --compare source --items CLIP` for source next to edit. Faces and people come from
    `bashcut media subjects --media ID --from S --to S2` (job): `box` `[x, y, w, h]` as shares of the source picture
    from the top left, so multiply by the media's width and height for a rectangle in source pixels; check it on
-   `media frame` at that `frame`. `review layout` `faceOverlap` stays null (unknown, not "no face"); `media
-   describe` subjects are your own tags.
-3. **Crop when what matters fits**: `clip motion ITEM --focus x,y,w,h` around the subject, locked for the shot
+   `media frame` at that `frame` (boxes are stored per file once measured). `review layout` `faceOverlap` gives
+   how much of a face each text covers, null when no boxes are stored (unknown, not "no face"); a limit in
+   `review.maxFaceOverlap` turns it into a `text-face` issue. `media describe` subjects are your own tags.
+3. **One call for a face subject**: `bashcut clip reframe ITEM --mode locked|cut|follow --base-rev last` (a job)
+   measures missing boxes, crops so the face sits at `--anchor`, and fits instead (or `--fallback refuse`) below
+   `--gate`; it returns `coverage`, the framings and a `preview` grid: look at the grid, that is your check. Set
+   `--gate` (0.85–0.95), `--drift` (0.1–0.2) and `--min-hold` (1–2 s) for the shot: locked for a talking head,
+   cut when the presenter changes place, follow only for real movement. For anything that is not a face, step 4.
+4. **Crop when what matters fits**: `clip motion ITEM --focus x,y,w,h` around the subject, locked for the shot
    ("don't move unless you must", hotclip; T19 §2). Leave 0.3–0.5 of the face size around a face, more for a
    gesturing presenter (openmontage, hotclip; T19 §3). `--focus-to` only when the subject really moves; no smooth
    drift on a talking head (jianshuo). Check `pixelRatio` afterwards.
-4. **Fall back to fit** when it does not fit (two people far apart, a wide landscape, a sign): the clip's `fill`
-   false (`setProperties`) or `project format --clips fit`. A blurred backdrop suits screens and slides, not footage
-   with a subject (nateherkai; T19 §3). Order: fit → a fixed crop at a position you checked → keep the original
+5. **Fall back to fit** when it does not fit (two people far apart, a wide landscape, a sign): the clip's `fill`
+   false (`setProperties`) or `project format --clips fit`. Fill the bars with `clip backdrop ITEM --kind blur`
+   (or `--kind color`); a blurred backdrop suits screens, slides and photos, not footage with a subject (nateherkai; T19 §3). Order: fit → a fixed crop at a position you checked → keep the original
    shape. A centre crop without a frame check is the anti-pattern (openmontage; T19 §4).
 
 ## Library first
@@ -160,7 +166,7 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
 ## Not possible yet — say so and offer the alternative
 
 - Typewriter text, counting numbers, shake, glitch, film grain.
-- Segmentation (text behind a person, cut-outs), motion tracking, face-aware auto reframe, AI-generated
+- Segmentation (text behind a person, cut-outs), motion tracking of objects (faces: `clip reframe`), AI-generated
   transitions.
 
 When the user needs one of these, note it as a feature request for BashCut (or a plugin action) rather than faking
