@@ -10,7 +10,9 @@ Reply in the user's language. A problem solved in chat but not written down **wi
 Run it after the problem is solved (you need the real cause), not in the middle of the user's step. At the end
 of a session, sweep the conversation for anything missed, starting from `bashcut run log --kind correction`: in
 Claude Code the kit's hook keeps every user message that reads like a correction there, quoted (and puts them back
-after a compaction). They are candidates: most become one lesson, some are one-off instructions.
+after a compaction). They are candidates: most become one lesson, some are one-off instructions. Then
+`bashcut knowledge verdicts` (counts per command: keep, undo, edit, reject of your changes): a command whose changes
+were undone or edited two or more times is a candidate too; one verdict is not a preference.
 
 When a process audit ran (`bc:review`, "Process audit"), start from its lessons: they come from the checklist and
 the run log, not from your memory of the session. Add what the user corrected on top.
@@ -31,14 +33,13 @@ Symptom → cause → what to do, with the number or error text that proves it.
 
 Only what was **observed** in this session (an error, a measurement, the user's words). A guess is not a
 lesson. Before adding one, look for it by tag and keyword (`bashcut knowledge lessons --tag transitions`,
-`--query "close-gap"`); the same problem is often worded differently. If it exists, update it with
-`knowledge update-lesson ID` and add the new occurrence to its evidence ("seen again 2026-10-13, rev 52: «quote»")
-instead of adding a second one. A project lesson seen again in another project belongs to every project
+`--query "close-gap"`); the same problem is often worded differently. If it exists, count it with
+`knowledge update-lesson ID --seen` (occurrences, lastSeen and this project in sources; no approval needed) and add
+the quote to its evidence when it says something new, instead of adding a second one. A project lesson seen again in another project belongs to every project
 (`--scope user`).
 
-**How often and how lately.** Each lesson's occurrences are its record: where BashCut shows `occurrences`,
-`lastSeen` and `sources` on `knowledge lessons` rows, read them there; otherwise count the "seen again" lines in its
-evidence. Use them, not your memory:
+**How often and how lately.** Each lesson's occurrences are its record: read `occurrences`, `lastSeen` and
+`sources` on `knowledge lessons` rows (older lessons: count the "seen again" lines in the evidence). Use them, not your memory:
 - sources from two or more projects: move it to every project (`--scope user`);
 - seen three or more times although active: its fix or `--check` does not work; rewrite the fix, or propose the rule
   to the kit (step 3) when it is about how a skill tells you to work;
