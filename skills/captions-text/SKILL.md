@@ -80,8 +80,7 @@ Rule mode needs all three limits, chosen from the table; core has no default. Re
 chars and cps, and the gaps and overlaps between cues in frames. Fix outliers by regrouping, or `timeline undo`.
 
 **After every cut, regroup from what is heard:** `captions group --source heard` with indices from `transcript
-words --heard`. Captions made before the cut keep the words of lines that were cut away (one edit showed half a
-dropped sentence).
+words --heard`. Captions made before the cut keep words of lines cut away (one edit showed half a dropped sentence).
 
 ## 3. Script text, speech timing
 
@@ -158,7 +157,9 @@ Add a text layer with `layers add --kind text --role overlay` when the captions 
 Size (T09 §3): captions 3–6 % of frame **height** (measured glyphs), secondary text at least 3 %, hook text 6–9 %.
 The sources disagree on the minimum (3 % to 5.2 %), and BashCut's `size` and `fontShare` measure the short side,
 not the height: on 9:16 a height share is 16/9 times larger as a short-side share. Judge the result on a phone-size
-frame, not the number.
+frame, not the number. Text is **read** (big, with contrast) or **texture** (dimmed or blurred so nobody tries):
+a line meant to be read that cannot be is enlarged or deleted; the closing URL or CTA is never the smallest line.
+`review` counts keyed `zoom` and `textStyle.size` held for half a second: `keyedScale` under 1 → raise the key.
 
 ## Fonts and colour
 

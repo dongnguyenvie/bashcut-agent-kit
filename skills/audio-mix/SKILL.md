@@ -155,6 +155,12 @@ handles rights. Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
   (400 ms loudness reads a 0.2 s effect several dB low, so `overVoiceDb` alone makes every short effect look
   buried), `overVoiceDb` for longer beds and risers. An effect far under both is lost: raise it or move it off the
   words. `sharedWith` effects are measured together; judge them as one.
+- **Runs of one sound** (list items popping in, cards dealing, words landing): `bashcut review sync --events sfx`
+  lists `sfxRuns` (three or more of one file close together) with `gainsDb`, `intervalsFrames`, `constantGain` and
+  `constantSpacing`. The same file at the same level and spacing sounds mechanical. Alternate two samples of the
+  action, step the gain down along the run (one run that worked: about 0.40 → 0.25 linear, or −8 → −12 dB, over six
+  hits), and let the spacing follow the motion (closer as the cards speed up; when they blur together, one whoosh
+  instead). Pitch shifting is not needed.
 - The user's SFX folder, the Audio panel and the library first, then the sources above: download what fits
   without asking. In a `plan.cut` edit, SFX go in its `sfx` list (`on` a clip or title, `offset`).
 
