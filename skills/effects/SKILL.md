@@ -38,6 +38,10 @@ longer), fewer than 3 families when there are 5+ cuts, one ease on more than hal
   reveal → speed ramp, freeze or zoom-hit into it. A dissolve says time passed; between takes of one sentence use a
   snap punch-in instead (ghost-editor; T08 §3).
 - **Never use a flash or transition to hide a missing action** or a moment that should be seen (ReelMimic; T08 §2).
+- **Hits on the whole frame are rare by default** (flash, blink, whole-frame zoom punch, exposure pop): each one is
+  a slam. `bashcut review sync --events impacts` lists them with their beat and spacing. One promo study kept about
+  2–4 per 30–60 s on the strongest beats and moved only an element on the other beats; event and MV edits use far
+  more. Choose for the genre and look at `perMinute` and `minSpacingBeats` before adding another.
 - **Every visible move gets a matching sound**, sized to it (`bc:audio-mix`). One example: on a punchline, cutting
   all music and SFX for 1–2 s worked.
 - Cinematic style: hard cuts, no whoosh on cuts, the colour look and serif captions carry the feel.

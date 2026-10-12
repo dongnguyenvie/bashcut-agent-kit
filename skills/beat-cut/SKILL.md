@@ -139,6 +139,7 @@ bashcut review measure                                    # job: motion per shot
 bashcut review shots --summary                            # rhythm, shares; per shot the cut: kind, framing, sameFraming
 bashcut review sync --bins                                # cuts against beats and word edges, with p10/p90
 bashcut review sync --events cuts,sfx --rendered          # after an export of this revision
+bashcut review sync --events impacts                      # hits on the whole picture: when, how far apart, on which beat
 ```
 
 - **Rhythm** (`rhythm.overall` and per section): median, cv and cutsPerMinute against the band you chose.
@@ -151,6 +152,12 @@ bashcut review sync --events cuts,sfx --rendered          # after an export of t
 - **Sync to beats**: hard cuts within ±1–2 frames; 3 frames is perceptible (shotcraft pass ≤3 f, ideal ≤1.5 f;
   T07 §3). A median offset away from 0 with a tight p10–p90 means the grid's phase or the whole music is off: shift
   once or recheck the downbeat, not cut by cut. A wide spread means cuts were placed off the grid: `roll` them.
+- **Whole-picture hits** (`impacts`: flashes, blinks and other short transitions, fast zoom/pan/rotation/exposure
+  keys on Main or an adjustment layer, short pictures over Main): a cut on the beat changes *when*, not *how hard*.
+  Hits on every kick read as the camera shaking with the music. Seen in one promo study: about 2–4 per 30–60 s,
+  on the strongest beats (`beat.strength`, `onStrongestQuarterOfBeats`), about 16 beats apart; the other beat
+  accents moved one element (a title, a card, a number), not the frame. MV, event and hype edits use many more on
+  purpose: decide by genre, and say why when `perMinute` is high. `impactFrames` widens what counts (default 12).
 - **Sync to words**: a cut that falls `inside` a word clips it; move it into the gap.
 - **Rendered**: `lagMs` and `driftMsPerMinute` show whether the export still lands where the timeline does.
 

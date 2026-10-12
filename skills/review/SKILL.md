@@ -160,6 +160,8 @@ or ask the user when it is taste. Never hide a failure with a transition or a fl
 | black, frozen picture, long static shot | `ui frame F`, `review picture --from F --to G`, `review shots --summary` | `bc:beat-cut`, `bc:effects`; black: offline media or a hiding layer |
 | jump cut, repeated framing, gap, cut in a word | `review window F`, `review shots` (`cut`), `timeline apply --dry-run` (`cutsInsideWord`) | `bc:rough-cut`, `bc:beat-cut` |
 | cut or text off the beat or the word | `review window F`, `review sync --events cuts,text` | `bc:beat-cut`, `bc:captions-text` |
+| the picture pulses on the beat, too many flashes | `review sync --events impacts` (`summary.perMinute`, `minSpacingBeats`) | `bc:effects`, `bc:beat-cut` |
+| one sound effect repeated like a machine gun | `review sync --events sfx` (`sfxRuns`: `constantGain`, `constantSpacing`) | `bc:audio-mix` |
 | text in a zone, too small, overlap, contrast | `ui frame F --phone`, `review layout --frame F --contrast` | `bc:captions-text` |
 | no hook, slow opening | `review shots --to F`, `review layout --to F --ink`, `transcript words --to F`, the first cells of the sheet | story (`bc:edit-workflow`), `bc:captions-text` |
 | dead air, music gaps, voice drowned | `review window F`, `audio mix-measure` (a job) | `bc:audio-mix` |

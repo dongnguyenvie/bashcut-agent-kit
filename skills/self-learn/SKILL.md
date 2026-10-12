@@ -59,9 +59,18 @@ A lesson:
 bashcut knowledge add-lesson "Whip refused on non-adjacent clips" \
   --symptom "transition add failed: clips not adjacent" --cause "a 3-frame gap on v1" \
   --fix "timeline close-gap before adding a transition" --evidence "rev 41, error text" \
+  --check "Are the two clips touching on one layer?" \
   --tags transitions --status proposed
 ```
 
+- **Write it as a case:** the rule, the user's words **quoted, not paraphrased** in `--evidence` (a paraphrase lost
+  which title the user meant to hold, and the fix landed on the wrong one), and a `--check` question you will ask
+  yourself before the next draft ("Does every moment the viewer should remember get a full still hold?"). Every
+  session's knowledge summary shows the check next to the lesson. When feedback is unclear about *which* element,
+  confirm the target before changing anything.
+- **A graphic or effect block:** tag the lesson `block:<name>` (the example or catalog name, e.g.
+  `block:stat-counter`) with the value that failed and the range that worked; `graphic examples <name>` shows it
+  next to the block's variables the next time, in any project when the lesson is for every project.
 - **Status:** `active` (the default) when the cause is proven; `--status proposed` when you are unsure, so the user
   reviews it first. A lesson for every project is always proposed.
 - **Tags:** one or two of the area (captions, audio, pacing, color, transitions, export…), so `--tag` finds them.
