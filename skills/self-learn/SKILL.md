@@ -8,7 +8,9 @@ description: Turn problems hit while editing in BashCut into lasting fixes — r
 Reply in the user's language. A problem solved in chat but not written down **will happen again**.
 
 Run it after the problem is solved (you need the real cause), not in the middle of the user's step. At the end
-of a session, sweep the conversation for anything missed.
+of a session, sweep the conversation for anything missed, starting from `bashcut run log --kind correction`: in
+Claude Code the kit's hook keeps every user message that reads like a correction there, quoted (and puts them back
+after a compaction). They are candidates: most become one lesson, some are one-off instructions.
 
 When a process audit ran (`bc:review`, "Process audit"), start from its lessons: they come from the checklist and
 the run log, not from your memory of the session. Add what the user corrected on top.
@@ -30,8 +32,18 @@ Symptom → cause → what to do, with the number or error text that proves it.
 Only what was **observed** in this session (an error, a measurement, the user's words). A guess is not a
 lesson. Before adding one, look for it by tag and keyword (`bashcut knowledge lessons --tag transitions`,
 `--query "close-gap"`); the same problem is often worded differently. If it exists, update it with
-`knowledge update-lesson ID` and add the new occurrence to its evidence ("seen again rev 52") instead of adding a
-second one. A project lesson seen again in another project belongs to every project (`--scope user`).
+`knowledge update-lesson ID` and add the new occurrence to its evidence ("seen again 2026-10-13, rev 52: «quote»")
+instead of adding a second one. A project lesson seen again in another project belongs to every project
+(`--scope user`).
+
+**How often and how lately.** Each lesson's occurrences are its record: where BashCut shows `occurrences`,
+`lastSeen` and `sources` on `knowledge lessons` rows, read them there; otherwise count the "seen again" lines in its
+evidence. Use them, not your memory:
+- sources from two or more projects: move it to every project (`--scope user`);
+- seen three or more times although active: its fix or `--check` does not work; rewrite the fix, or propose the rule
+  to the kit (step 3) when it is about how a skill tells you to work;
+- a workaround whose last occurrence is before an app update where the plain way now works: disable it (below).
+  Old alone is never a reason.
 
 ## 2. Put it in the right place
 
