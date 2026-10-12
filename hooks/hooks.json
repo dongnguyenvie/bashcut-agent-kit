@@ -1,11 +1,34 @@
 {
-  "description": "Records each bc:* skill read in BashCut's run log, so the checklist knows which stage skills were read.",
+  "description": "Records each bc:* skill read in BashCut's run log; keeps the user's corrections as lesson candidates and puts them back after a compaction.",
   "hooks": {
     "PostToolUse": [
       {
         "matcher": "Skill",
         "hooks": [
           {"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/record-skill.sh\"", "timeout": 10}
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/correction.sh\"", "timeout": 10}
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual",
+        "hooks": [
+          {"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/precompact.sh\"", "timeout": 5}
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/after-compact.sh\"", "timeout": 10}
         ]
       }
     ]
