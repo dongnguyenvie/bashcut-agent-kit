@@ -185,6 +185,8 @@ built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by nam
   under the project's `media/`, then `bashcut fonts import /abs/media/<Family>-SemiBold.ttf` (it travels with
   the project). Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font needs
   that font imported in the next project too.
+- **Brand kit** (`project get` › `brand`) comes first. Tie titles to it with `brandRoles` (plan.cut title `style`:
+  `{"brandRoles": {"fill": "text", "background.color": "accent", "font": "heading"}}`); `library apply <kit>` restyles them.
 - Contrast is measured, not assumed: `review layout --contrast` gives each item's WCAG ratio and `lightRatio` /
   `darkRatio` (fill and outline against the picture behind). Below about 4.5 (the AA level one source checks,
   T09 §3), change fill or stroke, thicken the outline or move the text, then measure again.

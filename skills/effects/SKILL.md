@@ -85,6 +85,8 @@ longer), fewer than 3 families when there are 5+ cuts, one ease on more than hal
 | Whip | 0.2–0.4 s; 1–2 per short; same direction on both sides, never back and forth in a row | assafkip, saas-motion-kit |
 | Dissolve | 0.3–1.0 s; bookend fades 0.5–1.0 s | openmontage |
 | Blink, shutter, zoom, spin, wipe | quick ~0.2–0.5 s, standard ~0.7–1.5 s | digitalsamba (two tables in one repo disagree) |
+| Swing (next card turns in about its left edge) | ~0.3 s between full-frame cards of an explainer; never between footage shots | Reelcrew study (30 videos, 2026-10-07) |
+| Glitch (RGB split), halftone (print dots) | glitch 0.2–0.4 s, halftone 0.4–0.8 s; hype, showreel and comic edits only, about every 2.7 s at most | Reelcrew study |
 | Text or sticker entrance / exit | entrance 0.2–0.6 s, exit shorter | talkcraft |
 | Impact (slam, flash, hit) | 0.10–0.25 s after its target is fully visible | assafkip |
 
@@ -133,7 +135,7 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
 
 | Effect | Make it with |
 |---|---|
-| Transition | `{"op":"upsertTransition","id":"t-hook","kind":"whip","from":"A","to":"B","duration":9}` (frames; clips adjacent on one video layer; kinds: dissolve, whip, blink, zoom, spin, shutter, wipe) |
+| Transition | `{"op":"upsertTransition","id":"t-hook","kind":"whip","from":"A","to":"B","duration":9}` (frames; clips adjacent on one video layer; kinds: dissolve, whip, blink, zoom, spin, shutter, wipe, swing, glitch, halftone; any other name with `motion`: zoom, panX/panY, rotation, opacity, exposure, scaleX, reveal, swing, rgbSplit, halftone) |
 | Speed ramp | `{"op":"setSpeedCurve","item":"ITEM","preset":"hero"}` (montage, hero, bullet, jump-cut, flash-in, flash-out) or `"points":[{"t":0,"speed":1},{"t":0.5,"speed":3},{"t":1,"speed":1}]` |
 | Constant speed | `{"op":"setSpeed","item":"ITEM","speed":2}` (0.1–16; length follows, `"keepDuration":true` keeps it) |
 | Reverse | `clip reverse ITEM` (job) |
