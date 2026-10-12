@@ -183,8 +183,9 @@ or ask the user when it is taste. Never hide a failure with a transition or a fl
 
 A warning or info that is right for this video is kept on purpose:
 `review accept <id> --reason "locked-off interview, chosen" --base-rev N`. Later runs show it with the reason, leave
-it out of the counts, and the export report lists it. Errors cannot be accepted: fix them, or change their severity
-in `review.severities` with a reason and tell the user. `review accept <id> --remove --base-rev N` counts it again.
+it out of the counts, and the export report lists it. Accept an error only when no fix exists (the summary counts
+it as `acceptedErrors`) and tell the user; to change a whole check for this video set `review.severities.<check>` to
+`{"severity": "warning", "reason": "…"}`. `review accept <id> --remove --base-rev N` counts it again.
 
 ## The draft
 
