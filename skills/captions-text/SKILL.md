@@ -177,14 +177,12 @@ built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by nam
   every letter of the project's content language (`--language TAG` for another one); without `--covers` each font
   says `covers` true or false. A font that is in neither draws as Helvetica; `review run` reports it, and reports
   text whose characters the chosen font lacks.
-- Free fonts for a language come from Google Fonts, filtered by its subset
-  (`https://fonts.google.com/?subset=<subset>`: `latin-ext`, `vietnamese`, `cyrillic`, `japanese`, `thai`…);
-  check the result with `fonts list --covers` after importing.
-- Download the static files from the family's list (JSON after a 4-character prefix):
-  `curl -s "https://fonts.google.com/download/list?family=<Family%20Name>" | tail -c +5` →
-  `manifest.fileRefs[]` with `filename` and `url`. Download without asking (any font the look needs), save
-  under the project's `media/`, then `bashcut fonts import /abs/media/<Family>-SemiBold.ttf` (it travels with
-  the project). Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font needs
+- Free fonts for a language: `uv run <skill_dir>/fetch_font.py --subset vietnamese [--category sans-serif]
+  [--weight 800]` lists families that draw it (Fontsource catalogue: weights, italic, licence); then `--family
+  "Be Vietnam Pro" --weights 600,800 --dest <project>/media/fonts --import` downloads the whole .ttf files from
+  Google Fonts and runs `fonts import` (it travels with the project). Fontsource's own .ttf files are split per
+  subset (the vietnamese file has no a–z): never import those. Download without asking; check with `fonts list
+  --covers`. Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font needs
   that font imported in the next project too.
 - **Brand kit** (`project get` › `brand`) comes first. Tie titles to it with `brandRoles` (plan.cut title `style`:
   `{"brandRoles": {"fill": "text", "background.color": "accent", "font": "heading"}}`); `library apply <kit>` restyles them.
