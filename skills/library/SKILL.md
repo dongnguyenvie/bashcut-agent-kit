@@ -63,7 +63,7 @@ bashcut library apply shake-hit --item CLIP --set zoom=1.4 --from 120 --to 150 -
 
 Speed steps break lip sync: tag such presets `b-roll`.
 
-**transition-preset**: `kind` (dissolve, whip, blink, zoom, spin, shutter, wipe), `duration` in frames (1–600),
+**transition-preset**: `kind` (dissolve, whip, blink, zoom, spin, shutter, wipe, swing, glitch, halftone), `duration` in frames (1–600),
 `easing` (linear, in, out, inOut), `sfx` (an audio item ID) or the preset's own sound as `--file`.
 
 ```sh
@@ -99,6 +99,17 @@ with the item property rules) and `animation` (a clip motion preset) are optiona
 size, position, outline, font, colours and its motion preset (hand-made keys are dropped); place and apply set them
 back. A font from a project's `fonts/` folder is not copied with the preset: `fonts import` it in the next project
 (`bc:captions-text`).
+
+**brand**: a channel's kit, every field optional: `palette` {accent, background, text, secondary} `#RRGGBB`,
+`fonts` {heading, body}, `logo` and `mascot` {pose: id} as sticker items (add the user's own images as stickers
+first), `voice` {provider, voice}, `disclosure`. Only from what the user gave or approved (their colours, fonts,
+logo, character); never invent a mascot and present it as theirs. `library apply ID` (no `--item`) puts it on the
+whole project and restyles text whose `brandRoles` tie it to the kit.
+
+```sh
+bashcut library add --kind brand --name "Acme" --params '{"palette": {"accent": "#F2B544", "text": "#2B1B0E", "background": "#EADBC4"}, "fonts": {"heading": "BeVietnamPro-Black"}, "logo": "acme-logo", "disclosure": "Ảnh tạo bằng AI"}'
+bashcut library apply acme --base-rev last
+```
 
 Give every item a clear English `--name` (the ID comes from it), `--tags` for mood and use, `--pack` when it
 belongs to a set (the user's channel name); `--source` only when you have it.
