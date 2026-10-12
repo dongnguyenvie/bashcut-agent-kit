@@ -44,6 +44,11 @@ bashcut speech rate --voice PROVIDER/VOICE # the rates measured on that voice's 
   its `unitsPerSecond`.
 - When the voiceover should sound like the creator, size lines from the creator's own measured rate.
 - Never reuse an English words-per-second figure for a syllable language (T10 §3).
+- Published Vietnamese rates are a sanity check for a measurement, never a budget. Pauses removed (compare
+  `articulation`): read speech 4.7–5.3 syllables a second (Bradlow, Interspeech 2019: 4.74; Pellegrino et al.,
+  Language 2011: 5.22). Pauses inside phrases kept (compare `overall`): 200–245 a minute, 3.3–4.1 a second
+  (Vu et al., ACL 2025, PhoAudiobook: audiobooks 201; news, YouTube and conversation sets 224–243). A measurement
+  far outside these: check the transcript for dropped or merged words before sizing lines from it.
 
 Then find where voiceover can go and how much text fits:
 
