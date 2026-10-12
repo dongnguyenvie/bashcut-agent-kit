@@ -59,3 +59,16 @@ For each plugin that is not `ready`, explain the health detail in one sentence a
   approval for them).
 
 Finish with what they can do now, for example "gõ: làm phụ đề cho video này" or "đọc lồng tiếng đoạn này".
+
+## 5. Drive a plugin's panel when no command does the job
+
+Prefer the typed command (`voice speak`, `captions generate`, `beats detect`, a plugin skill's own script) and then
+`plugins run ACTION` (`plugins actions` lists them). Only a plugin with nothing else needs its view:
+1. `bashcut plugins list --views`: each plugin's views and where they live (panel, dock tab, sheet, inspector).
+2. `bashcut plugins view PLUGIN --view VIEW`: the components as JSON (texts, lists, inputs with values, buttons by
+   `id`). Read it instead of taking a screenshot.
+3. `bashcut plugins view-event PLUGIN --view VIEW --node ID [--type change|submit|select|action --value V]` acts
+   by node id and returns the new components: no second `view` call. A colour picker takes `#RRGGBB`, a font
+   picker a font name.
+4. `--open` (or `plugins show-view`) only when the user should see it. `plugins invoke CAPABILITY --params JSON`
+   runs a capability raw (a job) when no command wraps it.
