@@ -176,13 +176,17 @@ turns and 7.1M; a third of that went to a critic round over text a measurement w
   independent calls together in one turn.
 - **Sub-agents read, you decide.** The survey goes to `bc:surveyor` and the draft audit to `bc:critic` (Claude
   Code's sub-agents, on a cheaper model); another agent gives its own sub-agent the brief file
-  (`<skill_dir>/../footage-survey/SURVEYOR.md`, `<skill_dir>/../review/CRITIC.md`). The surveyor stores shot
-  descriptions with `media describe` and answers in under 300 words; you then read `media digest` (shots and
-  words in one short read), never a whole transcript. Without sub-agents, follow the same briefs yourself and read
-  the digest a stretch at a time (`--from/--to`).
+  (`<skill_dir>/../footage-survey/SURVEYOR.md`, `<skill_dir>/../review/CRITIC.md`). The surveyor reads the whole
+  transcript, stores shot descriptions with `media describe` and answers with hook candidates and exact quotes in
+  under 450 words; you plan from that and never print a transcript, a whole digest or source frames (run 6 printed
+  a 23-min transcript, 25k characters, that each of its 25 later turns paid again). The critic returns its fixes as
+  one `plan.cut` patch; apply it without re-reading the packet. Without sub-agents, follow the same briefs
+  yourself and read the digest a stretch at a time (`--from/--to`).
 - **Catch it in the plan, not in a critic round.** `plan check` gives each title's `textShare` and warns
-  `stroke-units` and `review-profile-unset`; set the review limits from the recipe before the build, so
-  `plan apply` and `review measure` report small text and low contrast themselves.
+  `stroke-units` and `review-profile-unset` (its `facts.unsetLimits` lists every limit this edit needs); put them
+  in `plan.cut.review` from the recipe's ranges before the build, so `plan apply` writes them and `plan apply` and
+  `review measure` report small text and low contrast themselves. Loudness waits for the normalized export
+  (`atExport`) and does not hold the review back.
 - **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
   (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
   `media frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames
@@ -190,7 +194,12 @@ turns and 7.1M; a third of that went to a critic round over text a measurement w
   before images.
 - **Wait, don't poll.** Jobs: `jobs wait <job> --done --timeout 100` returns when it ends (again only on
   `timedOut`); an export is a job too (never loop on `export status`). Gates: `checkpoint status --wait 100`. After
-  about 30 min, give the user the job ID.
+  about 30 min, give the user the job ID. Start long jobs together (`media transcribe` and `media analyze` right
+  after import) and do the work that does not need them while they run, instead of a wait per turn.
+- **Revise by patch.** `plan check|apply --patch '{"clips": {"c2": {…}}}'` changes entries by ID in one call;
+  never rewrite `cut.json` with a script turn by turn.
+- **Revision without a read.** `--base-rev last` is the revision as of your last command (your own edits
+  included); a stale error means someone else edited: then `context get`. Every edit's result carries `rev`.
 - **Read once, read little.** `context get` when you start or resume and after a gate, not before every command;
   `timeline get` only before hand-written ops (`plan check` and `review run` already say what you need). Filter big
   JSON in the same call; command shapes are in `bashcut help` and each command's description, so read `schema get`
@@ -205,7 +214,10 @@ bashcut run append measured --measured picture,loudness,layout --not-measured so
 bashcut run append end --text "Draft approved, exports queued"
 ```
 
-Stage entries come from `run append stage` (FULL.md, "Stages, checklist and gates"); gate entries from
+Stage entries come from `run append stage` (FULL.md, "Stages, checklist and gates"), except the ones BashCut
+writes itself (`auto: true`): intake when the brief is set, survey when every media is described, story, rough-cut
+and captions on `plan apply`, review on a `review run` that passes, export when an export lands. Optional stages
+you leave out need no entry; the two audits (strategy, draft) are always yours. Gate entries come from
 `checkpoint request` and the user's answer, never from you. End with `end`, then build the hand-off report below.
 
 ## The hand-off report

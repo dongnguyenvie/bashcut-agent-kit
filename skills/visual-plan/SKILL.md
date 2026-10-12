@@ -82,7 +82,7 @@ Change rows until it fits, and say which targets you left on purpose (`"delibera
 
 For rows that need something the project does not have:
 - `stock`, `icon`: 3–6 candidates per row (`bc:stock-images` §1 and Icons), all candidates of a batch on one
-  contact sheet; look, pick, import the pick (`media import`, its licence and source go on the media as usual).
+  contact sheet; look, pick, import the pick (`media import`).
 - `own-broll`: the matching described shots; check the frame (`media frames --sheet`).
 - `graphic`: the graphics plugin's examples and catalog (`bashcut.hyperframes:hyperframes` §1); note which one each
   row starts from, or that it is new. Design happens when it is built.
@@ -110,7 +110,7 @@ bashcut project set-data plan visuals.json --merge --base-rev N
 ```
 
 `from`/`to`/`at` are timeline frames; `show` is one phrase of what the viewer sees; `why` is the line's need, not the
-treatment's name. Where the picture comes from and its licence live on the imported media, not here.
+treatment's name. Where the picture comes from lives on the imported media, not here.
 
 Gate: when the brief asks to approve visuals, or rows need paid generation, request
 `bashcut checkpoint request visuals --summary "<rows by treatment, targets>" --attach <contact sheet>`; otherwise go

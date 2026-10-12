@@ -8,16 +8,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AGENTS = {
     "surveyor": {
         "brief": "skills/footage-survey/SURVEYOR.md",
-        "description": "Surveys footage for a BashCut edit: reads the media digest, looks at contact sheets, stores "
-        "shot descriptions and returns candidate quotes and angles in under 300 words. Use from bc:edit-workflow "
-        "for the survey; it never edits the timeline.",
+        "description": "Surveys footage for a BashCut edit: reads the whole digest and transcript, looks at contact "
+        "sheets, stores shot descriptions and returns hook candidates, exact quotes with times and angles in under 450 "
+        "words, so the editor never reads the transcript. Use from bc:edit-workflow for the survey; it never edits "
+        "the timeline.",
         "tools": "Bash, Read, Write",
     },
     "critic": {
         "brief": "skills/review/CRITIC.md",
         "description": "Independent critic of a BashCut edit: judges a review packet as a viewer, measures text "
-        "before calling it unreadable, and returns a verdict with findings in under 250 words. Use for the draft "
-        "audit; it never edits.",
+        "before calling it unreadable, and returns a verdict with findings and their fixes as one plan.cut patch in "
+        "under 300 words. Use for the draft audit; it never edits.",
         "tools": "Bash, Read",
     },
 }

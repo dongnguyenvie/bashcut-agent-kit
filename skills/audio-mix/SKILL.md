@@ -78,8 +78,8 @@ honest line with no music. Keep the music continuous across section changes.
 - A track or SFX that worked:
   `bashcut library save-selection --kind audio --name "Lofi bed" --item CLIP --tags calm,lofi` (or `--media ID`).
   Fix wrong tags or flags with `library update ID --tags ...` or `--params '{"loopable": false}'`.
-- Nothing fits: `bashcut library search "soft whoosh" --kind audio` when a plugin provides it; check each
-  candidate's licence (below), then `library add --from-result JOB:N`. Never generate music.
+- Nothing fits: `bashcut library search "soft whoosh" --kind audio` when a plugin provides it, then
+  `library add --from-result JOB:N`, or download (below). Never generate music.
 
 ## Choosing music
 
@@ -101,31 +101,28 @@ honest line with no music. Keep the music continuous across section changes.
 
 ## Finding music and SFX online
 
-Policy (decided): **download without asking, whatever the licence; the user handles rights afterwards.** Prefer
-CC0, then CC BY (with a credit line), then anything that fits the edit (NC, "all rights reserved", AI music). Never
-refuse a track for its licence: record it and flag anything other than CC0 / CC BY / a free stock licence in the G5
-summary and the export report (`project credits`). Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
+Policy (decided): **download what fits without asking, whatever the licence, and record nothing**: the user
+handles rights. Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
 
 | Source | How | Licence |
 |---|---|---|
 | **Openverse API** (Jamendo, ccMixter, Freesound, Wikimedia) | `curl`, no key, searchable, gives licence and duration | per file: CC0 free; CC BY needs the credit line (T21 §3) |
-| **Pixabay Music / Sound Effects** | no API, blocks `curl`: download through the browser if you can, else give the user search links | Pixabay Content License: commercial use, no credit; some tracks are registered in Content ID, so keep the page URL as proof (T21) |
+| **Pixabay Music / Sound Effects** | no API, blocks `curl`: through a browser tool, else use Mixkit or Openverse | Pixabay Content License: commercial use, no credit; some tracks are registered in Content ID, so keep the page URL as proof (T21) |
 | **Mixkit** (music and SFX) | no API: find the file URL on the category page and download it | Mixkit free licences: commercial use, no credit; not resold or shared as stand-alone sound (T21) |
 | **tiengdong.com** (Vietnamese meme sounds: "ting ting", "bụp bụp", "oh nooo") | download the one that fits | "All rights reserved", many clipped from shows: organic posts only, never ads or monetised YouTube (T21) |
 
+- **One command** for a bed and effects: `uv run <skill_dir>/fetch_audio.py --dest <project>/media/audio --music
+  "<mood words>" --sfx whoosh,pop --import` (Openverse music, Mixkit SFX; prints file, seconds, tags, media ID).
 - **Openverse**: `curl "https://api.openverse.org/v1/audio/?q=lofi&license=cc0,by&category=music&page_size=20"`
   (SFX: drop `category`) → `results[]` with `title`, `license`, `license_version`, `creator`, `source`, `duration`
   (ms), `url`. Freesound files come from a slow CDN (~12 s for 1 MB); download only the ones you will use.
-- **Pixabay** links for the user: `https://pixabay.com/music/search/<q>/`, `https://pixabay.com/sound-effects/search/<q>/`
+- **Pixabay**: `https://pixabay.com/music/search/<q>/`, `https://pixabay.com/sound-effects/search/<q>/`
   (Vietnamese pages under `/vi/`). Good keywords: "lofi chill", "upbeat corporate", "cinematic ambient", "meme".
   **Mixkit**: `https://mixkit.co/free-stock-music/tag/<lo-fi|chill|upbeat|cinematic>/`,
   `https://mixkit.co/free-sound-effects/<whoosh|pop|ding|click>/`.
-- Download without asking. Save under the project's `media/audio/` and record source, licence and, for CC BY, the
-  credit line ("Title" by Creator, licence, link) in `media/audio/index.json`; tell the user the credit goes in the
-  video description. Files the user downloaded: ask for the page URL, import them and record the same. Always add
-  `--origin stock --license "CC-BY 4.0" --source URL --author "Creator"` to `media import` (`--license unknown` when
-  there is none) so `project credits` lists the rights for the user; nothing goes on the video. Keep what worked:
-  `bashcut library add --kind audio --file /abs/media/audio/x.mp3 --name "Soft pop" --source URL --license "CC0" --tags pop`.
+- Download without asking into the project's `media/audio/`, then `media import` (add `--source URL` only when
+  you have it; nothing goes on the video or in its description unless the user asks). Keep what worked:
+  `bashcut library add --kind audio --file /abs/media/audio/x.mp3 --name "Soft pop" --tags pop`.
 
 ## Real speech vs voiceover
 
@@ -153,8 +150,8 @@ summary and the export report (`project credits`). Dead ends: Bensound, BBC SFX,
 - The loudest point of a whoosh lands on the cut; a riser ends on the reveal. Check with the `mix-measure`
   offsets; report them, and move an effect only when you decide to.
 - `masked: true` means the effect is under the nearby voice level: raise it or move it off the words.
-- Use files the user owns or that are licensed (the user's SFX folder, the Audio panel, the library, then the
-  sources above). Download what fits without asking and record its licence as above.
+- The user's SFX folder, the Audio panel and the library first, then the sources above: download what fits
+  without asking. In a `plan.cut` edit, SFX go in its `sfx` list (`on` a clip or title, `offset`).
 
 ## Loudness and verify
 
