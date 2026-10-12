@@ -33,8 +33,10 @@ bashcut audio measure --media ID --curve   # job: one file (a music candidate, a
 ```
 
 `audio mix-measure` returns `voice`, `musicUnderSpeech` (voice minus music, LU) and `musicInGaps`, each as
-`{median, p10, p90, blocks}`, the same per `speechWindows`, and per sound effect `loudness`, `peakDb`,
-`voiceP95` nearby, `deltaDb`, `masked` and onset/peak offsets in frames to the nearest cut, beat and word edge.
+`{median, p10, p90, blocks}`, the same per `speechWindows`, and per sound effect `loudness`, `peakDb`, the voice at
+that moment (`voiceDuring`, `voicePeakDb`) with `overVoiceDb` and `peakOverVoiceDb`, `voiceP95` nearby with
+`deltaDb`, `sharedWith` (effects measured together) and onset/peak offsets in frames to the nearest cut, beat and
+word edge.
 Read it before touching any level, decide against the ranges below, change the **ratio** (music `volumeDb`, duck
 depth, keyframes), never the master, then measure again (T11 §4). A ducking setting is not the result: a quiet
 take can get almost no ducking from the same setting (open-edit, T11 §2), so judge `musicUnderSpeech`, not
@@ -149,7 +151,10 @@ handles rights. Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
   labels, ding on a final number, hit on the shocking line. Never the same whoosh on every cut.
 - The loudest point of a whoosh lands on the cut; a riser ends on the reveal. Check with the `mix-measure`
   offsets; report them, and move an effect only when you decide to.
-- `masked: true` means the effect is under the nearby voice level: raise it or move it off the words.
+- Judge an effect against the voice at the same moment: `peakOverVoiceDb` for short hits, pops and whooshes
+  (400 ms loudness reads a 0.2 s effect several dB low, so `overVoiceDb` alone makes every short effect look
+  buried), `overVoiceDb` for longer beds and risers. An effect far under both is lost: raise it or move it off the
+  words. `sharedWith` effects are measured together; judge them as one.
 - The user's SFX folder, the Audio panel and the library first, then the sources above: download what fits
   without asking. In a `plan.cut` edit, SFX go in its `sfx` list (`on` a clip or title, `offset`).
 

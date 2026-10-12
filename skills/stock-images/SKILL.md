@@ -35,8 +35,9 @@ bashcut library add --kind sticker --name "Clay pot" --file /abs/media/stock/x.j
 
 ## 3. Place
 
-- **No credits** on the video or in its description unless the user asks; then import with `--origin stock
-  --license … --source URL --author "Name"` (a second `media import` adds them to a file already in) and write the
+- **No credits** on the video or in its description unless the user asks; then import with `--origin stock` (or
+  `--origin web` for a file taken from someone's own page, such as a CC BY clip) `--license … --source URL --author
+  "Name"` (a second `media import` adds them to a file already in) and write the
   lines from `project credits`.
 - **Stock video** imports like any clip: `media import /abs/media/stock/x.mp4 --base-rev N`, then `media place`
   on the main layer (it replaces a moment) or an overlay layer (it illustrates one).
