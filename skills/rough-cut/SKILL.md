@@ -26,6 +26,10 @@ generous on the first pass and tighten later: a discarded moment is slow to find
    (demonstrations, sport: the transcript is weak evidence, use the survey's descriptions).
 4. Read the brief and plan (`project data brief`, `project data plan`): the length range, the outputs and the
    sections decide what is worth keeping.
+5. Take the survey's recording cues (`bc:footage-survey`, hygiene checklist): no range starts, ends or runs across a
+   cue; after "cut that", "take two" or "làm lại" the dead take is not a candidate. Between two takes of a line
+   (`[again T]` in `media digest`, `alternatives` from `resolve-range`) the later one wins unless you looked and the
+   earlier is better; say which in the select's reason.
 
 ## The select-by-quote loop
 
