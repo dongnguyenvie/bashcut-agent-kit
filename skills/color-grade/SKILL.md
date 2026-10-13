@@ -65,13 +65,29 @@ which of these readings matter, never into fixed numbers.
 
 ## 3. Candidates
 
-Pick a look as an intent, then pick a strength:
+**Default: one sheet, one pick.** Turn the intent into a target, then let the scripts rank, check and draw:
+
+```sh
+uv run "<skill_dir>/fetch_luts.py"      # once per Mac (setup, or a new --folder of your LUTs): prints one line
+uv run "<skill_dir>/grade.py" candidates --target warm,film [/abs/clip.mp4 | MEDIA_ID ...]   # sheet path + 1 line each
+uv run "<skill_dir>/grade.py" candidates --pick 3 --strength 0.7   # luts import + adjustment add over the edit
+```
+
+`--target`: tags (warm, cool, teal-orange, matte, film, bw, vivid, muted, punchy, soft, bright, dark, moody,
+clean, green), a look name below, or a `bc:style-study` profile JSON. It ranks the LUT library (log LUTs only with
+`--log`), tries the best on 3 frames (brightest, darkest, most skin), drops damage past `--max-clip` (default 1 %
+of detailed pixels; 0.5–2 seen), `--max-crush` (2 %; 1–3) and `--max-skin` (8°; 5–12), and adds `--gen` 3 looks
+below fitted to the footage. Look at the sheet once, pick a number (`N@frame:duration` for a range). Picks and
+skips are remembered per recipe (`--for` another key) and move the ranking. Never read a LUT list or `.cube`.
+
+Looks to name as a target, or to generate yourself:
 
 | Look | Use for | Fitted reference (`looks.json`) |
 |---|---|---|
 | `matte-cinematic` | default cinematic: street, daytime, travel | black ~7, white ~84, sat ~28; teal shadows, peach highlights, greens to olive, skin protected |
 | `warm-film` | warm indoor light, late afternoon, personal stories | deep blacks (~2.6), highlights ~66–76, sat ~29, warm mids |
 | `faded-memory` | hook, flashback or emotional low point, then back to colour | near black-and-white, lifted blacks |
+| `teal-orange`, `clean-bright`, `moody-green`, `bw`, `film-print` | blockbuster/travel; food, product, tutorial; forest, rain, night; drama; narrative | set by hand, not fitted (`grade.py looks`) |
 
 Also `bashcut library list --kind look`: project, this Mac, plugin and built-in looks (`bright-airy`, `moody`, …).
 
@@ -83,7 +99,7 @@ Also `bashcut library list --kind look`: project, this Mac, plugin and built-in 
   instead of pushing the grade until skin breaks.
 - A matte look lifts pure black backgrounds to dark grey; use another look over those ranges if true black matters.
 
-### Generated looks (`grade.py`)
+### Generated looks by hand (`grade.py`, when the sheet has nothing close)
 
 ```sh
 G="<skill_dir>/grade.py"           # the folder this SKILL.md is in; run with uv (installs numpy + Pillow)
