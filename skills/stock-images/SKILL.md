@@ -14,13 +14,19 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
 ## 1. Search
 
-- **One script** (Pixabay or Pexels, photos or video): `uv run <skill_dir>/fetch_stock.py --query "<q>" [--kind
-  video] [--orientation portrait|landscape|square]` prints one line per candidate (id, size, seconds, tags,
-  preview, page). Look at the previews you might use, then `--ids 123,456 --dest <project>/media/stock [--import]`
-  downloads those (video: the smallest rendition with a short side ≥ 1080 px) and prints file, licence, author,
-  page and media ID. Keys come from the environment only: `PIXABAY_API_KEY` (free, pixabay.com/api/docs, 100
-  requests/min) or `PEXELS_API_KEY` (free, pexels.com/api, 200/hour); `--source` picks one. Pixabay searches best
-  in English; Pexels takes Vietnamese. Never place a Pixabay URL: download it (its API terms).
+- **Library first**: `bashcut library list --kind clip --query <words>`; reuse what fits before fetching.
+- **Candidates for every stock row at once** (the `plan.visuals` rows that need stock): `slots.json`
+  `[{"slot": "pot", "query": "clay pot", "kind": "photo", "orientation": "portrait", "count": 8}, …]`, then
+  `uv run <skill_dir>/fetch_stock.py --slots slots.json --dest <project>/media/stock --max-mb <cap>` downloads all,
+  saves them to the library and draws numbered sheets (`sheet-N.jpg`, ~6 slots each; a video tile shows its frames). One
+  look per sheet, then `--pick "pot=3@120;river=2@300:90"` places candidate n at a frame (:length); a bare n prints
+  its ID. Ranges (tune): ≤ 30 s 4–8 slots × 6–8; 30–90 s 8–16 × 6–10; 1.5–5 min 16–40 × 6–10; longer 6–10 slots a
+  minute × 5–8; video cap ~150 MB a minute. One lookup: `--query "<q>"` lists, `--ids 1,2 --dest … [--import]` gets.
+- **Sources** (`--source`; default the first with a key, else `free`): `pexels`, `pixabay` (free keys
+  `PEXELS_API_KEY`, `PIXABAY_API_KEY`, environment only; the only vertical stock video; Pexels takes Vietnamese),
+  `free` = Wikimedia + Openverse photos (licence per file), `nasa` (space, science; public domain). No video key:
+  say so, use stills with motion. Never place a Pixabay URL. Documentary by hand: Internet Archive
+  `advancedsearch.php?q=<q>+AND+mediatype:movies&output=json`; read titles first, files are large.
 - **No key** is not a reason to skip: open `https://www.pexels.com/search/<q>/?orientation=portrait` (videos:
   `/search/videos/<q>/`) in a browser tool, read each result's link and alt text, and look at the thumbnails
   before choosing. Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:
