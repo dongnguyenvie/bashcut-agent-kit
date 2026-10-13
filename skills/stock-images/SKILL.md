@@ -31,9 +31,20 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
   Slots come from the `plan.visuals` rows that need stock. One quick lookup: `--query "<q>"` lists candidates
   (id, size, seconds, tags, preview, page), `--ids 123,456 --dest <project>/media/stock [--import]` downloads those
-  (video: the smallest rendition with a short side ≥ 1080 px). Keys come from the environment only: `PIXABAY_API_KEY` (free, pixabay.com/api/docs, 100
-  requests/min) or `PEXELS_API_KEY` (free, pexels.com/api, 200/hour); `--source` picks one. Pixabay searches best
-  in English; Pexels takes Vietnamese. Never place a Pixabay URL: download it (its API terms).
+  (video: the smallest rendition with a short side ≥ 1080 px). Never place a Pixabay URL: download it (its API terms).
+- **Sources** (`--source`; default: the first with a key, else `free`):
+
+  | Source | Key | Best for |
+  |---|---|---|
+  | `pexels`, `pixabay` | `PEXELS_API_KEY` (free, 200/h), `PIXABAY_API_KEY` (free, 100/min), environment only | modern stock photos and **vertical video**; Pexels takes Vietnamese, Pixabay English |
+  | `free` = `wikimedia` + `openverse` | none | real places, food, culture; Wikimedia files are full size (CC0 / CC BY / CC BY-SA per file), Openverse adds Flickr |
+  | `nasa` | none | space and science photos and video, public domain |
+
+  Without a video key there is no general stock video: say so, and use stills with motion instead.
+  By hand, no key, for documentary: public-domain film from the Internet Archive
+  (`https://archive.org/advancedsearch.php?q=<q>+AND+mediatype:movies&fl[]=identifier,title&output=json`, files at
+  `https://archive.org/metadata/<id>`, download `https://archive.org/download/<id>/<file>.mp4`); its search is loose:
+  read the titles before downloading (files are often hundreds of MB).
 - **No key** is not a reason to skip: open `https://www.pexels.com/search/<q>/?orientation=portrait` (videos:
   `/search/videos/<q>/`) in a browser tool, read each result's link and alt text, and look at the thumbnails
   before choosing. Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:

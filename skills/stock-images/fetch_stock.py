@@ -9,7 +9,9 @@
     uv run fetch_stock.py --source pixabay --kind video --ids 12345,67890 --dest /abs/project/media/stock [--import]
 
 Keys come from the environment only: PIXABAY_API_KEY (pixabay.com/api/docs), PEXELS_API_KEY (pexels.com/api).
-Without --source, the first source with a key is used. A search prints one compact JSON line per candidate
+Without --source, the first source with a key is used; with no key, photos come from Wikimedia Commons and
+Openverse together (--source free; each picture has its own licence). --source nasa: space and science photos and
+video, public domain, no key. A search prints one compact JSON line per candidate
 (id, size, seconds, tags, preview, page): look at the previews and choose. --ids downloads those (photos about
 1080 px on the short side, video the smallest rendition at least --min-short pixels) and prints file, licence,
 author and page per file. With --import, `bashcut media import DEST --base-rev last` adds them and each line gets
@@ -41,6 +43,10 @@ from pathlib import Path
 AGENT = "Mozilla/5.0 (Macintosh) bashcut-agent-kit"
 KEYS = {"pixabay": "PIXABAY_API_KEY", "pexels": "PEXELS_API_KEY"}
 LICENCE = {"pixabay": "Pixabay Content License", "pexels": "Pexels License"}
+# No key: Openverse (Flickr and other open collections; photos), Wikimedia Commons (full-size photos, CC0/CC BY/
+# CC BY-SA per file), NASA (photos and video, public domain); "free" mixes Wikimedia and Openverse candidates.
+SOURCES = [*KEYS, "free", "wikimedia", "openverse", "nasa"]
+KEYLESS_PHOTO = ("free", "wikimedia", "openverse", "nasa")
 
 
 def get(url, headers=None, timeout=30):
@@ -58,7 +64,14 @@ def get_json(url, headers=None):
     return json.loads(get(url, headers))
 
 
-def pick_source(name):
+def pick_source(name, kind="photo"):
+    if name == "nasa":
+        return name
+    if name in KEYLESS_PHOTO or (name is None and kind == "photo" and not any(os.environ.get(k) for k in KEYS.values())):
+        if kind != "photo":
+            sys.exit(f"{name or 'free'} has photos only: export PEXELS_API_KEY or PIXABAY_API_KEY (free) for "
+                     "video, or --source nasa (space and science)")
+        return name or "free"
     if name:
         if not os.environ.get(KEYS[name]):
             sys.exit(f"{KEYS[name]} is not set: get a free key ({name}) and export it")
@@ -153,8 +166,144 @@ def pexels_by_id(item_id, kind, min_short):
     return pexels_row(get_json(base + urllib.parse.quote(item_id), pexels_headers()), kind, min_short)
 
 
-SEARCH = {"pixabay": pixabay_search, "pexels": pexels_search}
-BY_ID = {"pixabay": pixabay_by_id, "pexels": pexels_by_id}
+# Openverse: no key; each picture keeps its own licence (CC0, CC BY, some NonCommercial) and creator.
+def openverse_row(item, kind, min_short):
+    licence = " ".join(x for x in ("CC", (item.get("license") or "").upper(), item.get("license_version")) if x)
+    return {"id": str(item["id"]), "source": "openverse", "kind": "photo", "page": item.get("foreign_landing_url"),
+            "author": item.get("creator"), "tags": (item.get("title") or "")[:80],
+            "license": "CC0" if item.get("license") == "cc0" else licence,
+            "size": f"{item.get('width')}x{item.get('height')}", "preview": item.get("thumbnail"), "url": item.get("url")}
+
+
+def openverse_search(query, kind, orientation, count, min_short):
+    params = {"q": query, "page_size": max(1, min(count, 50)), "mature": "false"}
+    shape = {"portrait": "tall", "landscape": "wide", "square": "square"}.get(orientation)
+    if shape:
+        params["aspect_ratio"] = shape
+    data = get_json("https://api.openverse.org/v1/images/?" + urllib.parse.urlencode(params))
+    return [openverse_row(item, kind, min_short) for item in data.get("results", []) if item.get("url")][:count]
+
+
+def openverse_by_id(item_id, kind, min_short):
+    return openverse_row(get_json(f"https://api.openverse.org/v1/images/{urllib.parse.quote(item_id)}/"), kind, min_short)
+
+
+def plain(html):
+    return re.sub(r"<[^>]+>", "", html or "").strip()[:60]
+
+
+def wikimedia_row(page, kind, min_short):
+    info = (page.get("imageinfo") or [{}])[0]
+    meta = info.get("extmetadata") or {}
+    width, height = info.get("width") or 0, info.get("height") or 0
+    return {"id": str(page.get("pageid")), "source": "wikimedia", "kind": "photo",
+            "page": info.get("descriptionurl"), "author": plain((meta.get("Artist") or {}).get("value")),
+            "tags": re.sub(r"^File:|\.\w+$", "", page.get("title") or "")[:80],
+            "license": plain((meta.get("LicenseShortName") or {}).get("value")), "size": f"{width}x{height}",
+            "preview": info.get("thumburl"), "url": info.get("thumburl") or info.get("url"),
+            "_shape": width / height if height else 1}
+
+
+def wikimedia_query(params):
+    base = {"action": "query", "format": "json", "prop": "imageinfo", "iiprop": "url|size|extmetadata",
+            "iiurlwidth": 1440, "iiextmetadatafilter": "LicenseShortName|Artist"}
+    data = get_json("https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode({**base, **params}))
+    pages = sorted((data.get("query") or {}).get("pages", {}).values(), key=lambda p: p.get("index", 0))
+    return [p for p in pages if (p.get("imageinfo") or [{}])[0].get("mime", "image/jpeg") != "image/svg+xml"]
+
+
+def shape_ok(shape, orientation):
+    return {"portrait": shape < 0.9, "landscape": shape > 1.1, "square": 0.9 <= shape <= 1.1}.get(orientation, True)
+
+
+def wikimedia_search(query, kind, orientation, count, min_short):
+    pages = wikimedia_query({"generator": "search", "gsrnamespace": 6, "gsrlimit": min(50, count * 4),
+                             "gsrsearch": f"{query} filetype:bitmap"})
+    rows = [wikimedia_row(p, kind, min_short) for p in pages]
+    rows = [r for r in rows if r["url"] and shape_ok(r.pop("_shape"), orientation)]
+    return rows[:count]
+
+
+def wikimedia_by_id(item_id, kind, min_short):
+    pages = wikimedia_query({"pageids": item_id})
+    if not pages:
+        return None
+    row = wikimedia_row(pages[0], kind, min_short)
+    row.pop("_shape")
+    return row
+
+
+NASA_RENDITIONS = {"video": ("~large.mp4", "~orig.mp4", "~medium.mp4", "~mobile.mp4", ".mp4"),
+                   "photo": ("~large.jpg", "~orig.jpg", "~medium.jpg", ".jpg")}
+
+
+def nasa_files(href, kind):
+    """A NASA item's collection.json: the large rendition (about 1080p video, about 2000 px photo), else the next."""
+    files = json.loads(get(href.replace(" ", "%20")))
+    for suffix in NASA_RENDITIONS["video" if kind == "video" else "photo"]:
+        for url in files:
+            if url.lower().endswith(suffix):
+                return url.replace("http://", "https://").replace(" ", "%20")
+    return None
+
+
+def nasa_row(item, kind, min_short):
+    data = (item.get("data") or [{}])[0]
+    previews = [link.get("href") for link in item.get("links", []) if link.get("render") == "image"]
+    return {"id": data.get("nasa_id"), "source": "nasa", "kind": kind, "tags": (data.get("title") or "")[:80],
+            "author": data.get("photographer") or data.get("center"), "license": "NASA media (public domain)",
+            "page": f"https://images.nasa.gov/details/{urllib.parse.quote(data.get('nasa_id') or '')}",
+            "preview": previews[0].replace(" ", "%20") if previews else None, "collection": item.get("href")}
+
+
+def nasa_search(query, kind, orientation, count, min_short):
+    params = {"q": query, "media_type": "video" if kind == "video" else "image", "page_size": max(5, count)}
+    items = get_json("https://images-api.nasa.gov/search?" + urllib.parse.urlencode(params))
+    rows = [nasa_row(item, kind, min_short) for item in items.get("collection", {}).get("items", [])][:count]
+
+    def resolve(row):
+        try:
+            row["url"] = nasa_files(row.pop("collection"), kind)
+        except (OSError, ValueError):
+            row["url"] = None
+        return row
+
+    with concurrent.futures.ThreadPoolExecutor(6) as pool:
+        return [r for r in pool.map(resolve, rows) if r["url"]]
+
+
+def nasa_by_id(item_id, kind, min_short):
+    items = get_json("https://images-api.nasa.gov/search?" + urllib.parse.urlencode({"nasa_id": item_id}))
+    found = items.get("collection", {}).get("items", [])
+    if not found:
+        return None
+    row = nasa_row(found[0], kind, min_short)
+    row["url"] = nasa_files(row.pop("collection"), kind)
+    return row
+
+
+def free_search(query, kind, orientation, count, min_short):
+    """Wikimedia and Openverse candidates interleaved: two collections give more variety than one."""
+    halves = []
+    for search in (wikimedia_search, openverse_search):
+        try:
+            halves.append(search(query, kind, orientation, count, min_short))
+        except (OSError, ValueError):
+            halves.append([])
+    mixed = [row for pair in zip(*halves) for row in pair]
+    longer = max(halves, key=len)
+    mixed += longer[len(min(halves, key=len)):]
+    return mixed[:count]
+
+
+def free_by_id(item_id, kind, min_short):
+    return (openverse_by_id if "-" in item_id else wikimedia_by_id)(item_id, kind, min_short)
+
+
+SEARCH = {"pixabay": pixabay_search, "pexels": pexels_search, "openverse": openverse_search,
+          "wikimedia": wikimedia_search, "nasa": nasa_search, "free": free_search}
+BY_ID = {"pixabay": pixabay_by_id, "pexels": pexels_by_id, "openverse": openverse_by_id,
+         "wikimedia": wikimedia_by_id, "nasa": nasa_by_id, "free": free_by_id}
 
 
 def slug(text):
@@ -163,7 +312,7 @@ def slug(text):
 
 def file_name(row):
     suffix = ".mp4" if row["kind"] == "video" else (Path(urllib.parse.urlparse(row["url"]).path).suffix or ".jpg")
-    return f"{row['source']}-{row['id']}-{slug(row.get('tags') or row.get('words'))}{suffix}"
+    return f"{row['source']}-{slug(str(row['id']))}-{slug(row.get('tags') or row.get('words'))}{suffix}"
 
 
 def download(row, dest):
@@ -183,15 +332,22 @@ def import_into(dest, rows):
         row["media"] = ids.get(row.get("file"))
 
 
-def bashcut(*args):
+def bashcut(*args, retry=True):
     try:
         out = subprocess.run(["bashcut", *args], capture_output=True, text=True)
     except FileNotFoundError:
         return {"error": "bashcut is not on PATH"}
     try:
-        return json.loads(out.stdout)
+        result = json.loads(out.stdout or out.stderr)
     except ValueError:
         return {"error": (out.stderr or out.stdout).strip()[:200] or f"bashcut exit {out.returncode}"}
+    error = result.get("error") if isinstance(result, dict) else None
+    if isinstance(error, dict):
+        if retry and (error.get("data") or {}).get("category") == "stale_revision":
+            bashcut("context", "get", retry=False)  # the open project changed: read it, then once more
+            return bashcut(*args, retry=False)
+        result = {**result, "error": error.get("message") or str(error)}
+    return result
 
 
 def library_add(row, dest, scope):
@@ -386,7 +542,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--query", help="search words (Vietnamese works on Pexels; Pixabay is best in English)")
     parser.add_argument("--ids", help="comma-separated IDs from a search to download")
-    parser.add_argument("--source", choices=sorted(KEYS), help="default: the first one with a key")
+    parser.add_argument("--source", choices=SOURCES,
+                        help="default: the first one with a key, else free (Wikimedia + Openverse photos)")
     parser.add_argument("--kind", choices=["photo", "video"], default="photo")
     parser.add_argument("--orientation", choices=["portrait", "landscape", "square", "any"], default="portrait")
     parser.add_argument("--count", type=int, default=10, help="candidates to list")
@@ -412,7 +569,7 @@ def main(argv=None):
             parser.error("--slots needs --dest")
         dest = Path(args.dest)
         dest.mkdir(parents=True, exist_ok=True)
-        rows, capped = gather(read_slots(args), pick_source(args.source), dest, args.max_mb, args.min_short,
+        rows, capped = gather(read_slots(args), pick_source(args.source, read_slots(args)[0]["kind"]), dest, args.max_mb, args.min_short,
                               args.scope, args.library)
         sheets = draw_sheets(rows, dest, max(1, args.sheet_slots))
         (dest / "candidates.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1))
@@ -430,7 +587,7 @@ def main(argv=None):
         parser.error("give --query to search or --ids to download")
     if args.ids and not args.dest:
         parser.error("--ids needs --dest")
-    source = pick_source(args.source)
+    source = pick_source(args.source, args.kind)
     if not args.ids:
         rows = SEARCH[source](args.query, args.kind, args.orientation, args.count, args.min_short)
         if not rows:

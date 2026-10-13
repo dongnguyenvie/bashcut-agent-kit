@@ -74,10 +74,50 @@ class StockTests(unittest.TestCase):
     def setUp(self):
         self.stock = load('stock-images/fetch_stock.py')
 
-    def test_no_key_fails_loudly(self):
+    def test_no_key_fails_loudly_for_a_named_source_or_video(self):
         with mock.patch.dict(os.environ, {}, clear=True), self.assertRaises(SystemExit) as stop:
-            run(self.stock, ['--query', 'pot'])
+            run(self.stock, ['--query', 'pot', '--source', 'pixabay'])
         self.assertIn('PIXABAY_API_KEY', str(stop.exception.code))
+        with mock.patch.dict(os.environ, {}, clear=True), self.assertRaises(SystemExit) as stop:
+            run(self.stock, ['--query', 'pot', '--kind', 'video'])
+        self.assertIn('PEXELS_API_KEY', str(stop.exception.code))
+
+    def test_no_key_photos_come_from_openverse(self):
+        found = {'results': [{'id': 'ab-1', 'url': 'https://live.staticflickr.com/1.jpg', 'width': 1024, 'height': 1536,
+                              'license': 'by', 'license_version': '2.0', 'creator': 'Sam', 'title': 'Three pots',
+                              'thumbnail': 'https://api.openverse.org/t/1', 'foreign_landing_url': 'https://flickr/1'}]}
+        web = FakeWeb([('https://api.openverse.org/v1/images/', found)])
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(self.stock, 'get', web):
+            rows = run(self.stock, ['--query', 'clay pot'])
+        self.assertEqual(web.query('https://api.openverse.org/')['aspect_ratio'], ['tall'])
+        self.assertEqual(rows[0]['license'], 'CC BY 2.0')
+        self.assertEqual(rows[0]['source'], 'openverse')
+
+    def test_wikimedia_keeps_the_orientation_and_the_file_licence(self):
+        def page(i, w, h):
+            return {'pageid': i, 'index': i, 'title': f'File:Pho {i}.jpg', 'imageinfo': [{
+                'width': w, 'height': h, 'thumburl': f'https://upload.wikimedia.org/t/{i}.jpg',
+                'descriptionurl': f'https://commons.wikimedia.org/wiki/File:Pho_{i}.jpg', 'extmetadata': {
+                    'LicenseShortName': {'value': 'CC0'}, 'Artist': {'value': '<a href="x">Ann</a>'}}}]}
+        found = {'query': {'pages': {'1': page(1, 4000, 3000), '2': page(2, 3000, 4000)}}}
+        web = FakeWeb([('https://commons.wikimedia.org/w/api.php', found)])
+        with mock.patch.object(self.stock, 'get', web):
+            rows = run(self.stock, ['--source', 'wikimedia', '--query', 'pho'])
+        self.assertEqual([r['id'] for r in rows], ['2'])  # portrait by default
+        self.assertEqual((rows[0]['license'], rows[0]['author']), ('CC0', 'Ann'))
+        self.assertIn('filetype:bitmap', web.query('https://commons.wikimedia.org/')['gsrsearch'][0])
+
+    def test_nasa_video_takes_the_large_rendition(self):
+        search = {'collection': {'items': [{'href': 'https://images-assets.nasa.gov/video/A 1/collection.json',
+                                            'data': [{'nasa_id': 'A 1', 'title': 'Moon', 'center': 'JSC'}],
+                                            'links': [{'render': 'image', 'href': 'https://x/A 1~thumb.jpg'}]}]}}
+        files = ['http://images-assets.nasa.gov/video/A 1/A 1~orig.mp4', 'http://images-assets.nasa.gov/video/A 1/A 1~large.mp4']
+        web = FakeWeb([('https://images-api.nasa.gov/search', search),
+                       ('https://images-assets.nasa.gov/video/A%201/collection.json', files)])
+        with mock.patch.object(self.stock, 'get', web):
+            rows = run(self.stock, ['--source', 'nasa', '--kind', 'video', '--query', 'moon'])
+        self.assertEqual(rows[0]['url'], 'https://images-assets.nasa.gov/video/A%201/A%201~large.mp4')
+        self.assertEqual(rows[0]['license'], 'NASA media (public domain)')
 
     def test_pixabay_search_uses_the_env_key_and_lists_candidates(self):
         web = FakeWeb([('https://pixabay.com/api/', PIXABAY_PHOTOS)])

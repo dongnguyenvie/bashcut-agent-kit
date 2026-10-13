@@ -194,15 +194,22 @@ def _fetch(candidate):
         return None
 
 
-def bashcut(*args):
+def bashcut(*args, retry=True):
     try:
         out = subprocess.run(["bashcut", *args], capture_output=True, text=True)
     except FileNotFoundError:
         return {"error": "bashcut is not on PATH"}
     try:
-        return json.loads(out.stdout)
+        result = json.loads(out.stdout or out.stderr)
     except ValueError:
         return {"error": (out.stderr or out.stdout).strip()[:200] or f"bashcut exit {out.returncode}"}
+    error = result.get("error") if isinstance(result, dict) else None
+    if isinstance(error, dict):
+        if retry and (error.get("data") or {}).get("category") == "stale_revision":
+            bashcut("context", "get", retry=False)  # the open project changed: read it, then once more
+            return bashcut(*args, retry=False)
+        result = {**result, "error": error.get("message") or str(error)}
+    return result
 
 
 def library_id(result):
