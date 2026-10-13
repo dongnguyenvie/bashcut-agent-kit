@@ -21,6 +21,22 @@ AGENTS = {
         "under 300 words. Use for the draft audit; it never edits.",
         "tools": "Bash, Read",
     },
+    "voice": {
+        "brief": "skills/voiceover/VOICE.md",
+        "description": "Voices a BashCut edit: writes or fixes the plan.cut voiceover lines, synthesizes and checks "
+        "every line in one job, rewords misread lines, and returns per-line take, seconds and similarity in under 200 "
+        "words, so the editor never reads the voiceover skill or a job result. Use from bc:edit-workflow for the "
+        "voiceover stage.",
+        "tools": "Bash, Read, Write",
+    },
+    "graphics": {
+        "brief": "skills/motion-graphics/GRAPHICS.md",
+        "description": "Builds the graphics of a BashCut edit: reads the motion-graphics and graphics plugin skills, "
+        "designs and renders the plan's graphic rows, places them in one build, looks at the landing frames, and "
+        "returns item IDs, spans and problems left in under 200 words, so the editor never reads a graphics skill. "
+        "Use from bc:edit-workflow for the graphics stage.",
+        "tools": "Bash, Read, Write",
+    },
 }
 MODEL = "sonnet"
 

@@ -82,8 +82,10 @@ hooks/hooks.json                  Claude Code hooks (Codex has none): each bc:* 
                                   and the quotes come back after any compaction (after-compact.sh)
 skills/*/SKILL.md                 the skills (Agent Skills format, shared by Claude Code and Codex)
 skills/*/REFERENCE.md             detail a skill reads on demand (kept out of SKILL.md's 250-line limit)
-skills/*/SURVEYOR.md, CRITIC.md   sub-agent briefs (Codex gives them to its own sub-agent)
-agents/*.md                       Claude Code sub-agents bc:surveyor and bc:critic (Sonnet), generated from the briefs
+skills/*/SURVEYOR.md, CRITIC.md,  sub-agent briefs (Codex gives them to its own sub-agent)
+  VOICE.md, GRAPHICS.md
+agents/*.md                       Claude Code sub-agents bc:surveyor, bc:critic, bc:voice and bc:graphics (Sonnet),
+                                  generated from the briefs
 scripts/bashcut-mcp.sh            finds and starts bashcut-mcp
 scripts/install-codex.sh          Codex setup
 skills/*/*.py                     asset and measurement scripts run with `uv run` (stdlib only, keys from the environment)

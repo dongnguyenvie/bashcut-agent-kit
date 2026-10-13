@@ -25,12 +25,12 @@ before music and SFX: changing clip lengths later breaks every sync point.
 | 2 | `story`: options, promise, sections (strategy in 4–8 sentences + section table) | this skill (REFERENCE "Story"), the recipe | **strategy audit**, **G2** |
 | 3 | `rough-cut`: selects by quote, no music, titles or grade | `bc:rough-cut` | **G3 rough-cut sheet** |
 | 4 | `rhythm` | `bc:beat-cut` | — |
-| 5 | `voiceover` (when needed) | `bc:voiceover` | **G4 script**, before speech is made |
+| 5 | `voiceover` (when needed) | agent `bc:voice` | **G4 script**, before speech is made |
 | 5b | `visuals` (added by the plan when words carry the video, `after: "voiceover"`) | `bc:visual-plan` | — |
 | 6 | `sound` | `bc:audio-mix` | — |
 | 7 | `captions` and text | `bc:captions-text` | — |
 | 8 | `colour` | `bc:color-grade` | — |
-| 9 | `effects`, graphics, stock (the rows of `plan.visuals`, else only where a moment needs one) | `bc:effects`, `bc:motion-graphics`, `bc:stock-images` | — |
+| 9 | `effects`, graphics, stock (the rows of `plan.visuals`, else only where a moment needs one) | `bc:effects`, agent `bc:graphics`, `bc:stock-images` | — |
 | 10 | `review` | `bc:review` | **draft audit**, **G5 draft** |
 | 11 | `export` per output | this skill | — |
 | 12 | `learn` | `bc:self-learn`, `bc:library` | **process audit** first |
