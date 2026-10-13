@@ -46,14 +46,12 @@ Same gates and audits; the cut is one list BashCut checks. Target: a 45 s ad in 
 2. **Ask once** (at most 4 questions, REFERENCE "Intake questions"), each led by "AI chọn: …". User away: take your
    choices, write them `inferred` in the brief, never ask later.
 3. **Project and survey, two calls**: `project create --name N --dir D --footage FILE_OR_FOLDER --canvas
-   landscape|portrait|square --fps 30 --language <tag> --import` imports the folder and starts transcription and
-   analysis (result: `media` IDs, `jobs {transcribe, analyze}`). Portrait for TikTok/Reels/Shorts, landscape for
-   YouTube. A file imports only that file. "Unsaved changes" about a project you did not make: `--save-current`. Then the survey sub-agent at
-   once, with media and job IDs (it waits): `bc:surveyor` (Claude Code), else a sub-agent briefed with
-   `<skill_dir>/../footage-survey/SURVEYOR.md`, else that brief yourself. It returns hook candidates and exact
-   quotes with times in under 450 words. **Never print a transcript or digest, never open source frames**; its quotes
-   resolve as they are (a few lines around them: `media transcript --media M --ranges 640:652,1050:1058 --as text
-   --format text`).
+   landscape|portrait|square --fps 30 --language <tag> --import` imports and starts transcription and analysis
+   (result: `media` IDs, `jobs {transcribe, analyze}`). "Unsaved changes" about a project you did not make:
+   `--save-current`. Then the survey sub-agent at once, with media and job IDs (it waits): `bc:surveyor`, else a
+   sub-agent briefed with `<skill_dir>/../footage-survey/SURVEYOR.md`, else that brief yourself. **Never print a
+   transcript or digest, never open source frames**; its quotes resolve as they are (a few lines around them:
+   `media transcript --media M --ranges 640:652,1050:1058 --as text --format text`).
 4. **Brief, plan, sound and review limits in one call**: download any music or SFX first (below), `media import`
    them, then `project format --outputs <preset> --base-rev last` (`youtube-1080`, `shorts`, `reels`, `tiktok`…),
    `project set-data brief brief.json --base-rev last` (fields `{value, status: stated|inferred|confirmed, source}`:
@@ -98,16 +96,19 @@ Same gates and audits; the cut is one list BashCut checks. Target: a 45 s ad in 
    --evidence "…"`, G2 unless skipped (`checkpoint request G2 --summary "…"`), `plan apply --base-rev last --sheet
    --why "…"` (with `--patch` holding the check's fixes: a check saves nothing). It returns the review's errors and
    warnings and the storyboard: look at that one sheet for G3. Every later change is `plan apply --patch …`.
-7. **Only what the plan cannot say**: voiceover (no usable speech, or the brief asks: `bc:voiceover`), colour,
-   effects, a mix `audio mix-measure` finds off.
-8. **Review**: `review run --measure --summary` measures and reviews in one call. Fix a kind of problem for every
-   entry it touches, **in the list** (`plan apply --patch`; never `timeline apply` on plan-built items), with
-   `review run --measure --summary` and `review verify all` in the same call. **Draft audit**: `bc:critic` (else a
-   sub-agent briefed with `<skill_dir>/../review/CRITIC.md`, else `--by self`) builds the packet itself and returns
-   one `plan.cut` patch; give it the project, revision and your suspicions. Never open the packet: in **one call**
-   `run append audit --point draft --by critic …`, `plan apply --patch … --base-rev last`, `review run --measure
-   --summary`, `review verify all`. Positions, sizes and overlaps are measured; open a sheet (`timeline sheet
-   --entries …`) only for what no measurement covers; a second critic look only for an unproven blocker.
+7. **Voice and graphics go to sub-agents** (recipe steps too): with the lines and rows in the
+   plan, `bc:voice`, then `bc:graphics` (else sub-agents briefed with `<skill_dir>/../voiceover/VOICE.md` and
+   `<skill_dir>/../motion-graphics/GRAPHICS.md`, else yourself). Give each the kit folder (`<skill_dir>/..`),
+   project, IDs, facts, look and limits; never read their skills, results or renders. Then only what the plan
+   cannot say: colour, effects, a mix `audio mix-measure` finds off.
+8. **Review**: `review run --measure --summary`. Fix a kind of problem for every entry it touches **in the list**
+   (`plan apply --patch`, never `timeline apply` on plan-built items) with `review run --measure --summary` and
+   `review verify all` in the same call. **Draft audit**: `bc:critic` (else a sub-agent briefed with
+   `<skill_dir>/../review/CRITIC.md`, else `--by self`) builds the packet and returns one `plan.cut` patch; give it
+   the project, revision and your suspicions. Never open the packet: in **one call** `run append audit --point
+   draft --by critic …`, `plan apply --patch … --base-rev last`, `review run --measure --summary`, `review verify
+   all`. A sheet (`timeline sheet --entries …`) only for what no measurement covers; a second critic look only for
+   an unproven blocker.
 9. **Draft**: `export start --preset quick-draft --name draft-v1 --include-srt --normalize-audio --wait --save`,
    then **G5** and the hand-off report (REFERENCE "The hand-off report").
 
@@ -126,8 +127,8 @@ Stage ids: `intake`, `survey`, `story`, `rough-cut`, `rhythm`, `voiceover`, `vis
 writes `intake` (the brief set), `survey` (every media described), `story`, `rough-cut` and `captions` (plan
 apply), `review` (a review run that passes) and `export` (an export that lands). Optional stages you leave out
 need no entry; a stage you do by hand: `run append stage --stage colour --status done --evidence "a;b"` in the call
-that finishes it. As a long stage starts, one call shows it in the user's run panel: `run append stage --stage cut
---text "Cutting 12 shots" --eta 120` (status `started` is the default; skip it for stages that take seconds). Gates (`workflow gates`) are `ask`, `notify` or `skip`; request every one with
+that finishes it. A long stage shows in the user's run panel: `run append stage --stage cut --text "Cutting 12
+shots" --eta 120` (skip it for stages of seconds). Gates (`workflow gates`) are `ask`, `notify` or `skip`; request every one with
 something cheap to look at (`checkpoint request G2 --summary "…" --attach sheet.png`, then `checkpoint status --wait
 100` while `awaiting_user`). Only the user answers a gate. A skipped G2 needs the strategy audit and a skipped G5
 the draft audit; BashCut refuses the rough cut without the recipe read and the strategy audit, and a final export
