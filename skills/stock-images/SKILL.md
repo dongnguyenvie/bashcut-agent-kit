@@ -14,11 +14,24 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
 ## 1. Search
 
-- **One script** (Pixabay or Pexels, photos or video): `uv run <skill_dir>/fetch_stock.py --query "<q>" [--kind
-  video] [--orientation portrait|landscape|square]` prints one line per candidate (id, size, seconds, tags,
-  preview, page). Look at the previews you might use, then `--ids 123,456 --dest <project>/media/stock [--import]`
-  downloads those (video: the smallest rendition with a short side ≥ 1080 px) and prints file, licence, author,
-  page and media ID. Keys come from the environment only: `PIXABAY_API_KEY` (free, pixabay.com/api/docs, 100
+- **One script** (Pixabay or Pexels, photos or video). For an edit, fetch candidates for every stock row at
+  once and choose from one look: write `slots.json` (`[{"slot": "pot", "query": "clay pot", "kind": "photo",
+  "orientation": "portrait", "count": 8}, …]`) and run `uv run <skill_dir>/fetch_stock.py --slots slots.json --dest
+  <project>/media/stock --max-mb <cap>`. It downloads them all, saves them to the project library and draws numbered
+  contact sheets (`sheet-N.jpg`, about 6 slots each). Look at each sheet once, then `bashcut library place ID` the
+  chosen ones (`--pick "pot=3;river=2,5"` prints their IDs and downloads a video left over the cap). The rest stay in
+  the library: next edit, `library list --kind clip --query <words>` first. Sample ranges (tune per video):
+
+  | Video | Slots × candidates | Video cap |
+  |---|---|---|
+  | ≤ 30 s | 4–8 × 6–8 | ~100 MB |
+  | 30–90 s | 8–16 × 6–10 | ~150 MB a minute |
+  | 1.5–5 min | 16–40 × 6–10 | ~150 MB a minute |
+  | > 5 min | 6–10 slots a minute × 5–8 | ~150 MB a minute |
+
+  Slots come from the `plan.visuals` rows that need stock. One quick lookup: `--query "<q>"` lists candidates
+  (id, size, seconds, tags, preview, page), `--ids 123,456 --dest <project>/media/stock [--import]` downloads those
+  (video: the smallest rendition with a short side ≥ 1080 px). Keys come from the environment only: `PIXABAY_API_KEY` (free, pixabay.com/api/docs, 100
   requests/min) or `PEXELS_API_KEY` (free, pexels.com/api, 200/hour); `--source` picks one. Pixabay searches best
   in English; Pexels takes Vietnamese. Never place a Pixabay URL: download it (its API terms).
 - **No key** is not a reason to skip: open `https://www.pexels.com/search/<q>/?orientation=portrait` (videos:

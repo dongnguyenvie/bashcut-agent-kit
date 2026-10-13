@@ -198,6 +198,118 @@ class FreesoundTests(unittest.TestCase):
         self.assertEqual(rows[0]['error'], 'FREESOUND_API_KEY is not set')
 
 
+def jpeg(color=(200, 80, 40)):
+    from PIL import Image
+    buffer = io.BytesIO()
+    Image.new('RGB', (60, 90), color).save(buffer, 'JPEG')
+    return buffer.getvalue()
+
+
+try:
+    import PIL  # noqa: F401  (the scripts get Pillow from uv; skip sheets where the test Python lacks it)
+except ImportError:
+    PIL = None
+
+
+class FakeBashCut:
+    """Answers bashcut(*args): library add gives lib-N, analyze gives job-N, jobs status the measured values."""
+
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, *args):
+        self.calls.append(args)
+        if args[:2] == ('library', 'add'):
+            return {'item': {'reference': f'project:lib-{len(self.adds)}', 'id': f'lib-{len(self.adds)}'}}
+        if args[:2] == ('jobs', 'wait'):
+            return {}
+        if args[:2] == ('library', 'analyze'):
+            return {'job': 'job-' + args[2].split('-')[-1]}
+        if args[:2] == ('jobs', 'status'):
+            n = int(args[2].split('-')[-1])
+            return {'state': 'completed', 'finishedAt': 'now', 'result': {'measured': {
+                'seconds': 1.0 + n, 'lufs': -20.0 - n, 'truePeak': -1.5, 'landmarks': {'onset': 0.02, 'peak': 0.1}}}}
+        return {}
+
+    @property
+    def adds(self):
+        return [c for c in self.calls if c[:2] == ('library', 'add')]
+
+
+PEXELS_SEARCH = {'photos': [
+    {'id': 100 + i, 'url': f'https://www.pexels.com/photo/p-{100 + i}/', 'photographer': 'Di', 'alt': f'pot {i}',
+     'width': 1080, 'height': 1920, 'src': {'original': f'https://images.pexels.com/{100 + i}.jpeg',
+                                            'tiny': f'https://images.pexels.com/{100 + i}-t.jpeg'}}
+    for i in range(5)]}
+
+
+class CandidateTests(unittest.TestCase):
+    def setUp(self):
+        self.audio = load('audio-mix/fetch_audio.py')
+        self.stock = load('stock-images/fetch_stock.py')
+
+    def test_sfx_candidates_are_numbered_saved_to_the_library_and_tabled(self):
+        results = {'results': [
+            {'id': i, 'name': f'Whoosh {i}', 'username': 'dee', 'duration': 1.0, 'license': 'cc0',
+             'url': f'https://freesound.org/s/{i}/',
+             'previews': {'preview-hq-mp3': f'https://cdn.freesound.org/{i}.mp3'}} for i in range(1, 5)]}
+        web = FakeWeb([('https://freesound.org/apiv2/search/', results),
+                       ('https://cdn.freesound.org/2.mp3', OSError('curl exit 22')),  # a dead link
+                       ('https://cdn.freesound.org/', b'mp3')])
+        fake = FakeBashCut()
+        out = io.StringIO()
+        with tempfile.TemporaryDirectory() as folder, \
+                mock.patch.dict(os.environ, {'FREESOUND_API_KEY': 'k'}, clear=True), \
+                mock.patch.object(self.audio, 'get', web), mock.patch.object(self.audio, 'bashcut', fake), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            self.audio.main(['--dest', folder, '--sfx', 'whoosh', '--sfx-count', '3'])
+            files = sorted(p.name for p in Path(folder).glob('*.mp3'))
+            manifest = json.loads((Path(folder) / 'candidates.json').read_text())
+        self.assertEqual(files, ['sfx-whoosh-1.mp3', 'sfx-whoosh-2.mp3', 'sfx-whoosh-3.mp3'])
+        self.assertEqual([r['title'] for r in manifest], ['Whoosh 1', 'Whoosh 3', 'Whoosh 4'])
+        self.assertEqual(len(fake.adds), 3)
+        self.assertIn('sfx,whoosh,whoosh', fake.adds[0])
+        lines = out.getvalue().splitlines()
+        self.assertTrue(lines[0].startswith('slot\tn\tsec\tLUFS'))
+        self.assertEqual(lines[1].split('\t')[:5], ['whoosh', '1', '2.0', '-21.0', '-1.5'])
+        self.assertEqual(lines[1].split('\t')[9], 'project:lib-1')
+
+    def test_slots_file_and_download_cap(self):
+        results = {'results': [{'id': i, 'name': f'Pop {i}', 'duration': 0.5,
+                                'previews': {'preview-hq-mp3': f'https://cdn.freesound.org/{i}.mp3'}}
+                               for i in range(1, 9)]}
+        web = FakeWeb([('https://freesound.org/apiv2/search/', results), ('https://cdn.freesound.org/', b'x' * 600_000)])
+        out = io.StringIO()
+        with tempfile.TemporaryDirectory() as folder, \
+                mock.patch.dict(os.environ, {'FREESOUND_API_KEY': 'k'}, clear=True), \
+                mock.patch.object(self.audio, 'get', web), contextlib.redirect_stdout(out):
+            slots = Path(folder) / 'slots.json'
+            slots.write_text(json.dumps([{'slot': 'cut', 'sfx': 'pop', 'count': 2},
+                                         {'slot': 'card', 'sfx': 'pop', 'count': 4}]))
+            self.audio.main(['--dest', folder, '--slots', str(slots), '--max-mb', '2', '--no-library'])
+            files = sorted(p.name for p in Path(folder).glob('*.mp3'))
+        self.assertEqual(files, ['sfx-pop-1.mp3', 'sfx-pop-2.mp3', 'sfx-pop-3.mp3', 'sfx-pop-4.mp3'])
+        self.assertIn('download cap of 2 MB reached', out.getvalue())
+        downloads = [u for u, _ in web.calls if u.startswith('https://cdn.')]
+        self.assertEqual(len(downloads), len(set(downloads)))  # the second slot skips the first slot's files
+
+    @unittest.skipIf(PIL is None, 'Pillow not installed')
+    def test_stock_candidates_sheet_library_and_pick(self):
+        web = FakeWeb([('https://api.pexels.com/v1/search', PEXELS_SEARCH), ('https://images.pexels.com/', jpeg())])
+        fake = FakeBashCut()
+        with tempfile.TemporaryDirectory() as folder, \
+                mock.patch.dict(os.environ, {'PEXELS_API_KEY': 'k'}, clear=True), \
+                mock.patch.object(self.stock, 'get', web), mock.patch.object(self.stock, 'bashcut', fake):
+            rows = run(self.stock, ['--source', 'pexels', '--query', 'clay pot', '--candidates', '4', '--dest', folder])
+            self.assertEqual(rows[0], {'slot': 'clay-pot', 'candidates': 4, 'inLibrary': 4})
+            self.assertTrue(Path(rows[1]['sheets'][0]).exists())
+            self.assertEqual(web.query('https://api.pexels.com/')['per_page'], ['4'])
+            picked = run(self.stock, ['--dest', folder, '--pick', 'clay-pot=2,9'])
+        self.assertEqual(picked[0]['id'], 'project:lib-2')
+        self.assertEqual(picked[1], {'slot': 'clay-pot', 'n': 9, 'error': 'no such candidate'})
+        self.assertEqual(len(fake.adds), 4)  # pick reuses the saved item
+
+
 FONT_META = {'id': 'be-vietnam-pro', 'family': 'Be Vietnam Pro', 'weights': [400, 600, 800],
              'subsets': ['latin', 'vietnamese'], 'license': 'OFL-1.1', 'type': 'google'}
 GOOGLE_LIST = b")]}'\n" + json.dumps({'manifest': {'fileRefs': [
