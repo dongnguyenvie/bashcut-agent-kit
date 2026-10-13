@@ -11,8 +11,11 @@
 Keys come from the environment only: PIXABAY_API_KEY (pixabay.com/api/docs), PEXELS_API_KEY (pexels.com/api).
 Without --source, the first source with a key is used; with no key, photos come from Wikimedia Commons and
 Openverse together (--source free; each picture has its own licence). --source nasa: space and science photos and
-video, public domain, no key. A search prints one compact JSON line per candidate
-(id, size, seconds, tags, preview, page): look at the previews and choose. --ids downloads those (photos about
+video, public domain, no key. --source archive: Internet Archive photos and footage (documentary, newsreels, home
+movies), no key, --year 1960-1975 (or a slot's "year") and --public-domain narrow it; --source documentary mixes
+archive with Wikimedia and Openverse photos (video: archive). Archive video is slow to fetch (~0.3 MB/s): its tile
+shows 3 of its thumbnails and the file comes at --pick (largest MP4 within --file-mb). A search prints one compact
+JSON line per candidate (id, size, seconds, tags, preview, page): look at the previews and choose. --ids downloads those (photos about
 1080 px on the short side, video the smallest rendition at least --min-short pixels) and prints file, licence,
 author and page per file. With --import, `bashcut media import DEST --base-rev last` adds them and each line gets
 its media ID. Pixabay asks that results are cached, not hotlinked: download, never place a URL.
@@ -45,8 +48,11 @@ KEYS = {"pixabay": "PIXABAY_API_KEY", "pexels": "PEXELS_API_KEY"}
 LICENCE = {"pixabay": "Pixabay Content License", "pexels": "Pexels License"}
 # No key: Openverse (Flickr and other open collections; photos), Wikimedia Commons (full-size photos, CC0/CC BY/
 # CC BY-SA per file), NASA (photos and video, public domain); "free" mixes Wikimedia and Openverse candidates.
-SOURCES = [*KEYS, "free", "wikimedia", "openverse", "nasa"]
+SOURCES = [*KEYS, "free", "wikimedia", "openverse", "nasa", "archive", "documentary"]
 KEYLESS_PHOTO = ("free", "wikimedia", "openverse", "nasa")
+KEYLESS_ANY = ("nasa", "archive", "documentary")
+# Internet Archive options, set from the command line: years "1960-1975", public domain only, largest video file (MB).
+ARCHIVE = {"years": None, "public_domain": False, "file_mb": 40}
 
 
 def get(url, headers=None, timeout=30):
@@ -65,12 +71,12 @@ def get_json(url, headers=None):
 
 
 def pick_source(name, kind="photo"):
-    if name == "nasa":
+    if name in KEYLESS_ANY:
         return name
     if name in KEYLESS_PHOTO or (name is None and kind == "photo" and not any(os.environ.get(k) for k in KEYS.values())):
         if kind != "photo":
             sys.exit(f"{name or 'free'} has photos only: export PEXELS_API_KEY or PIXABAY_API_KEY (free) for "
-                     "video, or --source nasa (space and science)")
+                     "video, or --source nasa (space and science) or archive (documentary footage)")
         return name or "free"
     if name:
         if not os.environ.get(KEYS[name]):
@@ -282,28 +288,145 @@ def nasa_by_id(item_id, kind, min_short):
     return row
 
 
-def free_search(query, kind, orientation, count, min_short):
-    """Wikimedia and Openverse candidates interleaved: two collections give more variety than one."""
-    halves = []
-    for search in (wikimedia_search, openverse_search):
+def year_range(text):
+    """"1960-1975" or "1969" → (1960, 1975); None for none."""
+    found = re.findall(r"\d{3,4}", str(text or ""))
+    return (int(found[0]), int(found[-1])) if found else None
+
+
+def archive_query(query, kind, years=None):
+    q = f"({query}) AND mediatype:({'movies' if kind == 'video' else 'image'})"
+    span = year_range(years or ARCHIVE["years"])
+    if span:
+        q += f" AND year:[{span[0]} TO {span[1]}]"
+    if ARCHIVE["public_domain"]:
+        q += " AND (licenseurl:*publicdomain* OR licenseurl:*zero*)"
+    return q
+
+
+def archive_seconds(value):
+    try:
+        parts = [float(p) for p in str(value).split(":")]
+    except ValueError:
+        return None
+    total = 0.0
+    for p in parts:
+        total = total * 60 + p
+    return round(total, 1)
+
+
+def archive_row(doc, kind):
+    ident = doc["identifier"]
+    collections = doc.get("collection") or []
+    collections = [collections] if isinstance(collections, str) else collections
+    creator = doc.get("creator")
+    return {"id": ident, "source": "archive", "kind": kind, "page": f"https://archive.org/details/{ident}",
+            "author": (creator[0] if isinstance(creator, list) else creator) or None,
+            "tags": str(doc.get("title") or ident)[:80], "license": doc.get("licenseurl") or None,
+            "year": doc.get("year") or str(doc.get("date") or "")[:4] or None,
+            "collection": next((c for c in collections if not c.startswith("fav-")), None),
+            "preview": f"https://archive.org/services/img/{ident}"}
+
+
+def archive_files(row, min_short):
+    """The item's best file from its metadata: video, the largest MP4 within ARCHIVE["file_mb"] (else the smallest),
+    with 3 of its thumbnails as tile frames, downloaded only when picked (the archive serves about 0.3 MB/s); photo,
+    the largest JPEG or PNG under 12 MB."""
+    meta = get_json(f"https://archive.org/metadata/{urllib.parse.quote(row['id'])}")
+    if (meta.get("metadata") or {}).get("access-restricted-item"):
+        return None
+    files = [f for f in meta.get("files") or [] if str(f.get("private")) != "true"]
+    base = f"https://archive.org/download/{urllib.parse.quote(row['id'])}/"
+    size = lambda f: int(f.get("size") or 0)  # noqa: E731
+    if row["kind"] == "video":
+        mp4 = [f for f in files if f.get("name", "").lower().endswith(".mp4") and size(f)]
+        if not mp4:
+            return None
+        fits = [f for f in mp4 if size(f) <= ARCHIVE["file_mb"] * 1_000_000]
+        best = max(fits, key=size) if fits else min(mp4, key=size)
+        thumbs = sorted(f["name"] for f in files if ".thumbs/" in f.get("name", ""))
+        if thumbs:
+            row["frames"] = [base + urllib.parse.quote(thumbs[int(len(thumbs) * q)]) for q in (0.25, 0.5, 0.75)]
+        row.update(seconds=archive_seconds(best.get("length")), mb=round(size(best) / 1e6, 1), deferred=True)
+    else:
+        pictures = [f for f in files if re.search(r"\.(jpe?g|png)$", f.get("name", ""), re.I)
+                    and "thumb" not in f.get("format", "").lower() and 0 < size(f) <= 12_000_000]
+        if not pictures:
+            return None
+        best = max(pictures, key=size)
+    if best.get("width") and best.get("height"):
+        row["size"] = f"{best['width']}x{best['height']}"
+    row["url"] = base + urllib.parse.quote(best["name"])
+    return row
+
+
+def archive_search(query, kind, orientation, count, min_short, years=None):
+    params = [("q", archive_query(query, kind, years)), ("rows", count * 2), ("output", "json"),
+              ("sort[]", "downloads desc")]
+    params += [("fl[]", f) for f in ("identifier", "title", "year", "date", "creator", "licenseurl", "collection")]
+    docs = get_json("https://archive.org/advancedsearch.php?" + urllib.parse.urlencode(params))
+    rows = [archive_row(d, kind) for d in (docs.get("response") or {}).get("docs", []) if d.get("identifier")]
+
+    def resolve(row):
         try:
-            halves.append(search(query, kind, orientation, count, min_short))
+            return archive_files(row, min_short)
         except (OSError, ValueError):
-            halves.append([])
-    mixed = [row for pair in zip(*halves) for row in pair]
-    longer = max(halves, key=len)
-    mixed += longer[len(min(halves, key=len)):]
+            return None
+
+    with concurrent.futures.ThreadPoolExecutor(6) as pool:
+        found = [r for r in pool.map(resolve, rows) if r]
+    # films whose smallest MP4 is over --file-mb go last: the archive serves about 0.3 MB/s
+    return sorted(found, key=lambda r: (r.get("mb") or 0) > ARCHIVE["file_mb"])[:count]
+
+
+def archive_by_id(item_id, kind, min_short):
+    return archive_files({"id": item_id, "source": "archive", "kind": kind, "tags": item_id,
+                          "page": f"https://archive.org/details/{item_id}"}, min_short)
+
+
+def mix(searches, query, kind, orientation, count, min_short):
+    """Candidates of several collections interleaved: more variety than one."""
+    lists = []
+    for search in searches:
+        try:
+            lists.append(search(query, kind, orientation, count, min_short))
+        except (OSError, ValueError):
+            lists.append([])
+    mixed = [row for i in range(max(map(len, lists), default=0)) for rows in lists if i < len(rows) for row in [rows[i]]]
     return mixed[:count]
+
+
+def free_search(query, kind, orientation, count, min_short):
+    """Wikimedia and Openverse candidates interleaved."""
+    return mix((wikimedia_search, openverse_search), query, kind, orientation, count, min_short)
+
+
+def documentary_search(query, kind, orientation, count, min_short, years=None):
+    """Archive pictures (and footage) first, then Wikimedia and Openverse photos, interleaved."""
+    archive = lambda *a: archive_search(*a, years=years)  # noqa: E731
+    if kind == "video":
+        return archive(query, kind, orientation, count, min_short)
+    return mix((archive, wikimedia_search, openverse_search), query, kind, orientation, count, min_short)
 
 
 def free_by_id(item_id, kind, min_short):
     return (openverse_by_id if "-" in item_id else wikimedia_by_id)(item_id, kind, min_short)
 
 
+def documentary_by_id(item_id, kind, min_short):
+    if item_id.isdigit():
+        return wikimedia_by_id(item_id, kind, min_short)
+    if re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", item_id):
+        return openverse_by_id(item_id, kind, min_short)
+    return archive_by_id(item_id, kind, min_short)
+
+
 SEARCH = {"pixabay": pixabay_search, "pexels": pexels_search, "openverse": openverse_search,
-          "wikimedia": wikimedia_search, "nasa": nasa_search, "free": free_search}
+          "wikimedia": wikimedia_search, "nasa": nasa_search, "free": free_search, "archive": archive_search,
+          "documentary": documentary_search}
 BY_ID = {"pixabay": pixabay_by_id, "pexels": pexels_by_id, "openverse": openverse_by_id,
-         "wikimedia": wikimedia_by_id, "nasa": nasa_by_id, "free": free_by_id}
+         "wikimedia": wikimedia_by_id, "nasa": nasa_by_id, "free": free_by_id, "archive": archive_by_id,
+         "documentary": documentary_by_id}
 
 
 def slug(text):
@@ -352,7 +475,8 @@ def bashcut(*args, retry=True):
 
 def library_add(row, dest, scope):
     """Save a downloaded candidate as a library clip; fills row['id'] (or row['error'])."""
-    tags = ",".join(t for t in ["stock", row.get("slot"), *slug(row.get("words")).split("-")] if t)
+    tags = ",".join(t for t in ["stock", row.get("slot"), *slug(row.get("words")).split("-"),
+                                 *(slug(str(row[k])) for k in ("year", "collection") if row.get(k))] if t)
     wanted = slug(f"{row['source']}-{row['id']}")
     args = ["library", "add", "--kind", "clip", "--file", str(dest / row["file"]), "--scope", scope,
             "--name", f"{row.get('slot')} #{row.get('n')} {row.get('tags') or ''}"[:80].strip(), "--tags", tags]
@@ -395,8 +519,9 @@ def read_slots(args):
 def gather(slots, source, dest, max_mb, min_short, scope, use_library):
     """Search every slot, download photos (and videos up to max_mb), save them to the library."""
     def search(slot):
+        extra = {"years": slot["year"]} if slot.get("year") and source in ("archive", "documentary") else {}
         try:
-            return SEARCH[source](slot["query"], slot["kind"], slot["orientation"], slot["count"], min_short)
+            return SEARCH[source](slot["query"], slot["kind"], slot["orientation"], slot["count"], min_short, **extra)
         except (OSError, ValueError) as error:
             return [{"error": str(error)[:120]}]
 
@@ -422,6 +547,8 @@ def gather(slots, source, dest, max_mb, min_short, scope, use_library):
         # videos in slot order, so the cap cuts the last candidates of a slot, not whole slots
         videos.sort(key=lambda r: (r["n"], r["slot"]))
         for row in videos:
+            if row.get("deferred"):
+                continue  # fetched when picked
             if left is not None and left <= 0:
                 row["deferred"] = True
                 continue
@@ -526,9 +653,13 @@ def draw_sheets(rows, dest, slots_per_sheet):
                 draw.rectangle([x, y, x + 30, y + 22], fill=(0, 0, 0))
                 draw.text((x + 5, y + 3), str(row["n"]), fill=(255, 255, 255), font=font)
                 info = row.get("size", "")
+                if row.get("year"):
+                    info = f"{row['year']} {info}"
                 if row.get("seconds"):
                     info += f" {row['seconds']}s"
-                if row.get("deferred"):
+                if row.get("mb") and row.get("deferred"):
+                    info += f" {row['mb']:.0f}MB"
+                elif row.get("deferred"):
                     info += " · later"
                 if row.get("error"):
                     info = row["error"]
@@ -558,18 +689,23 @@ def pick(dest, spec, scope):
     manifest = dest / "candidates.json"
     rows = json.loads(manifest.read_text())
     chosen = []
+    wanted = [(s, n) for s, n, _, _ in parse_pick(spec)]
+    late = [r for r in rows if r.get("deferred") and (r.get("slot"), r.get("n")) in wanted]
+    with concurrent.futures.ThreadPoolExecutor(4) as pool:  # deferred videos in parallel before placing in order
+        for row, body in zip(late, pool.map(lambda r: fetch_body(r["url"], timeout=1800), late)):
+            if body is not None:
+                (dest / row["file"]).write_bytes(body)
+                row.pop("deferred")
+            else:
+                row["failed"] = True
     for slot, n, frame, duration in parse_pick(spec):
         row = next((r for r in rows if r.get("slot") == slot and r.get("n") == n), None)
         if row is None:
             chosen.append({"slot": slot, "n": n, "error": "no such candidate"})
             continue
-        if row.get("deferred"):
-            body = fetch_body(row["url"])
-            if body is None:
-                chosen.append({"slot": row["slot"], "n": n, "error": "download failed"})
-                continue
-            (dest / row["file"]).write_bytes(body)
-            row.pop("deferred")
+        if row.pop("failed", None) or row.get("deferred"):
+            chosen.append({"slot": row["slot"], "n": n, "error": "download failed"})
+            continue
         if not row.get("libraryId"):
             library_add(row, dest, scope)
         line = {"slot": row["slot"], "n": n, "id": row.get("libraryId"),
@@ -603,11 +739,15 @@ def main(argv=None):
     parser.add_argument("--slots", help="JSON file: [{slot, query, kind, orientation, count}]; needs --dest")
     parser.add_argument("--candidates", type=int, default=0, help="with --query and --dest: download this many")
     parser.add_argument("--max-mb", type=float, help="cap on the video download, in MB (photos are small)")
+    parser.add_argument("--year", help='archive: "1960-1975" or "1969" (a slot\'s "year" overrides it)')
+    parser.add_argument("--public-domain", action="store_true", help="archive: public domain and CC0 items only")
+    parser.add_argument("--file-mb", type=float, default=40, help="archive: largest video file to choose, in MB")
     parser.add_argument("--sheet-slots", type=int, default=6, help="slots per contact sheet")
     parser.add_argument("--pick", help='"slot=3@120;other=2,5": library IDs of the chosen candidates, placed at @frame[:duration]')
     parser.add_argument("--no-library", dest="library", action="store_false", help="do not save to the library")
     parser.add_argument("--scope", choices=["project", "user"], default="project", help="library scope")
     args = parser.parse_args(argv)
+    ARCHIVE.update(years=args.year, public_domain=args.public_domain, file_mb=args.file_mb)
     if args.pick:
         if not args.dest:
             parser.error("--pick needs --dest")

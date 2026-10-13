@@ -219,7 +219,7 @@ built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by nam
 - Place card at each location change, with the real place and time. Chapter cards only in tutorials and list
   videos: in one narrative vlog, cards with a flash and boom at every section felt disjointed; a hard cut, a
   bridging voiceover sentence and a small quiet date label worked better.
-- Emoji stickers: `library place fire` adds them as `bold-outline` text items; keep them off faces.
+- Emoji stickers: `library place fire` (text items) or, animated, all pops at once: `bc:stock-images` fetch_emoji.py; off faces.
 
 ## Review limits are the project's
 
