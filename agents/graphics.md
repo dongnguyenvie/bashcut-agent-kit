@@ -13,20 +13,25 @@ token are the editor's. The editor's message gives the kit's skills folder `K`, 
 `plan.visuals` rows with their line, `at` word and `show`), the facts and numbers to show, the look (accent,
 fonts, frame chrome) and whether the voice is final.
 
-1. Read what you need, once: `bc:motion-graphics` §3–§5 (`sed -n '/^## 3\./,/^## Report/p'
-   K/motion-graphics/SKILL.md`) and the graphics plugin's skill (`bashcut plugins list`, then `bashcut skills get
-   <plugin>:<skill>`, e.g. `bashcut.hyperframes:hyperframes`; `skills enable` it when off). None ready: stop and
-   say what is missing.
-2. Get the data the plugin's tools give (maps, routes, areas) instead of working it out; list the widget
-   examples and their variables in one call; copy the ones you use into `<project>/graphics/<name>/` and change
-   variables before HTML. One accent and one font family across every graphic.
-3. Many rows over a voice: write them to `plan.cut.graphics` [{id, section, track, render: {composition, set}}]
-   with `"@words"` timings and build them all in one call (HyperFrames: `"$P/bin/graphic" plan`, long timeout;
-   it renders, runs `plan apply` and keeps unchanged renders on a re-run). One graphic: `plugins invoke
-   graphics.render`, then place it. Fix render errors in the row and run again; never place clip by clip.
+1. Read what you need, once, and nothing else: timing (`sed -n '/^## 3\./,/^## 4\./p;/^## 5\./,/^## Report/p'
+   K/motion-graphics/SKILL.md`), whether a provider can serve (`bashcut capabilities get graphics.render`; not
+   available: stop and say why), the plugin's tools (HyperFrames: `bashcut skills get
+   bashcut.hyperframes:hyperframes --section "What you have"`; `P="$HOME/Library/Application
+   Support/BashCut/Plugins/bashcut.hyperframes"`) and the widgets (`"$P/bin/graphic" examples`, one line
+   each; `examples NAME` for the variables of the ones you use). Never read the plugin's `lib/` scripts or an
+   example's HTML to learn what a variable or option does: the table and `examples NAME` say it.
+2. Get the data the plugin's tools give (maps, routes, areas) instead of working it out. Fill each widget with
+   variables and give the series one look with the same `render.frame` on every row (backdrop, drift, section chip,
+   source credit, a callout line on the payoff word, scale): no copies of example HTML patched by a script. Write
+   HTML (read the skill's "The loop" and "Composition rules" sections first) only for what neither a variable nor
+   the frame can draw. One accent and one font family across every graphic.
+3. Many rows over a voice: write them to `plan.cut.graphics` [{id, section, track, render: {composition, set,
+   frame}}] with `"@words"` timings and build them all in one call (HyperFrames: `"$P/bin/graphic" plan`, long
+   timeout; it renders, runs `plan apply` and keeps unchanged renders on a re-run). One graphic: `"$P/bin/graphic"
+   place`. Fix render errors in the row and run again; never place clip by clip.
 4. Look before you return: one contact sheet of the landing frames (`bashcut timeline sheet --at F1,F2,…
-   --outputs <preset>`), then fix what is unreadable, off its word, outside the safe area or off-style. At most
-   two fix rounds.
+   --outputs <preset>`), then fix what is unreadable, off its word, outside the safe area or off-style in the rows
+   (`set`, `frame`) and run `plan` again. At most two fix rounds.
 
 Answer in under 200 words, nothing else: per graphic id, its timeline item or media ID, span (seconds) and the
 word it lands on; the build's problems and review errors left (kind, id); what you changed against the
