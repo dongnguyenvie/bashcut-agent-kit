@@ -307,5 +307,278 @@
     ]
    }
   }
+ },
+ "teal-orange": {
+  "description": "Teal-orange: teal shadows, orange highlights and skin, moderate contrast, saturation near the footage's. Blockbuster and travel look; keep skin protected.",
+  "fitted": "Not fitted on reference shots: params set by hand from the look's description; ranges are the readings that still read as this look.",
+  "params": {
+   "contrast": 0.35,
+   "sat": 1.05,
+   "split": {
+    "shadow": [
+     -0.07,
+     0.01,
+     0.07
+    ],
+    "high": [
+     0.06,
+     0.01,
+     -0.05
+    ]
+   },
+   "hue_shifts": [
+    {
+     "hue": 100,
+     "width": 35,
+     "shift": -10,
+     "sat": 0.8
+    },
+    {
+     "hue": 205,
+     "width": 35,
+     "shift": -8,
+     "sat": 1.1
+    }
+   ],
+   "skin_protect": 0.75,
+   "pivot": 0.5
+  },
+  "target": {
+   "mid": {
+    "ref": null,
+    "range": [
+     30,
+     50
+    ],
+    "why": "daylight vlog mid luma ~30-50; lower on purpose for night, low-key and silhouettes (T12 §3, §7)"
+   },
+   "tint_shadow": {
+    "ref": null,
+    "range": [
+     [
+      null,
+      0
+     ],
+     null
+    ],
+    "why": "teal shadows: R-B < 0 with highlight R-B > 0 reads as teal-orange (style-study, T15 §3)"
+   },
+   "tint_high": {
+    "ref": null,
+    "range": [
+     [
+      0,
+      null
+     ],
+     null
+    ],
+    "why": "orange highlights: R-B > 0 (style-study, T15 §3)"
+   }
+  }
+ },
+ "clean-bright": {
+  "description": "Clean bright: lifted mids, neutral white balance, crisp but gentle contrast, a little more saturation, blacks kept. Food, product, tutorial and lifestyle footage.",
+  "fitted": "Not fitted on reference shots: params set by hand from the look's description; ranges are the readings that still read as this look.",
+  "params": {
+   "exposure": 0.05,
+   "gamma": [
+    1.08,
+    1.08,
+    1.08
+   ],
+   "contrast": 0.15,
+   "sat": 1.12,
+   "white": 0.98,
+   "skin_protect": 0.6,
+   "pivot": 0.5
+  },
+  "target": {
+   "mid": {
+    "ref": null,
+    "range": [
+     40,
+     60
+    ],
+    "why": "bright and airy reads above a daylight mid of ~40 (T12 §3); clipping is checked separately"
+   },
+   "black": {
+    "ref": null,
+    "range": [
+     null,
+     3
+    ],
+    "why": "clean: not matte, black <= 3 (style-study, T15 §3)"
+   },
+   "sat": {
+    "ref": null,
+    "range": [
+     30,
+     null
+    ],
+    "why": "not muted: sat >= 30 (style-study, T15 §3)"
+   }
+  }
+ },
+ "moody-green": {
+  "description": "Moody green: darker mids, green-cyan shadows, greens kept deep, muted saturation, soft highlights. Forest, rain, night city and introspective stories.",
+  "fitted": "Not fitted on reference shots: params set by hand from the look's description; ranges are the readings that still read as this look.",
+  "params": {
+   "exposure": -0.25,
+   "contrast": 0.3,
+   "sat": 0.82,
+   "white": 0.93,
+   "black": 0.02,
+   "split": {
+    "shadow": [
+     -0.05,
+     0.06,
+     0.0
+    ],
+    "high": [
+     0.0,
+     0.02,
+     -0.01
+    ]
+   },
+   "hue_shifts": [
+    {
+     "hue": 100,
+     "width": 40,
+     "shift": 12,
+     "sat": 0.85
+    }
+   ],
+   "skin_protect": 0.75,
+   "wb": [
+    0.98,
+    1.02,
+    0.99
+   ]
+  },
+  "target": {
+   "mid": {
+    "ref": null,
+    "range": [
+     22,
+     40
+    ],
+    "why": "moody reads below a daylight mid of ~30-50, on purpose (T12 §3, §7)"
+   },
+   "sat": {
+    "ref": null,
+    "range": [
+     null,
+     30
+    ],
+    "why": "muted: sat < 30 (style-study, T15 §3)"
+   },
+   "tint_shadow": {
+    "ref": null,
+    "range": [
+     null,
+     [
+      0,
+      null
+     ]
+    ],
+    "why": "green shadows: G-(R+B)/2 > 0"
+   }
+  }
+ },
+ "bw": {
+  "description": "Black and white: no colour, contrast a little up, true blacks. Archive feel, drama, a statement shot; check that subjects still separate from the background.",
+  "fitted": "Not fitted on reference shots: params set by hand from the look's description; ranges are the readings that still read as this look.",
+  "params": {
+   "sat": 0.0,
+   "contrast": 0.35,
+   "skin_protect": 0.0,
+   "pivot": 0.5
+  },
+  "target": {
+   "sat": {
+    "ref": 0,
+    "range": [
+     null,
+     3
+    ],
+    "why": "black and white: sat near 0"
+   },
+   "black": {
+    "ref": null,
+    "range": [
+     null,
+     4
+    ],
+    "why": "true blacks, not matte: black <= 3-4 (style-study, T15 §3)"
+   }
+  }
+ },
+ "film-print": {
+  "description": "Film print: a print-film curve with rich blacks, soft rolled highlights (~88), warm mids, cool shadows, slightly lower saturation and olive greens. Cinematic narrative and travel.",
+  "fitted": "Not fitted on reference shots: params set by hand from the look's description; ranges are the readings that still read as this look.",
+  "params": {
+   "exposure": -0.05,
+   "contrast": 0.4,
+   "pivot": 0.42,
+   "black": 0.015,
+   "white": 0.9,
+   "sat": 0.9,
+   "sat_high": 0.8,
+   "split": {
+    "shadow": [
+     -0.03,
+     0.0,
+     0.03
+    ],
+    "high": [
+     0.035,
+     0.01,
+     -0.025
+    ]
+   },
+   "wb": [
+    1.02,
+    1.0,
+    0.98
+   ],
+   "hue_shifts": [
+    {
+     "hue": 100,
+     "width": 35,
+     "shift": -10,
+     "sat": 0.8
+    }
+   ],
+   "skin_protect": 0.7
+  },
+  "target": {
+   "mid": {
+    "ref": null,
+    "range": [
+     30,
+     50
+    ],
+    "why": "daylight vlog mid luma ~30-50; lower on purpose for night, low-key and silhouettes (T12 §3, §7)"
+   },
+   "white": {
+    "ref": null,
+    "range": [
+     null,
+     92
+    ],
+    "why": "rolled highlights: white < 90-92 (style-study, T15 §3)"
+   },
+   "tint_mid": {
+    "ref": null,
+    "range": [
+     [
+      0,
+      null
+     ],
+     null
+    ],
+    "why": "warm mids: R-B > 0"
+   }
+  }
  }
 }
