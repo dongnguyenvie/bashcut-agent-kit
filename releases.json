@@ -3,6 +3,15 @@
   "kit": "bashcut",
   "versions": [
     {
+      "version": "0.1.41",
+      "minAppVersion": "0.0.22",
+      "url": "https://github.com/dongnguyenvie/bashcut-agent-kit/releases/download/v0.1.41/bashcut-agent-kit-0.1.41.zip",
+      "sha256": "02db8b8790a4ddde53db85b05d4720d6005842a42af94c3984cd4e6b0addc672",
+      "signature": "ed25519:KeMXsQo19eF3Zwbu4UIUUeZzZdy0TYWS/CPbxYrWdxkVZPOkdPaOk3kl+68cnwBxr+JeHlhEUf6alYEmKCvXDQ==",
+      "size": 225487,
+      "releasedAt": "2026-10-13"
+    },
+    {
       "version": "0.1.39",
       "minAppVersion": "0.0.21",
       "url": "https://github.com/dongnguyenvie/bashcut-agent-kit/releases/download/v0.1.39/bashcut-agent-kit-0.1.39.zip",
