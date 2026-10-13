@@ -73,6 +73,17 @@ what, where and when. `bashcut plugins list` shows whether one is ready:
   you import it with `library add --kind sticker --file` (keeps the alpha). Never run Remotion renders for them (its
   licence, T22).
 
+**Numbers on a card: facts table first.** Before searching the web for a figure, ask open data for all of them in
+one call: `uv run <skill_dir>/fetch_facts.py --questions facts.jsonl --json` (or inline `"id|entity|property[|year]"`),
+one question per number: `{id, entity, property|indicator|summary, year?, lang?}`: a Wikidata property (population,
+area, elevation, height, inception… or a P-id), a World Bank indicator for a country (gdp per capita, population… or
+a code; latest year without `year`), or `summary` (Wikipedia's first sentence, `lang` vi works). It prints one row
+each: value, unit, date, source URL and what was matched (check it is the right place or thing). Rows go straight into
+widget data: `value` → a counter's `to` or a bar's `value`, `" " + unit` → `unit`, `credit` + date → the frame's
+`credit`; keep the source URL with the script line. Answers are cached in the project (`project data facts`) and
+reused on reruns. Search the web by hand only for rows that came back `none`, never to replace an answered one; a
+figure the table cannot hold (a price, a ticket fee) is a web row from the start.
+
 Hand the plugin a brief, not a template: the words and the payoff word's frame, what the viewer should see, the
 hold, and the look (style profile, reference frames, the video's own titles).
 

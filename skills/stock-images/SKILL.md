@@ -1,6 +1,6 @@
 ---
 name: stock-images
-description: Find, download and place stock photos and stock video (Pixabay, Pexels) and vector icons (Iconify, as transparent PNG stickers) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "pixabay", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ".
+description: Find, download and place stock photos and stock video (Pixabay, Pexels) and vector icons (Iconify, as transparent PNG stickers) and open illustration sets in one style (unDraw, Humaaans, Open Peeps, Open Doodles, recoloured to the palette) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "pixabay", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ", "hình vẽ minh hoạ", "illustration".
 ---
 
 # Stock photos and video
@@ -91,6 +91,21 @@ rsvg-convert -w 512 -h 512 cash.svg -o cash.png    # transparent PNG; or: magick
 - Download without asking, like photos. Save under `media/stock/icons/`, place like a still
   (`media import … --place --track OVERLAY`), 512 px, small (`transform` zoom ~0.25–0.4), with a pop sound, and
   keep the good ones: `bashcut library add --kind sticker --name "Cash" --file /abs/media/stock/icons/cash.png --tags money`.
+
+## Illustrations in one style (open sets)
+
+For explainers and promos, an open set beats `image.generate`: no generation cost, no AI disclosure, and every
+picture in one style. Use `library generate` / `image.generate` only for a subject no set draws (a named place, a
+product, a mascot). Sets: `undraw` (~1,800 flat scenes by topic: finance, shopping, ideas, charts, apps, travel;
+one accent colour; the widest for explainer topics), `humaaans` (90 flat people: walking, jogging, pointing,
+wheelchair), `open-peeps` (93 hand-drawn people: bust, standing, sitting; faces), `open-doodles` (33 sketchy
+scenes). One set per video; the first `--set` is stored in project data and reused, never mix sets.
+
+`slots.txt` holds `slot: words` lines, then `uv run <skill_dir>/fetch_illustrations.py --slots slots.txt --dest
+<project>/media/illustrations --set undraw --palette "#accent,#second"` (palette: the brand kit's, else two
+colours from the plan) fetches the set once, recolours it and draws numbered sheets. One look per sheet, then
+`--pick "hook=1@0:90;idea=3@300:75" [--place-size 0.5 --position bottom]` renders a transparent PNG, saves a
+library sticker and places it; a bare n prints its ID and file (HyperFrames input). Never write or read SVG.
 
 ## Free fallback: blurred own footage
 
