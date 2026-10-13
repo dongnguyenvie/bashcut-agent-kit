@@ -117,7 +117,8 @@ handles rights. Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
 - **One command** for a bed and effects: `uv run <skill_dir>/fetch_audio.py --dest <project>/media/audio --music
   "<mood words>" --sfx whoosh,pop --import` (Openverse music; SFX from Freesound when `FREESOUND_API_KEY` is set,
   else Mixkit, else Openverse; `--sfx-seconds` caps the length; prints file, seconds, licence, author, media ID).
-- **Fetch more than you need, choose by numbers.** Library first (`library list --kind audio --query whoosh`),
+- **Fetch more than you need, choose by numbers.** Library first (`library list --kind audio --query whoosh`;
+  the user's Online resources downloads are there, measured),
   then one call for the rest: `--slots slots.json` (`[{"slot": "cut-whoosh", "sfx": "whoosh", "count": 10},
   {"slot": "bed", "music": "lofi chill", "count": 6}]`) `--max-mb <cap>` downloads in parallel, saves to the
   library, measures all in one `library analyze` job and prints one table: seconds, LUFS, true peak, onset, peak,

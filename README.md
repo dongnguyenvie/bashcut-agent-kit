@@ -6,7 +6,9 @@ well**: what to look at, where to cut, how to mix, which effect fits which momen
 
 Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its scripts only
 measure (`grade.py`: colour and LUT files) or fetch assets from official APIs (`fetch_audio.py`, `fetch_stock.py`,
-`fetch_font.py`). Sound is measured by BashCut itself (`audio measure`, `media sync`).
+`fetch_font.py`). The `fetch_*.py` files run the copies in BashCut's Online Resources plugin (`bashcut.resources`,
+whose Online resources sheet uses the same scripts), so install it once: `bashcut plugins install bashcut.resources`.
+Sound is measured by BashCut itself (`audio measure`, `media sync`).
 
 ## Skills
 

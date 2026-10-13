@@ -14,7 +14,8 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
 ## 1. Search
 
-- **Library first**: `bashcut library list --kind clip --query <words>`; reuse what fits before fetching.
+- **Library first**: `bashcut library list --kind clip --query <words>`; reuse what fits before fetching (the user's
+  downloads from the Online resources sheet are there too, tagged like yours).
 - **Candidates for every stock row at once** (the `plan.visuals` rows that need stock): `slots.json`
   `[{"slot": "pot", "query": "clay pot", "kind": "photo", "orientation": "portrait", "count": 8}, …]`, then
   `uv run <skill_dir>/fetch_stock.py --slots slots.json --dest <project>/media/stock --max-mb <cap>` downloads all,
