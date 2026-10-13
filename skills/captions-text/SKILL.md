@@ -177,13 +177,13 @@ built by `plan apply`, titles and captions belong in `plan.cut` (`preset` by nam
   every letter of the project's content language (`--language TAG` for another one); without `--covers` each font
   says `covers` true or false. A font that is in neither draws as Helvetica; `review run` reports it, and reports
   text whose characters the chosen font lacks.
-- Free fonts for a language: `uv run <skill_dir>/fetch_font.py --subset vietnamese [--category sans-serif]
-  [--weight 800]` lists families that draw it (Fontsource catalogue: weights, italic, licence); then `--family
-  "Be Vietnam Pro" --weights 600,800 --dest <project>/media/fonts --import` downloads the whole .ttf files from
-  Google Fonts and runs `fonts import` (it travels with the project). Fontsource's own .ttf files are split per
-  subset (the vietnamese file has no a–z): never import those. Download without asking; check with `fonts list
-  --covers`. Never install fonts into `~/Library/Fonts`. A library text preset saved with a project font carries
-  the font file and brings it into the next project when placed (an unsaved project falls back to Helvetica).
+- **One-look font choice** (open fonts, so every video does not wear the Mac's): `uv run
+  <skill_dir>/fetch_fonts.py --candidates --role title|caption|lower-third --target <tags> --n 12 --text "<the
+  project's real words>"` draws one numbered sheet (fonts lacking a letter are left out; earlier picks of this
+  recipe first): look once, then `--pick 3[,7]` imports it and saves a text preset; never read `fonts list`.
+  Tags: category, condensed, wide, rounded, geometric, high-contrast, mono-line, tall-x, heavy, bold-display. Starting
+  ranges: titles heavy or bold-display, condensed for 3+ words a line; captions sans, tall-x, mono-line, 600–800;
+  at most 2 families a video. Stacked marks (Ắ Ở) look wrong on the sheet → next one. Never `~/Library/Fonts`.
 - Two fonts in one title: `text line-style ITEM --line 0 --font NAME --scale 1.4 --base-rev last` per line (`-1`
   last), or `textStyle.lines` [{font, scale, fill, stroke}] in `setProperties`.
 - **Brand kit** (`project get` › `brand`) comes first. Tie titles to it with `brandRoles` (plan.cut title `style`:
