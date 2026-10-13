@@ -18,15 +18,24 @@ the rest of the edit without voiceover (captions or on-screen text carry the lin
 `unhealthy` → the failing dependency is in `detail`.
 
 ```sh
-bashcut capabilities get voice.synthesize --voices   # voices: per voice language, region, style, gender, supportsRate, measuredRate; per provider clones
-bashcut plugins options <plugin>
-bashcut plugins option <plugin> --option voice --value <voice>
+bashcut capabilities get voice.synthesize --voices   # per voice kind preset|clone, source, language, region, style, gender, supportsRate, measuredRate; projectVoice
+bashcut voice use <clone-id|provider/voice|default>  # the project's voice
+bashcut voice speak "<line>" --voice <clone-id|voice>  # one request with another voice
 ```
 
 - Only voices with `speaksContentLanguage: true` read the script naturally; none → say so and offer a provider that
   has one (or a recorded voiceover). Pick among them by their facts (region, style, measured rate), then audition 2–3 on the **hardest** line,
   not the first; the first voice is rarely the pick (T10 §2).
-- Cloning: only the user's own voice or one whose owner agreed. A provider that `clones` refuses without
+- Saved clones (`kind: clone`, source `my-voices`) are the user's own voices from My voices, reusable in every
+  project; they carry their consent, so `voice speak --voice clone-…` needs no `--clone-consent`. Prefer the
+  user's clone when the video is theirs and they speak in it (a talking head, a vlog with their voice); a preset when
+  the voice is a narrator, the clone sounds off on the hardest line, or the language differs from the clone's.
+- Making a clone: only the user's own voice or one whose owner agreed, and only when the user asks. Point them to
+  Voice panel › + Clone a voice… (record, a file or the selected clip; it picks a clean 3–8 s and checks it), or
+  run `bashcut voice clone-add --name "<name>" --from <media|file> [--at S --to S] --consent own|permission`
+  with the consent they gave in this conversation; it waits for their approval in the app. A refusal names the
+  reason (`tooShort`, `tooQuiet`, `mostlySilence`, `musicUnder`): pick another part, don't retry the same one.
+- The older plugin option `referenceAudio` still clones without saving; a provider that `clones` refuses it without
   `--clone-consent`; pass it only when the user said yes in this conversation, never by default (T10 §6).
   Never mark AI voiceover on the video (no "AI voice" text or sticker); the voice should simply sound natural.
 
