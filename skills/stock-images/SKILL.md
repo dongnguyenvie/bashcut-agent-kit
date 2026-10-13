@@ -14,37 +14,19 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
 ## 1. Search
 
-- **One script** (Pixabay or Pexels, photos or video). For an edit, fetch candidates for every stock row at
-  once and choose from one look: write `slots.json` (`[{"slot": "pot", "query": "clay pot", "kind": "photo",
-  "orientation": "portrait", "count": 8}, …]`) and run `uv run <skill_dir>/fetch_stock.py --slots slots.json --dest
-  <project>/media/stock --max-mb <cap>`. It downloads them all, saves them to the project library and draws numbered
-  contact sheets (`sheet-N.jpg`, about 6 slots each). Look at each sheet once, then `bashcut library place ID` the
-  chosen ones (`--pick "pot=3;river=2,5"` prints their IDs and downloads a video left over the cap). The rest stay in
-  the library: next edit, `library list --kind clip --query <words>` first. Sample ranges (tune per video):
-
-  | Video | Slots × candidates | Video cap |
-  |---|---|---|
-  | ≤ 30 s | 4–8 × 6–8 | ~100 MB |
-  | 30–90 s | 8–16 × 6–10 | ~150 MB a minute |
-  | 1.5–5 min | 16–40 × 6–10 | ~150 MB a minute |
-  | > 5 min | 6–10 slots a minute × 5–8 | ~150 MB a minute |
-
-  Slots come from the `plan.visuals` rows that need stock. One quick lookup: `--query "<q>"` lists candidates
-  (id, size, seconds, tags, preview, page), `--ids 123,456 --dest <project>/media/stock [--import]` downloads those
-  (video: the smallest rendition with a short side ≥ 1080 px). Never place a Pixabay URL: download it (its API terms).
-- **Sources** (`--source`; default: the first with a key, else `free`):
-
-  | Source | Key | Best for |
-  |---|---|---|
-  | `pexels`, `pixabay` | `PEXELS_API_KEY` (free, 200/h), `PIXABAY_API_KEY` (free, 100/min), environment only | modern stock photos and **vertical video**; Pexels takes Vietnamese, Pixabay English |
-  | `free` = `wikimedia` + `openverse` | none | real places, food, culture; Wikimedia files are full size (CC0 / CC BY / CC BY-SA per file), Openverse adds Flickr |
-  | `nasa` | none | space and science photos and video, public domain |
-
-  Without a video key there is no general stock video: say so, and use stills with motion instead.
-  By hand, no key, for documentary: public-domain film from the Internet Archive
-  (`https://archive.org/advancedsearch.php?q=<q>+AND+mediatype:movies&fl[]=identifier,title&output=json`, files at
-  `https://archive.org/metadata/<id>`, download `https://archive.org/download/<id>/<file>.mp4`); its search is loose:
-  read the titles before downloading (files are often hundreds of MB).
+- **Library first**: `bashcut library list --kind clip --query <words>`; reuse what fits before fetching.
+- **Candidates for every stock row at once** (the `plan.visuals` rows that need stock): `slots.json`
+  `[{"slot": "pot", "query": "clay pot", "kind": "photo", "orientation": "portrait", "count": 8}, …]`, then
+  `uv run <skill_dir>/fetch_stock.py --slots slots.json --dest <project>/media/stock --max-mb <cap>` downloads all,
+  saves them to the library and draws numbered sheets (`sheet-N.jpg`, ~6 slots each; a video tile shows its frames). One
+  look per sheet, then `--pick "pot=3@120;river=2@300:90"` places candidate n at a frame (:length); a bare n prints
+  its ID. Ranges (tune): ≤ 30 s 4–8 slots × 6–8; 30–90 s 8–16 × 6–10; 1.5–5 min 16–40 × 6–10; longer 6–10 slots a
+  minute × 5–8; video cap ~150 MB a minute. One lookup: `--query "<q>"` lists, `--ids 1,2 --dest … [--import]` gets.
+- **Sources** (`--source`; default the first with a key, else `free`): `pexels`, `pixabay` (free keys
+  `PEXELS_API_KEY`, `PIXABAY_API_KEY`, environment only; the only vertical stock video; Pexels takes Vietnamese),
+  `free` = Wikimedia + Openverse photos (licence per file), `nasa` (space, science; public domain). No video key:
+  say so, use stills with motion. Never place a Pixabay URL. Documentary by hand: Internet Archive
+  `advancedsearch.php?q=<q>+AND+mediatype:movies&output=json`; read titles first, files are large.
 - **No key** is not a reason to skip: open `https://www.pexels.com/search/<q>/?orientation=portrait` (videos:
   `/search/videos/<q>/`) in a browser tool, read each result's link and alt text, and look at the thumbnails
   before choosing. Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:

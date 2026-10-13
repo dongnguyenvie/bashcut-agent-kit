@@ -17,8 +17,8 @@ one source. Downloads whatever the licence (the user handles rights). With --imp
 Candidates (--sfx-count or --music-count above 1, or --slots): every file is downloaded in parallel, saved to the
 project library (`library add`, tags = kind, slot, words) and measured there (`library analyze`: seconds, LUFS,
 true peak, onset/peak/tail, BPM for music); the output is one table, one row per candidate grouped by slot, to
-choose from by the numbers. Place a choice with `bashcut library place ID`; the rest stay in the library for later
-edits. --slots is a JSON list of {"slot", "sfx" or "music": words, "count"}; --max-mb caps the whole download.
+choose from by the numbers. Place choices with --pick "whoosh=2@120;music=1@0:900" (candidate n at timeline frame,
+optional length in frames; without @ it prints the library ID); the rest stay in the library for later edits. --slots is a JSON list of {"slot", "sfx" or "music": words, "count"}; --max-mb caps the whole download.
 """
 import argparse
 import concurrent.futures
@@ -227,7 +227,8 @@ def item_id(row):
 
 
 def to_library(rows, dest, scope):
-    """library add every file, then library analyze all of them and wait; fills id, seconds, lufs, tp, landmarks, bpm."""
+    """library add every file, then measure all of them with one library analyze job (several IDs); fills id,
+    seconds, lufs, tp, landmarks, bpm, beat confidence and energy."""
     for row in rows:
         tags = ",".join(t for t in [row["kind"], row.get("slot"), *slug(row.get("words") or "").split("-")] if t)
         wanted = item_id(row)
@@ -239,38 +240,66 @@ def to_library(rows, dest, scope):
                 args += [flag, str(row[key])]
         added = bashcut(*args)
         if added.get("error") and "already has" in str(added.get("error")):
-            row["id"] = f"{scope}:{wanted}"  # fetched before: reuse it (measured then, unless that failed)
+            row["id"] = f"{scope}:{wanted}"  # fetched before: reuse it
         elif added.get("error"):
             row["error"] = str(added["error"])[:120]
             continue
         else:
             found = library_id(added)
             row["id"] = found if ":" in str(found) else f"{scope}:{found}"
+    analyze_all([r for r in rows if r.get("id")], scope)
+
+
+def wait_job(job):
+    status, deadline = {}, time.time() + 900
+    while time.time() < deadline:
+        bashcut("jobs", "wait", job, "--done", "--timeout", "110")
+        status = bashcut("jobs", "status", job)
+        status = status.get("job", status)
+        if status.get("finishedAt") or status.get("state") in FINISHED or status.get("error"):
+            break
+    return status
+
+
+def fill(row, result):
+    measured = (result or {}).get("measured") or {}
+    row["seconds"] = measured.get("seconds", row.get("seconds"))
+    for key in ("lufs", "truePeak", "bpm", "landmarks", "beatConfidence", "energy"):
+        if measured.get(key) is not None:
+            row[key] = measured[key]
+
+
+def analyze_all(rows, scope):
+    """One job for every ID (BashCut 0.0.23+); an older app takes one ID a job: analyze one after the other."""
+    if not rows:
+        return
+    job = bashcut("library", "analyze", ",".join(r["id"] for r in rows), "--scope", scope)
+    if job.get("job"):
+        result = wait_job(job["job"]).get("result") or {}
+        if len(rows) == 1:
+            fill(rows[0], result)
+            return
+        by_id = {item.get("id"): item for item in result.get("items") or []}
+        for row in rows:
+            item = by_id.get(row["id"]) or {}
+            if item.get("error"):
+                row["note"] = str(item["error"])[:80]
+            fill(row, item)
+        return
+    for row in rows:
         analyze(row, scope)
 
 
 def analyze(row, scope, tries=4):
-    """library analyze one item and wait. One audio.loudness job runs at a time ("already running" in notes):
-    analyze one file after the other and retry a busy one."""
+    """library analyze one item and wait, retrying while another job holds the provider (older apps refuse)."""
     for _ in range(tries):
         job = bashcut("library", "analyze", row["id"], "--scope", scope)
         if not job.get("job"):
             row["note"] = str(job.get("error") or "analyze did not start")[:80]
             return
-        status, deadline = {}, time.time() + 300
-        while time.time() < deadline:
-            bashcut("jobs", "wait", job["job"], "--done", "--timeout", "110")
-            status = bashcut("jobs", "status", job["job"])
-            status = status.get("job", status)
-            if status.get("finishedAt") or status.get("state") in FINISHED or status.get("error"):
-                break
-        result = status.get("result") or {}
-        measured, notes = result.get("measured") or {}, result.get("notes") or {}
-        row["seconds"] = measured.get("seconds", row.get("seconds"))
-        for key in ("lufs", "truePeak", "bpm", "landmarks"):
-            if measured.get(key) is not None:
-                row[key] = measured[key]
-        if not any("already running" in str(v) for v in notes.values()):
+        result = wait_job(job["job"]).get("result") or {}
+        fill(row, result)
+        if not any("already running" in str(v) for v in (result.get("notes") or {}).values()):
             return
         time.sleep(0.5)
 
@@ -282,19 +311,56 @@ def cell(value, places=1):
 
 
 def table(rows):
-    """One line per candidate, grouped by slot: the numbers to choose by."""
-    lines = ["slot\tn\tsec\tLUFS\tTP\tonset\tpeak\tbpm\tfrom\tid\ttitle"]
+    """One line per candidate, grouped by slot: the numbers to choose by. Music adds beat confidence (conf) and
+    energy: range quiet→loud in dB, the second it lifts to its loud level (lift)."""
+    lines = ["slot\tn\tsec\tLUFS\tTP\tonset\tpeak\tbpm\tconf\trange\tlift\tfrom\tid\ttitle"]
     for row in rows:
-        marks = row.get("landmarks") or {}
+        marks, energy = row.get("landmarks") or {}, row.get("energy") or {}
         if row.get("error") and not row.get("file"):
-            lines.append("\t".join([str(row.get("slot", "-"))] + ["-"] * 9 + [f"{row.get('words')}: {row['error']}"]))
+            lines.append("\t".join([str(row.get("slot", "-"))] + ["-"] * 12 + [f"{row.get('words')}: {row['error']}"]))
             continue
         lines.append("\t".join([
             str(row.get("slot", "-")), str(row.get("n", "-")), cell(row.get("seconds")), cell(row.get("lufs")),
             cell(row.get("truePeak")), cell(marks.get("onset"), 2), cell(marks.get("peak"), 2), cell(row.get("bpm"), 0),
+            cell(row.get("beatConfidence"), 2), cell(energy.get("rangeDb")), cell(energy.get("liftAt")),
             row.get("from") or "openverse", str(row.get("id") or row.get("error") or row["file"]),
             (row.get("title") or "")[:40]]))
     return "\n".join(lines)
+
+
+def parse_pick(spec):
+    """"whoosh=2@120;music=1@0:900" → [(slot, n, frame or None, duration or None)]."""
+    picks = []
+    for part in [p for p in spec.split(";") if p.strip()]:
+        slot, _, rest = part.partition("=")
+        for choice in [c.strip() for c in rest.split(",") if c.strip()]:
+            n, _, where = choice.partition("@")
+            frame, _, duration = where.partition(":")
+            picks.append((slot.strip(), int(n), int(frame) if frame else None, int(duration) if duration else None))
+    return picks
+
+
+def place_picks(dest, spec, scope):
+    """--pick: the chosen candidates' library IDs, placed at @frame (and :duration) when given."""
+    rows = json.loads((dest / "candidates.json").read_text())
+    out = []
+    for slot, n, frame, duration in parse_pick(spec):
+        row = next((r for r in rows if r.get("slot") == slot and r.get("n") == n), None)
+        if row is None or not row.get("id"):
+            out.append({"slot": slot, "n": n, "error": "no such candidate in the library"})
+            continue
+        line = {"slot": slot, "n": n, "id": row["id"]}
+        if frame is not None:
+            args = ["library", "place", row["id"], "--at-frame", str(frame), "--base-rev", "last"]
+            if duration:
+                args += ["--duration", str(duration)]
+            placed = bashcut(*args)
+            if placed.get("error"):
+                line["error"] = str(placed["error"])[:120]
+            else:
+                line.update(placed=frame, rev=placed.get("rev"))
+        out.append(line)
+    return out
 
 
 def read_slots(args):
@@ -315,6 +381,7 @@ def read_slots(args):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--dest", required=True, help="absolute folder for the files (created)")
+    parser.add_argument("--pick", help='"whoosh=2@120;music=1@0:900": place chosen candidates (n@frame[:duration])')
     parser.add_argument("--music", help="search words for the bed, e.g. 'acoustic folk upbeat'")
     parser.add_argument("--music-count", type=int, default=3)
     parser.add_argument("--min-seconds", type=float, default=30, help="shortest bed to take")
@@ -331,6 +398,10 @@ def main(argv=None):
     parser.add_argument("--import", dest="import_", action="store_true", help="media import the folder")
     args = parser.parse_args(argv)
     dest = Path(args.dest)
+    if args.pick:
+        for line in place_picks(dest, args.pick, args.scope):
+            print(json.dumps(line, ensure_ascii=False))
+        return
     dest.mkdir(parents=True, exist_ok=True)
     slots = read_slots(args)
     # One file per effect word and the old default of 3 beds keep the plain JSON lines; more is choosing.

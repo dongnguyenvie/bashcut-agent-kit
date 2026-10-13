@@ -21,14 +21,14 @@ Candidates, to choose from one look instead of one preview at a time:
 
     uv run fetch_stock.py --slots slots.json --dest /abs/project/media/stock [--max-mb 150]
     uv run fetch_stock.py --query "clay pot" --candidates 8 --dest /abs/project/media/stock
-    uv run fetch_stock.py --dest /abs/project/media/stock --pick "pot=3;river=2,5"
+    uv run fetch_stock.py --dest /abs/project/media/stock --pick "pot=3@120;river=2,5@300:90"
 
 --slots is a JSON list of {"slot", "query", "kind", "orientation", "count"}. Every candidate is downloaded in
 parallel (videos until --max-mb, the rest kept for --pick), saved to the project library (`library add --kind
 clip`, tags = stock, slot, words) and drawn on numbered contact sheets, about --sheet-slots slots a sheet (a video
 tile shows the provider's frames). It prints one line per slot and the sheet paths; look at the sheets, then
-`bashcut library place ID` the ones you choose (IDs in DEST/candidates.json, or from --pick, which also
-downloads a chosen video that was over the cap). The rest stay in the library for later edits.
+--pick the ones you choose: n@frame[:duration] places it there (library place), a bare n prints its library ID;
+a chosen video that was over the cap is downloaded first. The rest stay in the library for later edits.
 """
 import argparse
 import concurrent.futures
@@ -432,13 +432,19 @@ def gather(slots, source, dest, max_mb, min_short, scope, use_library):
             (dest / row["file"]).write_bytes(body)
             if left is not None:
                 left -= len(body)
-        tiles = [r for r in videos if r.get("frames") or r.get("preview")]
+        tiles = [r for r in videos if r.get("frames") or r.get("preview") or (dest / r["file"]).exists()]
         thumbs = dest / ".thumbs"
         thumbs.mkdir(exist_ok=True)
 
         def thumb(row):
             paths = []
-            for i, url in enumerate(row.get("frames") or [row["preview"]]):
+            if len(row.get("frames") or []) < 3 and not row.get("deferred") and (dest / row["file"]).exists():
+                paths = video_frames(dest / row["file"], thumbs / f"{row['source']}-{row['id']}")
+                if paths:
+                    row["thumbs"] = paths
+                    return
+            urls = row.get("frames") or ([row["preview"]] if row.get("preview") else [])
+            for i, url in enumerate(urls):
                 body = fetch_body(url, timeout=30)
                 if body:
                     path = thumbs / f"{row['source']}-{row['id']}-{i}.jpg"
@@ -452,6 +458,27 @@ def gather(slots, source, dest, max_mb, min_short, scope, use_library):
             if (dest / row["file"]).exists() and not row.get("deferred") and not row.get("error"):
                 library_add(row, dest, scope)
     return rows, left is not None and left <= 0
+
+
+def video_frames(video, stem):
+    """3 frames of a downloaded video for its tile, read by BashCut with AVFoundation (`media frames --file`, no
+    ffmpeg); an older BashCut without --file: macOS Quick Look's poster frame (`qlmanage`); [] when both fail, and
+    the tile falls back to the provider's preview."""
+    got = bashcut("media", "frames", "--file", str(video), "--count", "3", "--size", "320")
+    paths = [f["path"] for f in got.get("frames") or [] if f.get("path")]
+    if paths:
+        return paths
+    folder = Path(stem).parent
+    try:
+        subprocess.run(["qlmanage", "-t", "-s", "320", "-o", str(folder), str(video)], capture_output=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    made = folder / f"{Path(video).name}.png"
+    if not made.exists():
+        return []
+    path = Path(f"{stem}-poster.png")
+    made.replace(path)
+    return [str(path)]
 
 
 def draw_sheets(rows, dest, slots_per_sheet):
@@ -511,29 +538,50 @@ def draw_sheets(rows, dest, slots_per_sheet):
     return paths
 
 
+def parse_pick(spec):
+    """"pot=3@120;river=2,5@300:90" → [(slot, n, frame or None, duration or None)]."""
+    picks = []
+    for part in [p for p in spec.split(";") if p.strip()]:
+        slot, _, rest = part.partition("=")
+        for choice in [c.strip() for c in rest.split(",") if c.strip()]:
+            n, _, where = choice.partition("@")
+            frame, _, duration = where.partition(":")
+            picks.append((slot.strip(), int(n), int(frame) if frame else None, int(duration) if duration else None))
+    return picks
+
+
 def pick(dest, spec, scope):
-    """--pick "slot=3;other=2,5": the chosen candidates' library IDs, downloading a deferred video first."""
+    """--pick "slot=3@120;other=2,5": the chosen candidates' library IDs, downloading a deferred video first, and
+    placed with library place at @frame (:duration in frames) when given."""
     manifest = dest / "candidates.json"
     rows = json.loads(manifest.read_text())
     chosen = []
-    for part in [p for p in spec.split(";") if p.strip()]:
-        slot, _, numbers = part.partition("=")
-        for n in [int(x) for x in numbers.split(",") if x.strip()]:
-            row = next((r for r in rows if r.get("slot") == slot.strip() and r.get("n") == n), None)
-            if row is None:
-                chosen.append({"slot": slot.strip(), "n": n, "error": "no such candidate"})
+    for slot, n, frame, duration in parse_pick(spec):
+        row = next((r for r in rows if r.get("slot") == slot and r.get("n") == n), None)
+        if row is None:
+            chosen.append({"slot": slot, "n": n, "error": "no such candidate"})
+            continue
+        if row.get("deferred"):
+            body = fetch_body(row["url"])
+            if body is None:
+                chosen.append({"slot": row["slot"], "n": n, "error": "download failed"})
                 continue
-            if row.get("deferred"):
-                body = fetch_body(row["url"])
-                if body is None:
-                    chosen.append({"slot": row["slot"], "n": n, "error": "download failed"})
-                    continue
-                (dest / row["file"]).write_bytes(body)
-                row.pop("deferred")
-            if not row.get("libraryId"):
-                library_add(row, dest, scope)
-            chosen.append({"slot": row["slot"], "n": n, "id": row.get("libraryId"),
-                           **{k: row.get(k) for k in ("file", "kind", "size", "seconds", "libraryError")}})
+            (dest / row["file"]).write_bytes(body)
+            row.pop("deferred")
+        if not row.get("libraryId"):
+            library_add(row, dest, scope)
+        line = {"slot": row["slot"], "n": n, "id": row.get("libraryId"),
+                **{k: row.get(k) for k in ("file", "kind", "size", "seconds", "libraryError")}}
+        if frame is not None and row.get("libraryId"):
+            args = ["library", "place", row["libraryId"], "--at-frame", str(frame), "--base-rev", "last"]
+            if duration:
+                args += ["--duration", str(duration)]
+            placed = bashcut(*args)
+            if placed.get("error"):
+                line["placeError"] = str(placed["error"])[:120]
+            else:
+                line.update(placed=frame, rev=placed.get("rev"))
+        chosen.append(line)
     manifest.write_text(json.dumps(rows, ensure_ascii=False, indent=1))
     return chosen
 
@@ -554,7 +602,7 @@ def main(argv=None):
     parser.add_argument("--candidates", type=int, default=0, help="with --query and --dest: download this many")
     parser.add_argument("--max-mb", type=float, help="cap on the video download, in MB (photos are small)")
     parser.add_argument("--sheet-slots", type=int, default=6, help="slots per contact sheet")
-    parser.add_argument("--pick", help='"slot=3;other=2,5": library IDs of the chosen candidates')
+    parser.add_argument("--pick", help='"slot=3@120;other=2,5": library IDs of the chosen candidates, placed at @frame[:duration]')
     parser.add_argument("--no-library", dest="library", action="store_false", help="do not save to the library")
     parser.add_argument("--scope", choices=["project", "user"], default="project", help="library scope")
     args = parser.parse_args(argv)

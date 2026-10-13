@@ -117,20 +117,15 @@ handles rights. Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
 - **One command** for a bed and effects: `uv run <skill_dir>/fetch_audio.py --dest <project>/media/audio --music
   "<mood words>" --sfx whoosh,pop --import` (Openverse music; SFX from Freesound when `FREESOUND_API_KEY` is set,
   else Mixkit, else Openverse; `--sfx-seconds` caps the length; prints file, seconds, licence, author, media ID).
-- **Fetch more than you need, choose by numbers.** For an edit, one call with `--slots slots.json`
-  (`[{"slot": "cut-whoosh", "sfx": "whoosh", "count": 10}, {"slot": "bed", "music": "lofi chill", "count": 6}]`)
-  `--max-mb <cap>` downloads every candidate in parallel, saves each to the project library, measures it there
-  (`library analyze`) and prints one table: slot, n, seconds, LUFS, true peak, onset, peak, BPM, library ID. Choose
-  from the table (onset near 0 for a hit on the cut, peak where the sound should land, BPM near the cut's pace),
-  `library preview ID` only to settle a tie, then `library place ID`. Unused ones stay in the library for the next
-  edit (`library list --kind audio --query whoosh` first). Sample ranges (tune per video; SFX slots from the plan's
-  cuts, transitions, graphic entrances and keyword pops):
-
-  | Video | SFX kinds × candidates | Beds × candidates | Cap |
-  |---|---|---|---|
-  | ≤ 30 s | 4–8 × 6–10 | 1 × 4–6 | ~100 MB |
-  | 30–90 s | 8–15 × 8–12 | 1–2 × 5–8 | ~150 MB a minute |
-  | 1.5–5 min | 15–30 × 8–12 | 2–4 × 5–8 | ~150 MB a minute |
+- **Fetch more than you need, choose by numbers.** Library first (`library list --kind audio --query whoosh`),
+  then one call for the rest: `--slots slots.json` (`[{"slot": "cut-whoosh", "sfx": "whoosh", "count": 10},
+  {"slot": "bed", "music": "lofi chill", "count": 6}]`) `--max-mb <cap>` downloads in parallel, saves to the
+  library, measures all in one `library analyze` job and prints one table: seconds, LUFS, true peak, onset, peak,
+  BPM, beat confidence, energy range (dB quiet→loud) and lift second, library ID. Choose from it (onset near 0 for a
+  hit on the cut, peak where the sound lands, BPM near the cut's pace, a bed that lifts where the video does),
+  `library preview` only for a tie, then `--pick "cut-whoosh=2@120;bed=1@0:900"` places them (n@frame[:length]).
+  Ranges (tune; SFX slots from the plan's cuts, transitions, graphic entrances, keyword pops): ≤ 30 s 4–8 kinds ×
+  6–10, 1 bed × 4–6; 30–90 s 8–15 × 8–12, 1–2 × 5–8; 1.5–5 min 15–30 × 8–12, 2–4 × 5–8; cap ~150 MB a minute.
 - **Openverse**: `curl "https://api.openverse.org/v1/audio/?q=lofi&license=cc0,by&category=music&page_size=20"`
   (SFX: drop `category`) → `results[]` with `title`, `license`, `license_version`, `creator`, `source`, `duration`
   (ms), `url`. Freesound files come from a slow CDN (~12 s for 1 MB): the script downloads in parallel.

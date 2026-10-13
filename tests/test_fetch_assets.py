@@ -264,12 +264,22 @@ class FakeBashCut:
         if args[:2] == ('jobs', 'wait'):
             return {}
         if args[:2] == ('library', 'analyze'):
-            return {'job': 'job-' + args[2].split('-')[-1]}
+            return {'job': 'batch|' + args[2] if ',' in args[2] else 'job-' + args[2].split('-')[-1]}
         if args[:2] == ('jobs', 'status'):
-            n = int(args[2].split('-')[-1])
-            return {'state': 'completed', 'finishedAt': 'now', 'result': {'measured': {
-                'seconds': 1.0 + n, 'lufs': -20.0 - n, 'truePeak': -1.5, 'landmarks': {'onset': 0.02, 'peak': 0.1}}}}
+            if args[2].startswith('batch|'):  # several IDs: one job, one row per item
+                ids = args[2].split('|', 1)[1].split(',')
+                return {'state': 'completed', 'finishedAt': 'now', 'result': {'items': [
+                    {'id': i, 'measured': self.measured(int(i.split('-')[-1]))} for i in ids]}}
+            return {'state': 'completed', 'finishedAt': 'now',
+                    'result': {'measured': self.measured(int(args[2].split('-')[-1]))}}
+        if args[:2] == ('library', 'place'):
+            return {'rev': 7}
         return {}
+
+    @staticmethod
+    def measured(n):
+        return {'seconds': 1.0 + n, 'lufs': -20.0 - n, 'truePeak': -1.5, 'landmarks': {'onset': 0.02, 'peak': 0.1},
+                'beatConfidence': 0.81, 'energy': {'rangeDb': 12.5, 'liftAt': 8.0, 'peakAt': 30.0}}
 
     @property
     def adds(self):
@@ -312,7 +322,50 @@ class CandidateTests(unittest.TestCase):
         lines = out.getvalue().splitlines()
         self.assertTrue(lines[0].startswith('slot\tn\tsec\tLUFS'))
         self.assertEqual(lines[1].split('\t')[:5], ['whoosh', '1', '2.0', '-21.0', '-1.5'])
-        self.assertEqual(lines[1].split('\t')[9], 'project:lib-1')
+        cells = lines[1].split('\t')
+        self.assertEqual(cells[8:12], ['0.81', '12.5', '8.0', 'freesound'])
+        self.assertEqual(cells[12], 'project:lib-1')
+        analyzes = [c for c in fake.calls if c[:2] == ('library', 'analyze')]
+        self.assertEqual(len(analyzes), 1)  # one job for every candidate
+        self.assertEqual(analyzes[0][2], 'project:lib-1,project:lib-2,project:lib-3')
+
+        picked = io.StringIO()
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(self.audio, 'bashcut', fake), \
+                contextlib.redirect_stdout(picked):
+            (Path(folder) / 'candidates.json').write_text(json.dumps(manifest))
+            self.audio.main(['--dest', folder, '--pick', 'whoosh=2@120:30,3;bed=1@0'])
+        lines = [json.loads(line) for line in picked.getvalue().splitlines()]
+        self.assertEqual(lines[0], {'slot': 'whoosh', 'n': 2, 'id': 'project:lib-2', 'placed': 120, 'rev': 7})
+        self.assertEqual(lines[1], {'slot': 'whoosh', 'n': 3, 'id': 'project:lib-3'})
+        self.assertEqual(lines[2]['error'], 'no such candidate in the library')
+        place = [c for c in fake.calls if c[:2] == ('library', 'place')]
+        self.assertEqual(place, [('library', 'place', 'project:lib-2', '--at-frame', '120', '--base-rev', 'last',
+                                  '--duration', '30')])
+
+    def test_video_tiles_take_three_frames_from_bashcut(self):
+        calls = []
+
+        def app(*args):
+            calls.append(args)
+            return {'frames': [{'path': f'/s/f{i}.png'} for i in range(3)]}
+        with mock.patch.object(self.stock, 'bashcut', app):
+            self.assertEqual(self.stock.video_frames('/v/c.mp4', '/t/pexels-1'), ['/s/f0.png', '/s/f1.png', '/s/f2.png'])
+        self.assertEqual(calls, [('media', 'frames', '--file', '/v/c.mp4', '--count', '3', '--size', '320')])
+
+    def test_an_older_app_analyzes_one_id_a_job(self):
+        fake = FakeBashCut()
+        calls = []
+
+        def old_app(*args):
+            if args[:2] == ('library', 'analyze') and ',' in args[2]:
+                calls.append(args)
+                return {'error': 'project:lib-1,project:lib-2 is not in the library'}
+            return fake(*args)
+        rows = [{'id': 'project:lib-1'}, {'id': 'project:lib-2'}]
+        with mock.patch.object(self.audio, 'bashcut', old_app):
+            self.audio.analyze_all(rows, 'project')
+        self.assertEqual(len(calls), 1)
+        self.assertEqual([r['seconds'] for r in rows], [2.0, 3.0])
 
     def test_slots_file_and_download_cap(self):
         results = {'results': [{'id': i, 'name': f'Pop {i}', 'duration': 0.5,
@@ -344,9 +397,13 @@ class CandidateTests(unittest.TestCase):
             self.assertEqual(rows[0], {'slot': 'clay-pot', 'candidates': 4, 'inLibrary': 4})
             self.assertTrue(Path(rows[1]['sheets'][0]).exists())
             self.assertEqual(web.query('https://api.pexels.com/')['per_page'], ['4'])
-            picked = run(self.stock, ['--dest', folder, '--pick', 'clay-pot=2,9'])
+            picked = run(self.stock, ['--dest', folder, '--pick', 'clay-pot=2,9,3@48:60'])
         self.assertEqual(picked[0]['id'], 'project:lib-2')
+        self.assertNotIn('placed', picked[0])
         self.assertEqual(picked[1], {'slot': 'clay-pot', 'n': 9, 'error': 'no such candidate'})
+        self.assertEqual((picked[2]['placed'], picked[2]['rev']), (48, 7))
+        self.assertIn(('library', 'place', 'project:lib-3', '--at-frame', '48', '--base-rev', 'last',
+                       '--duration', '60'), fake.calls)
         self.assertEqual(len(fake.adds), 4)  # pick reuses the saved item
 
 
