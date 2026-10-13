@@ -35,4 +35,7 @@ be in it.
    - 2–3 angles, each backed by shots, the strongest first;
    - a table of 8–15 candidates for the rest: section, exact quote or from–to seconds of a silent shot, what is on
      screen, a cover shot (from–to) when the speaker's own picture is weak;
-   - missing coverage and risks: retakes (`[again]`), cues to the camera, shaky starts, no music, unsure names.
+   - **recording cues**, one line each: media, from–to seconds, the words, the kind (start/end of take, "cut that" /
+     "take two" / "làm lại" throwing away the phrase before it, clap or slate) and, for a retake, which take to use
+     and why (`bc:footage-survey`, hygiene checklist); never propose a quote that holds a cue;
+   - missing coverage and risks: retakes (`[again]`), shaky starts, no music, unsure names.

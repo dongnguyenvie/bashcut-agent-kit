@@ -1,6 +1,6 @@
 ---
 name: stock-images
-description: Find, download and place stock photos and stock video (Pexels) and vector icons (Iconify, as transparent PNG stickers) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ".
+description: Find, download and place stock photos and stock video (Pixabay, Pexels) and vector icons (Iconify, as transparent PNG stickers) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "pixabay", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ".
 ---
 
 # Stock photos and video
@@ -14,13 +14,16 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
 ## 1. Search
 
-- **Pexels API** (free key at pexels.com/api, 200 requests/hour): with `PEXELS_API_KEY` set,
-  `curl -H "Authorization: $PEXELS_API_KEY" "https://api.pexels.com/v1/search?query=<q>&orientation=portrait&per_page=15"`
-  (videos: `https://api.pexels.com/videos/search?...`).
+- **One script** (Pixabay or Pexels, photos or video): `uv run <skill_dir>/fetch_stock.py --query "<q>" [--kind
+  video] [--orientation portrait|landscape|square]` prints one line per candidate (id, size, seconds, tags,
+  preview, page). Look at the previews you might use, then `--ids 123,456 --dest <project>/media/stock [--import]`
+  downloads those (video: the smallest rendition with a short side ≥ 1080 px) and prints file, licence, author,
+  page and media ID. Keys come from the environment only: `PIXABAY_API_KEY` (free, pixabay.com/api/docs, 100
+  requests/min) or `PEXELS_API_KEY` (free, pexels.com/api, 200/hour); `--source` picks one. Pixabay searches best
+  in English; Pexels takes Vietnamese. Never place a Pixabay URL: download it (its API terms).
 - **No key** is not a reason to skip: open `https://www.pexels.com/search/<q>/?orientation=portrait` (videos:
   `/search/videos/<q>/`) in a browser tool, read each result's link and alt text, and look at the thumbnails
-  before choosing. Vietnamese queries work.
-- Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:
+  before choosing. Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:
   `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&w=1080`.
 
 ## 2. Download

@@ -108,13 +108,15 @@ handles rights. Dead ends: Bensound, BBC SFX, ProductionCrate (T21 §3).
 
 | Source | How | Licence |
 |---|---|---|
+| **Freesound API** (SFX) | `FREESOUND_API_KEY` (free, freesound.org/apiv2/apply), through `fetch_audio.py` | CC0 taken first, then CC BY (credit line); NonCommercial never |
 | **Openverse API** (Jamendo, ccMixter, Freesound, Wikimedia) | `curl`, no key, searchable, gives licence and duration | per file: CC0 free; CC BY needs the credit line (T21 §3) |
 | **Pixabay Music / Sound Effects** | no API, blocks `curl`: through a browser tool, else use Mixkit or Openverse | Pixabay Content License: commercial use, no credit; some tracks are registered in Content ID, so keep the page URL as proof (T21) |
 | **Mixkit** (music and SFX) | no API: find the file URL on the category page and download it | Mixkit free licences: commercial use, no credit; not resold or shared as stand-alone sound (T21) |
 | **tiengdong.com** (Vietnamese meme sounds: "ting ting", "bụp bụp", "oh nooo") | download the one that fits | "All rights reserved", many clipped from shows: organic posts only, never ads or monetised YouTube (T21) |
 
 - **One command** for a bed and effects: `uv run <skill_dir>/fetch_audio.py --dest <project>/media/audio --music
-  "<mood words>" --sfx whoosh,pop --import` (Openverse music, Mixkit SFX; prints file, seconds, tags, media ID).
+  "<mood words>" --sfx whoosh,pop --import` (Openverse music; SFX from Freesound when `FREESOUND_API_KEY` is set,
+  else Mixkit, else Openverse; `--sfx-seconds` caps the length; prints file, seconds, licence, author, media ID).
 - **Openverse**: `curl "https://api.openverse.org/v1/audio/?q=lofi&license=cc0,by&category=music&page_size=20"`
   (SFX: drop `category`) → `results[]` with `title`, `license`, `license_version`, `creator`, `source`, `duration`
   (ms), `url`. Freesound files come from a slow CDN (~12 s for 1 MB); download only the ones you will use.

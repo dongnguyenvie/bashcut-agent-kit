@@ -4,32 +4,35 @@ Editing skills for Claude Code and Codex that drive the [BashCut](https://github
 video editor. BashCut makes video editable by agents (CLI, MCP, undoable edits); this kit says **how to edit
 well**: what to look at, where to cut, how to mix, which effect fits which moment.
 
-Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its scripts
-only analyse (contact sheets, LUT files). Sound is measured by BashCut itself (`audio measure`, `media sync`).
+Every edit goes through BashCut's own commands. The kit never pre-renders picture or sound; its scripts only
+measure (`grade.py`: colour and LUT files) or fetch assets from official APIs (`fetch_audio.py`, `fetch_stock.py`,
+`fetch_font.py`). Sound is measured by BashCut itself (`audio measure`, `media sync`).
 
 ## Skills
 
 | Skill | Use it for |
 |---|---|
 | `edit-workflow` | The one engine for every edit: routing to a plugin recipe, ask-once intake, the quick path (the cut as one list, `plan.cut`: `plan check` without editing, then `plan apply` as one edit with captions, titles and ducking; batched calls; survey and draft audit in the `bc:surveyor` and `bc:critic` sub-agents on a cheaper model, `media digest` instead of whole transcripts; full path in FULL.md), 13 stages with a checklist backed by evidence (`run append stage`, `run checklist`), the user's workflow gates, strategy/draft/process audits, brief and plan (with the recipe's data) as project data, and the one skill to read per stage |
-| `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), padding and length ranges, a blind second pass, long → short with `project derive` |
+| `rough-cut` | Selecting by quote (`media resolve-range` → `selects set` → `selects place`), never across a recording cue, the later take of a retake, padding and length ranges, a blind second pass, long → short with `project derive` |
 | `review` | The critic loop before export: pass/fail/incomplete, severities by what the viewer sees, 1–3 rounds, `review verify` before "fixed", `review accept --reason`, coverage in the report; the brief for the fresh critic of each audit (`review packet --point strategy\|draft\|process`) and the generic checks |
-| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media digest`, `media inventory`, `media frames --sheet`, `media describe`); the surveyor brief (`SURVEYOR.md`); coverage, silent or broken clips; camera ↔ screen sync (`media sync`) |
-| `beat-cut` | Cutting on the beat grid or on sentences; punch-in reframes |
-| `audio-mix` | Levels, fades, ducking, music choice, SFX, loudness |
-| `voiceover` | Text-to-speech lines that read right, checked and placed |
-| `captions-text` | Captions from speech, hook titles, place and chapter cards |
+| `footage-survey` | Inventory, contact sheets and shot descriptions before editing (`media digest`, `media inventory`, `media frames --sheet`, `media describe`); the surveyor brief (`SURVEYOR.md`); coverage, silent or broken clips, recording cues ("cut that", "take two", claps); camera ↔ screen sync (`media sync`) |
+| `beat-cut` | Cutting on the beat grid or on sentences, rhythm checked by measurement (`review shots`, `review sync`); punch-in reframes sized from each clip's zoom headroom |
+| `audio-mix` | The mix measured by role, then levels, fades, ducking, music choice, SFX and loudness per output; music and SFX found and downloaded with `fetch_audio.py` (Openverse music; Freesound SFX with `FREESOUND_API_KEY`, else Mixkit or Openverse) |
+| `voiceover` | Measured speaking rate and narration windows, text-to-speech lines that read right, checked against their text, placed, re-taken in place; dubbing |
+| `captions-text` | Captions from speech or a script, word timings, hook titles, place and chapter cards, text templates; fonts that draw the language (`fetch_font.py`: Fontsource search, whole files from Google Fonts) |
 | `color-grade` | Measured grading: probe, `color measure`, candidate looks and LUTs with ranges (`grade.py` measures and reports), check and back off; library looks |
 | `effects` | Which effect for which moment, made with native transitions, speed ramps, freeze, reframe |
-| `visual-plan` | What the viewer sees on every line of a talking video: one treatment per line (speaker, punch-in, own B-roll, stock, icon, text, designed graphic, generated, screen, nothing), anchored to a word, balanced over the video from the reference, researched, written as `plan.visuals` for the building skills |
+| `visual-plan` | What the viewer sees on every line of a talking video: one treatment per line (speaker, punch-in, own B-roll, stock, icon, text, designed graphic, generated, screen, nothing), anchored to a word, balanced over the video from the reference, researched, written as `plan.visuals` for the building skills; starts from the script beats' ON SCREEN notes when `bashcut.vlog:hook-script` wrote them |
 | `motion-graphics` | Designed graphics over footage (cards, counters, kinetic type, diagrams): whether a sentence needs one, anchoring to the payoff word, hold and density ranges; the graphic itself comes from a `graphics.render` plugin such as HyperFrames Graphics |
-| `stock-images` | Licensed stock photos and video, labelled as illustration; Iconify icons as transparent PNG stickers |
+| `stock-images` | Stock photos and video from Pixabay or Pexels (`fetch_stock.py`, keys from the environment) placed as illustration, never labelled on the video; Iconify icons as transparent PNG stickers; generated B-roll when a provider serves it |
 | `style-study` | Measuring a reference style and turning it into a memo, a library look and text presets |
 | `library` | Making a missing preset, effect, transition, look, sticker or sound; harvesting what to keep after an edit; fixing and pruning library items |
-| `self-learn` | Recording lessons in the project memo, project skills or kit changes |
+| `self-learn` | Lessons (as cases with a check), preferences, facts and project skills in BashCut's knowledge; the user's corrections from the run log; folding repeats by occurrence; proposed kit changes |
 | `setup` | Installing the recommended plugins with one approval in the app, then checking they work. Only runs when the user types `/bc:setup` (Codex: `$bc-setup`) |
 
 Claude Code and Codex both show the skills under the plugin name: `bc:audio-mix`, `bc:edit-workflow`, …
+Topic recipes (`bashcut.vlog:plan`, `:travel`, `:hook-script`, `:publish`, …) are not in this kit: they ship with
+BashCut's Vlog plugin ([bashcut-plugins](https://github.com/dongnguyenvie/bashcut-plugins)) and load as plugin skills.
 Kit 0.1.0 renamed them from `bashcut:bashcut-<name>`; BashCut's agent setup replaces the old `bashcut` plugin and
 the old Codex links.
 
@@ -72,14 +75,20 @@ sh bashcut-agent-kit/scripts/install-codex.sh --uninstall
 .claude-plugin/plugin.json        plugin "bc" (skills show as bc:<name> in Claude Code and Codex)
 .claude-plugin/marketplace.json   marketplace "bashcut-agent-kit"
 .mcp.json                         BashCut MCP server for Claude Code
-hooks/hooks.json                  Claude Code hook: records each bc:* skill read in BashCut's run log (record-skill.sh)
+hooks/hooks.json                  Claude Code hooks (Codex has none): each bc:* skill read goes to BashCut's run log
+                                  (record-skill.sh); a user message that reads like a correction is logged as a
+                                  lesson candidate with one line of context (correction.sh, regexes only, silent
+                                  otherwise); a manual /compact with such corrections is held once (precompact.sh)
+                                  and the quotes come back after any compaction (after-compact.sh)
 skills/*/SKILL.md                 the skills (Agent Skills format, shared by Claude Code and Codex)
 skills/*/REFERENCE.md             detail a skill reads on demand (kept out of SKILL.md's 250-line limit)
 skills/*/SURVEYOR.md, CRITIC.md   sub-agent briefs (Codex gives them to its own sub-agent)
 agents/*.md                       Claude Code sub-agents bc:surveyor and bc:critic (Sonnet), generated from the briefs
 scripts/bashcut-mcp.sh            finds and starts bashcut-mcp
 scripts/install-codex.sh          Codex setup
-scripts/check.py                  checks every skill's frontmatter, size and referenced files, and agents/ in sync
+skills/*/*.py                     asset and measurement scripts run with `uv run` (stdlib only, keys from the environment)
+scripts/check.py                  checks every skill's frontmatter, size and referenced files, agents/ in sync, and
+                                  that this README's Skills table lists every skill
 scripts/sync_agents.py            writes agents/*.md from the briefs
 ```
 

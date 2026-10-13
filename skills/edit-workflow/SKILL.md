@@ -126,7 +126,8 @@ Stage ids: `intake`, `survey`, `story`, `rough-cut`, `rhythm`, `voiceover`, `vis
 writes `intake` (the brief set), `survey` (every media described), `story`, `rough-cut` and `captions` (plan
 apply), `review` (a review run that passes) and `export` (an export that lands). Optional stages you leave out
 need no entry; a stage you do by hand: `run append stage --stage colour --status done --evidence "a;b"` in the call
-that finishes it. Gates (`workflow gates`) are `ask`, `notify` or `skip`; request every one with
+that finishes it. As a long stage starts, one call shows it in the user's run panel: `run append stage --stage cut
+--text "Cutting 12 shots" --eta 120` (status `started` is the default; skip it for stages that take seconds). Gates (`workflow gates`) are `ask`, `notify` or `skip`; request every one with
 something cheap to look at (`checkpoint request G2 --summary "…" --attach sheet.png`, then `checkpoint status --wait
 100` while `awaiting_user`). Only the user answers a gate. A skipped G2 needs the strategy audit and a skipped G5
 the draft audit; BashCut refuses the rough cut without the recipe read and the strategy audit, and a final export

@@ -26,9 +26,15 @@ by the pictures. A BashCut that ignores `after` lists the stage before review: d
 
 ## 1. Read what is said and what exists
 
-- The lines: `bashcut transcript words --from F --to F2` (or the script's beats with their ON SCREEN notes from
-  `bashcut.vlog:hook-script`). Split into lines at sentence or idea boundaries; keep each line's first and last word
-  frames.
+- **A written script** (`bashcut.vlog:hook-script` wrote `plan.beats` [{id, section, text, job, onScreen,
+  treatment?, source}]): start from it, do not re-derive. `bashcut script check` gives each beat's heard frames
+  (`at`, `end`, `heardShare`); join them with `plan.beats` by `id` (`context get` → plan counts; the beats from
+  `project data plan`). Each beat with an `onScreen` note is a draft row: `line` = its text, `from`/`to` = `at`/`end`,
+  `beat` = its id, `show` = the note, `treatment` = its `treatment` or the table's name for what the note asks. Then
+  only check them (§2–§3) and fill the gaps: a beat without a note, a long beat that needs two rows, a beat with
+  `heardShare` below about 0.6 (it was re-worded or cut: take its words from what is heard).
+- **No script**: `bashcut transcript words --from F --to F2`. Split into lines at sentence or idea boundaries; keep
+  each line's first and last word frames.
 - What the footage already shows: the survey's described shots (`bashcut review coverage`, `media describe`), and
   `timeline sheet --cuts --text` for what is on screen now.
 - The targets: a reference's measured profile (`bc:style-study`: picture change interval, graphics a minute, share
@@ -110,7 +116,8 @@ bashcut project set-data plan visuals.json --merge --base-rev N
 ```
 
 `from`/`to`/`at` are timeline frames; `show` is one phrase of what the viewer sees; `why` is the line's need, not the
-treatment's name. Where the picture comes from lives on the imported media, not here.
+treatment's name; `beat` (the script beat's id, when there is a script) ties the row to its ON SCREEN note. A row
+that departs from the note says so in `why` ("note asked for a price card; the board in shot already shows it"). Where the picture comes from lives on the imported media, not here.
 
 Gate: when the brief asks to approve visuals, or rows need paid generation, request
 `bashcut checkpoint request visuals --summary "<rows by treatment, targets>" --attach <contact sheet>`; otherwise go

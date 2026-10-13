@@ -70,6 +70,19 @@ Say each of these plainly before planning; each one has spoiled a real edit some
 - **Not measured, transcribed or described**: `totals.notMeasured`, `notTranscribed`, `notDescribed` list what
   you have not looked at. Name them in the plan; never fill them with a guess ("no speech found" is not "silent"
   unless the floor says so).
+- **Recording cues** (phone footage often starts and ends with them): words said to the camera or the crew, not to
+  the viewer. Read them in `media digest` (each phrase with its second; `[again T]` beside a retake), and in
+  `media transcript --media ID --as words` for the exact word edges. List each cue with media, seconds and kind
+  before planning, so the plan never quotes one:
+  - **start / end of a take**: "bắt đầu", "ok quay nhé", "3, 2, 1", "rolling", "action" in the first ~3 s; "xong",
+    "ok rồi", "cut", "tắt đi" in the last ~3 s. Cut them off.
+  - **throw away what came before**: "cắt đoạn này", "bỏ đoạn đó", "nói lại", "làm lại", "cut that", "scratch that",
+    "take two", "again": the phrase before it is a dead take; the next phrase that says nearly the same words
+    (`[again T]`) is the one to use, unless the frame or the delivery says otherwise.
+  - **clap or slate**: a clap has no words; a provider that marks events shows it as an `event` word (or "(vỗ
+    tay)", "[clapping]"), else look at the first second's frames. It is a sync point (`media sync`), never in the cut.
+  A cue is yours to judge from its words and place, not from a word list: "làm lại" inside a sentence to the viewer
+  ("tôi làm lại từ đầu") is content.
 
 ## Reading a contact sheet
 

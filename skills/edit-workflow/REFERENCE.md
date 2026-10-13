@@ -15,7 +15,8 @@ The language the user writes in is a good first option, not an answer: a Vietnam
 video, and footage can speak another language. Pass the answer as `--language` (BCP 47: `vi`, `en`, `en-US`, `ja`).
 It drives captions, speech-rate units, voices (`capabilities get --voices` › `speaksContentLanguage`) and fonts
 (`fonts list --covers`). When the user does not know yet, create the project without it and set it once the footage
-is transcribed (the transcript names the spoken language). Write the answers into the brief as `stated`. Questions
+is transcribed: `project format --language <tag> --base-rev last` (`plan check` problem `content-language-unset`
+names the language heard). Write the answers into the brief as `stated`. Questions
 left unanswered are decided by you and written as `inferred` with the reason in `source`; the strategy audit's
 packet lists them so the critic checks each guess. They are not asked again later.
 

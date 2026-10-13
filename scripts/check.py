@@ -43,6 +43,17 @@ for name in sorted(os.listdir(SKILLS)):
     if lines > 250:
         problems.append(f"{name}: {lines} lines; move detail into REFERENCE.md")
     print(f"{name:16s} {lines:4d} lines  description {len(desc):4d} chars")
+# The README's skills table lists every skill, once, and nothing else.
+readme = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()
+table = re.search(r"^## Skills\n(.*?)^## ", readme, re.S | re.M)
+listed = re.findall(r"^\| `([a-z0-9-]+)` \|", table.group(1), re.M) if table else []
+skills = sorted(n for n in os.listdir(SKILLS) if os.path.isfile(os.path.join(SKILLS, n, "SKILL.md")))
+for name in sorted(set(skills) - set(listed)):
+    problems.append(f"README.md: skill {name} missing from the Skills table")
+for name in sorted(set(listed) - set(skills)):
+    problems.append(f"README.md: Skills table lists {name}, which is not a skill")
+for name in sorted({n for n in listed if listed.count(n) > 1}):
+    problems.append(f"README.md: Skills table lists {name} twice")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sync_agents  # noqa: E402
 for agent in sync_agents.AGENTS:
