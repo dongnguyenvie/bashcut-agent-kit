@@ -126,6 +126,12 @@ colours from the plan) fetches the set once, recolours it and draws numbered she
 `--pick "hook=1@0:90;idea=3@300:75" [--place-size 0.5 --position bottom]` renders a transparent PNG, saves a
 library sticker and places it; a bare n prints its ID and file (HyperFrames input). Never write or read SVG.
 
+Generated pictures (an `image.generate` plugin installed): set the style once with `bashcut image style --style
+"<style>" --references <character.png> --disclosure "Ảnh tạo bằng AI"`, then every scene in one job: `bashcut image
+generate prompts.json` (scene prompts only; the lock adds the style). One look at its contact sheet, re-generate only
+the `failed` or off-model scenes, place with `media place`, then `bashcut image disclose` once (review flags
+`ai-undisclosed`). Mascot poses for the brand: `bashcut library brand-pose <kit> --pose thinking --image photo.jpg`.
+
 ## Free fallback: blurred own footage
 
 For a background (a horizontal clip in a vertical frame, a split moment, an info card), put a copy of the same
