@@ -514,7 +514,9 @@ def draw_sheets(rows, dest, slots_per_sheet):
                         for j, frame in enumerate(frames):
                             picture.paste(ImageOps.fit(frame, (strip_w, tile_h)), (j * strip_w, 0))
                     elif (dest / row["file"]).exists():
-                        picture = ImageOps.contain(Image.open(dest / row["file"]).convert("RGB"), (tile_w, tile_h))
+                        image = Image.open(dest / row["file"]).convert("RGBA")  # transparent PNGs on light grey
+                        image = Image.alpha_composite(Image.new("RGBA", image.size, (232, 232, 232, 255)), image)
+                        picture = ImageOps.contain(image.convert("RGB"), (tile_w, tile_h))
                 except OSError:
                     picture = None
                 if picture:
