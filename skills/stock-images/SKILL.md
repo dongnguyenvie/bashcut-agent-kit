@@ -1,6 +1,6 @@
 ---
 name: stock-images
-description: Find, download and place stock photos and stock video (Pixabay, Pexels) and vector icons (Iconify, as transparent PNG stickers) and open illustration sets in one style (unDraw, Humaaans, Open Peeps, Open Doodles, recoloured to the palette) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "pixabay", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ", "hình vẽ minh hoạ", "illustration".
+description: Find, download and place stock photos and stock video (Pixabay, Pexels, Internet Archive footage), animated emoji (Noto, OpenMoji), brand logos (Simple Icons) and vector icons (Iconify, as transparent PNG stickers) and open illustration sets in one style (unDraw, Humaaans, Open Peeps, Open Doodles, recoloured to the palette) in a BashCut edit as illustration that blends into the cut, or use a blurred copy of the user's own footage as a background. Use when the edit needs a picture or icon the footage lacks, or the user says "ảnh minh hoạ", "video minh hoạ", "ảnh stock", "pexels", "pixabay", "lấy ảnh trên mạng", "thêm hình mô tả", "icon", "biểu tượng", "sticker minh hoạ", "hình vẽ minh hoạ", "illustration", "tư liệu", "archive", "emoji", "logo".
 ---
 
 # Stock photos and video
@@ -14,7 +14,8 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 
 ## 1. Search
 
-- **Library first**: `bashcut library list --kind clip --query <words>`; reuse what fits before fetching.
+- **Library first**: `bashcut library list --kind clip --query <words>`; reuse what fits before fetching (the user's
+  downloads from the Online resources sheet are there too, tagged like yours).
 - **Candidates for every stock row at once** (the `plan.visuals` rows that need stock): `slots.json`
   `[{"slot": "pot", "query": "clay pot", "kind": "photo", "orientation": "portrait", "count": 8}, …]`, then
   `uv run <skill_dir>/fetch_stock.py --slots slots.json --dest <project>/media/stock --max-mb <cap>` downloads all,
@@ -25,8 +26,10 @@ you: `bashcut library search "clay pot" --kind sticker` (a job). Place a library
 - **Sources** (`--source`; default the first with a key, else `free`): `pexels`, `pixabay` (free keys
   `PEXELS_API_KEY`, `PIXABAY_API_KEY`, environment only; the only vertical stock video; Pexels takes Vietnamese),
   `free` = Wikimedia + Openverse photos (licence per file), `nasa` (space, science; public domain). No video key:
-  say so, use stills with motion. Never place a Pixabay URL. Documentary by hand: Internet Archive
-  `advancedsearch.php?q=<q>+AND+mediatype:movies&output=json`; read titles first, files are large.
+  say so, use stills with motion. Never place a Pixabay URL. `archive` (Internet Archive photos and footage:
+  newsreels, NASA, home movies; `--year 1960-1975` or a slot's `"year"`, `--public-domain`); `documentary` = archive
+  + Wikimedia + Openverse, for a news documentary only. Archive tiles show year, length and MB; the file comes at
+  `--pick` (~0.3 MB/s, largest MP4 within `--file-mb`); prefer short items, trim to the moment.
 - **No key** is not a reason to skip: open `https://www.pexels.com/search/<q>/?orientation=portrait` (videos:
   `/search/videos/<q>/`) in a browser tool, read each result's link and alt text, and look at the thumbnails
   before choosing. Photo ID = the trailing number of `/photo/<slug>-<id>/`. Download URL:
@@ -92,6 +95,23 @@ rsvg-convert -w 512 -h 512 cash.svg -o cash.png    # transparent PNG; or: magick
   (`media import … --place --track OVERLAY`), 512 px, small (`transform` zoom ~0.25–0.4), with a pop sound, and
   keep the good ones: `bashcut library add --kind sticker --name "Cash" --file /abs/media/stock/icons/cash.png --tags money`.
 
+## Emoji for keyword pops (Noto Animated, OpenMoji)
+
+All the pops of a video in one call: `uv run <skill_dir>/fetch_emoji.py --words "wow,money,fire,tiền" --dest
+<project>/media/emoji` (English or Vietnamese words) draws one sheet, a row per word, animated Noto first (`png` =
+OpenMoji still). One look, then `--pick "wow=1@120:30;money=2@300:30" [--place-size 0.2 --position top]` saves each as
+a library sticker and places it (animated WebP → movie with alpha). Land it on the payoff word, off faces, with a pop
+sound; length from `bc:effects`.
+
+## Brand and tool logos (Simple Icons)
+
+`uv run <skill_dir>/fetch_logos.py --brands "figma@120:90,notion@210:90" --dest <project>/media/logos --on dark`:
+an exact name, slug or alias renders a PNG in the brand colour (white/black when the colour is under 3:1 on `--on`),
+saves a library sticker and places it at @frame:length; no look needed. A name Simple Icons lacks comes in its own
+colours from Iconify (logos, devicon); a near miss prints close slugs and one sheet: run again with the slug. Logos
+are trademarks: use one only to name the product shown or reviewed, never to suggest sponsorship, endorsement or a
+partnership, never recoloured into the channel's palette or altered.
+
 ## Illustrations in one style (open sets)
 
 For explainers and promos, an open set beats `image.generate`: no generation cost, no AI disclosure, and every
@@ -106,6 +126,12 @@ scenes). One set per video; the first `--set` is stored in project data and reus
 colours from the plan) fetches the set once, recolours it and draws numbered sheets. One look per sheet, then
 `--pick "hook=1@0:90;idea=3@300:75" [--place-size 0.5 --position bottom]` renders a transparent PNG, saves a
 library sticker and places it; a bare n prints its ID and file (HyperFrames input). Never write or read SVG.
+
+Generated pictures (an `image.generate` plugin installed): set the style once with `bashcut image style --style
+"<style>" --references <character.png> --disclosure "Ảnh tạo bằng AI"`, then every scene in one job: `bashcut image
+generate prompts.json` (scene prompts only; the lock adds the style). One look at its contact sheet, re-generate only
+the `failed` or off-model scenes, place with `media place`, then `bashcut image disclose` once (review flags
+`ai-undisclosed`). Mascot poses for the brand: `bashcut library brand-pose <kit> --pose thinking --image photo.jpg`.
 
 ## Free fallback: blurred own footage
 

@@ -154,7 +154,7 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
 | Picture in picture, split moment | the second clip on an overlay layer with `transform` zoom below 1 and pan/tilt |
 | Black-and-white moment | `adjustment add --look black-white` over the range |
 | Pop text, labels, prices | text templates (`stacked-keyword`, `boxed-keyword`, …), `keyword-sticker`, `place-card` (`bc:captions-text`) |
-| Stickers | `library place ID --position top-right --size 0.25` (image, alpha movie or emoji) |
+| Stickers | `library place ID --position top-right --size 0.25` (image, alpha movie or emoji); animated emoji and brand logos: `fetch_emoji.py`, `fetch_logos.py` in `bc:stock-images` |
 | Fade from/to black | `dissolve` against a black clip, or audio `fadeIn`/`fadeOut` for sound |
 | Ken Burns, slow push-in | `clip motion ITEM --preset zoom-in` (also zoom-out, pan-*), or keyframes at the drift rate above |
 | Animated title or label | `clip motion TEXT_ITEM --preset pop-in` (fade-in-out, slide-up, zoom-punch) |

@@ -22,7 +22,8 @@ this footage and say why in the plan (`"deliberate": true` with the reason to le
   no ffmpeg pre-renders. This kit says what to do and why.
 - Edit without asking; stop only at gates. Download what the edit needs (music, SFX, pictures, video, fonts)
   without asking; no source or licence records (`--source URL` only when you have it anyway). Never clone a voice
-  that is not the user's. Plugins are the user's to install: missing ones → tell them `/bc:setup`.
+  that is not the user's. Install a BashCut plugin the edit needs (`plugins search --capability`, `plugins install`;
+  trusted automatically unless the user turned it off, then the user approves it in the app).
 - Read a plugin's skill before using its feature; plugin skills are read-only (corrections: `bc:self-learn`).
 - **Every call is a turn that resends the whole context** (cost ≈ calls × context): one call for many things, the
   cut as one list (`plan.cut`), never clip by clip; read big things in sub-agents, not yourself. After your own

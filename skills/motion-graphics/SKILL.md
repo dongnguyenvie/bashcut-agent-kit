@@ -67,8 +67,13 @@ what, where and when. `bashcut plugins list` shows whether one is ready:
   list them in `plan.cut.graphics` with their `render` inputs and build them all with its `bin/graphic plan` in
   one call (`"@words"` values land rows on their words) instead of placing them one by one; a shared `render.frame`
   (backdrop, section chip, credit, callout, scale) gives a series one look without editing any widget's HTML.
-- None ready: `bashcut plugins search --capability graphics.render` names one to install; installing, trusting and
-  Install Dependencies… are the user's (`bc:edit-workflow`). Meanwhile use native text and say what is missing.
+  Brand mascot: widgets that declare `mascot` take the brand's pose, one per section with `--set pose=thinking`
+  (poses from a photo: `bashcut library brand-pose <kit> --pose X --image photo.jpg`). A place video (real
+  estate, a venue): all location data in one `bin/osm-map --points … --legs star --amenities … --radius` call
+  into a copy of `amenity-radius`; every count, minute and km on screen comes from its output.
+- None ready: `bashcut plugins search --capability graphics.render` names one; install it (`bc:edit-workflow`) and
+  `plugins setup` it if its health says so. If the install waits for the user's approval or fails, use native text
+  meanwhile and say what is missing.
 - The user's own Remotion or After Effects project: they render it themselves (ProRes 4444 or HEVC with alpha) and
   you import it with `library add --kind sticker --file` (keeps the alpha). Never run Remotion renders for them (its
   licence, T22).
@@ -83,6 +88,13 @@ widget data: `value` → a counter's `to` or a bar's `value`, `" " + unit` → `
 `credit`; keep the source URL with the script line. Answers are cached in the project (`project data facts`) and
 reused on reruns. Search the web by hand only for rows that came back `none`, never to replace an answered one; a
 figure the table cannot hold (a price, a ticket fee) is a web row from the start.
+
+**Animated accents (Lottie): a check, an arrow, a loader, confetti.** All of a video's in one call: `uv run
+<skill_dir>/fetch_lottie.py --words "check,arrow,loader,confetti" --dest <project>/media/lottie` draws one sheet of
+frame strips (useAnimations MIT, Noto Animated CC BY 4.0, LottieFiles Lottie Simple License). One look, then
+`--pick "check=2;confetti=1"` copies each JSON and prints its licence, `mono` and a ready `place` line: one accent =
+one `bin/graphic place lottie --set file=<file>` (`color=accent` only for a `mono` pick, `loop=true` for a loader).
+Credit "Google (Noto Emoji)" for a Noto pick. Never `.lottie` zips or animations with image assets.
 
 Hand the plugin a brief, not a template: the words and the payoff word's frame, what the viewer should see, the
 hold, and the look (style profile, reference frames, the video's own titles).
