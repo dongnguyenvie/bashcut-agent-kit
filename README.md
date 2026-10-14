@@ -30,7 +30,7 @@ Sound is measured by BashCut itself (`audio measure`, `media sync`).
 | `style-study` | Measuring a reference style and turning it into a memo, a library look and text presets |
 | `library` | Making a missing preset, effect, transition, look, sticker or sound; harvesting what to keep after an edit; fixing and pruning library items |
 | `self-learn` | Lessons (as cases with a check), preferences, facts and project skills in BashCut's knowledge; the user's corrections from the run log; folding repeats by occurrence; proposed kit changes |
-| `setup` | Installing the recommended plugins with one approval in the app, then checking they work. Only runs when the user types `/bc:setup` (Codex: `$bc-setup`) |
+| `setup` | Installing the recommended plugins (at once while BashCut trusts plugins automatically, the default; otherwise with one approval in the app), then checking they work. Only runs when the user types `/bc:setup` (Codex: `$bc-setup`) |
 
 Claude Code and Codex both show the skills under the plugin name: `bc:audio-mix`, `bc:edit-workflow`, …
 Topic recipes (`bashcut.vlog:plan`, `:travel`, `:hook-script`, `:publish`, …) are not in this kit: they ship with

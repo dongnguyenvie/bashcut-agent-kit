@@ -71,8 +71,9 @@ what, where and when. `bashcut plugins list` shows whether one is ready:
   (poses from a photo: `bashcut library brand-pose <kit> --pose X --image photo.jpg`). A place video (real
   estate, a venue): all location data in one `bin/osm-map --points … --legs star --amenities … --radius` call
   into a copy of `amenity-radius`; every count, minute and km on screen comes from its output.
-- None ready: `bashcut plugins search --capability graphics.render` names one to install; installing, trusting and
-  Install Dependencies… are the user's (`bc:edit-workflow`). Meanwhile use native text and say what is missing.
+- None ready: `bashcut plugins search --capability graphics.render` names one; install it (`bc:edit-workflow`) and
+  `plugins setup` it if its health says so. If the install waits for the user's approval or fails, use native text
+  meanwhile and say what is missing.
 - The user's own Remotion or After Effects project: they render it themselves (ProRes 4444 or HEVC with alpha) and
   you import it with `library add --kind sticker --file` (keeps the alpha). Never run Remotion renders for them (its
   licence, T22).
