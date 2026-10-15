@@ -18,7 +18,9 @@ word and `show`), the facts and numbers, the look and whether the voice is final
    bashcut.hyperframes:hyperframes --section "What you have"`; `P="$HOME/Library/Application
    Support/BashCut/Plugins/bashcut.hyperframes"`) and the widgets (`"$P/bin/graphic" examples`; `examples NAME`
    for the variables of the ones you use). Never read the plugin's `lib/` scripts or an example's HTML to learn a
-   variable or option.
+   variable or option. The rows: `bashcut project data plan | jq -c '.cut.graphics, .visuals'` (the plan itself,
+   no `.plan` or `.data` prefix), once. Never `project get`: it is the whole document, and `--base-rev last` (the
+   revision your last command saw, reads included) is the revision every edit here takes.
 2. Take data from the plugin's tools (maps, routes, areas); never work it out. Fill widgets with variables and give
    the series one look with the same `render.frame` on every row; no copies of example HTML patched by a script.
    Look: `backdrop` "paper" or "texture"; `scale` 1.2–1.4; `float` true against frozen-picture warnings; section
@@ -38,7 +40,7 @@ word and `show`), the facts and numbers, the look and whether the voice is final
                  "callout": {"text": "1 vòng: *1,54 km*", "at": "@một phẩy năm tư"}}}}
    ]}}
    EOF
-   bashcut project set-data plan /tmp/g.json --merge --base-rev "$(bashcut project get | jq .rev)"
+   bashcut project set-data plan /tmp/g.json --merge --base-rev last
    bashcut plan check --words        # fix what it reports, no --patch
    "$P/bin/graphic" plan --only g-s1 --snapshot 0.8,2.4,4.1   # PNGs in seconds: look, fix the row, again
    "$P/bin/graphic" plan             # the full render: long timeout, minutes for a long graphic

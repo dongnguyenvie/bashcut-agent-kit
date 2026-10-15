@@ -99,7 +99,8 @@ stage, right after the stage its `after` names (else before review);
 generic checks (`bc:review`) are always added. `promise` is generic: every video opens a question and must close
 it. `context get` summarises all this, so it survives a reset without re-reading the recipe.
 
-Update `stage` (`project set-data plan --merge`) at each stage start, so plan and run log agree.
+Update `stage` in the stage's one plan write (`project set-data plan --merge`), so plan and run log agree; never
+a write just for it.
 
 ## Story
 
@@ -143,7 +144,12 @@ lessons: `bc:self-learn`.
 Measured on real runs: one ad took 778 calls (159 `context get`); a quick-path ad (0.1.27) 108 turns and 13.4M,
 context 34k → 180k because every transcript, image and skill it read stayed. In the #553 bench (0.1.46) the editor
 starts at ~45k, so each call costs that: one run made 13 `plan check`, 10 `set-data` and 9 `project get` calls,
-and 6–7 idle wake-ups per run (0.5–0.7M) waited on sub-agents through `SendMessage`.
+and 6–7 idle wake-ups per run (0.5–0.7M) waited on sub-agents through `SendMessage`. In the system-diagram benches
+(0.1.52) the editor made 48 and 25 calls at 45k → 123k (4.4M and 1.9M); about half were avoidable: 7 `help`/`--help`
+and 4 `schema get` lookups, 2–3 extra bootstrap reads (recipe sections, the plan shapes), 2–3 reads of a widget's
+variables or HTML, 2–3 music searches, 2 extra plan writes, re-reads of the plan, frames of the sub-agents' work, a
+second voice round for length, and a hand caption regroup that cost 4 calls plus 8 to recover from. The 12–18
+`project get` calls were the graphics sub-agent's, reading the whole document for `rev` and one list.
 
 - **One call for many things** (BashCut's batching rules), plus `media transcribe` without `--media` (every media),
   `plan apply --sheet` (build, review, storyboard); in a shell chain commands whose output you skip (`run append …
@@ -167,6 +173,22 @@ and 6–7 idle wake-ups per run (0.5–0.7M) waited on sub-agents through `SendM
   `timeline get` between steps (`plan check` and `review run` say what you need). One `plan check`, one patch.
   Filter big JSON in the same call; `schema get` only for a field no command description names. A loaded skill stays
   for the run.
+
+## Syntax the runs looked up
+
+Each of these cost one to eight calls of `help`, `schema get` or trial and error in a bench:
+
+| Need | Call |
+|---|---|
+| Revision for an edit | `--base-rev last` (after any command of yours, reads included); never `project get \| jq .rev` |
+| One plan list | `bashcut project data plan \| jq -c '.cut.voiceover'` (the value itself: no `.plan` or `.data`) |
+| Fields of `plan.cut` | SKILL step 4 and "The brief and the plan as data" (both in the bootstrap); never `help plan check` |
+| Fix built items | `plan apply --patch '{"music": {"volumeDb": -4}}' --base-rev last --why "…"` (by entry ID; keeps grouped captions); never `timeline apply` on plan-built items |
+| A clip's gain off the plan | `clip volume ITEM --db -4 --base-rev last`; a timeline op is `{"op": "setProperties", "item": ID, "patch": {…}}` |
+| Captions by rule | `captions group --max-chars 24 --max-seconds 3 --break-gap 0.3 --base-rev last` |
+| Captions by hand | one call: `transcript words \| jq` to a file, a script writing `groups.json` (`[[0,1,2],[3,4]]`, runs of word indices), `captions group groups.json --base-rev last` |
+| A sound measurement job | `J=$(bashcut audio mix-measure \| jq -r .job); bashcut jobs wait $J --done --timeout 110` |
+| Frames | `ui frame F --phone --out /abs/f.png` (frames, not seconds), several in one call |
 
 ## Run log
 
