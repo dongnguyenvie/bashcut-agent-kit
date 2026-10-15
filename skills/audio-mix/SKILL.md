@@ -1,6 +1,6 @@
 ---
 name: audio-mix
-description: Balance sound in a BashCut edit: the mix measured by role, gain, fades, music ducked under speech, SFX at cuts, licensed music and SFX found, loudness per output. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc to quá", "thêm sfx", "tìm nhạc", "nhạc không bản quyền", "meme sound", "audio mix".
+description: Balance sound in a BashCut edit: the mix measured by role, gain, fades, a fixed music bed under the voice, SFX at cuts, licensed music and SFX found, loudness per output. Triggers: "trộn âm thanh", "cân âm lượng", "nhạc to quá", "thêm sfx", "tìm nhạc", "nhạc không bản quyền", "meme sound", "audio mix".
 ---
 
 # Audio mix in BashCut
@@ -13,10 +13,13 @@ You cannot listen: measure, change, measure again, and report the numbers.
 |---|---|
 | Clip level, fades, mute | Level: `clip volume <item> --db -4 --base-rev last` (`--items a,b` for several; linked sound follows), never `timeline apply` for it. Fades and mute: `setProperties` `fadeIn`/`fadeOut` (frames), `muted`; layer: `layers set --muted on` |
 | Volume over time (swell at a drop, dip for one line) | `clip keyframe --property volume` (dB) on audio items or clips with linked sound; replaces `volumeDb`, stacks with fades and ducking |
-| Music under speech | music layer `setTrackProperties` `{"duckingEnabled": true, "duckUnderSpeechDb": -D, "duckAttackFrames": A, "duckReleaseFrames": R}` (ranges below) |
+| Music under speech | **Fixed bed first**: one level from the measured voice, `clip volume <bed> --db D --base-rev last`, ducking off (`setTrackProperties` `{"duckingEnabled": false}`). A `plan.cut` `music` without `duck` does this on apply (`underVoiceDb`, default 16; the result reports `voiceLUFS`, `musicLUFS`, `volumeDb`) |
+| Music up in long silences | Only when the edit has silences of 2.5 s or more and the music should come up in them: `plan.cut` `music.duck: true` (or `duckDb`), else `setTrackProperties` `{"duckingEnabled": true, "duckUnderSpeechDb": -D, "duckMinGapFrames": H, "duckAttackFrames": A, "duckReleaseFrames": R}`; gaps shorter than the hold (`duckMinGapFrames`, default 2.5 s) keep the music down |
 | New layers | `layers add --kind audio --role music` or `sfx` (voiceover: `bc:voiceover`) |
 
-Ducking follows speech on the dialogue and voiceover layers; a muted layer stops ducking music.
+Ducking follows speech on the dialogue and voiceover layers; a muted layer stops ducking music. Ducking that rises
+between closely spaced lines pumps: the bed comes and goes with every line and sounds worse than a steady level.
+`mix-measure` `musicBeds[].pumping` and review's `music-pumping` flag it.
 
 ## 1. Look before fixing
 
@@ -27,7 +30,8 @@ bashcut audio measure --media ID --curve   # job: one file (a music candidate, a
 ```
 
 Read `mix-measure` before touching any level, decide by the ranges below, change the **ratio** (music `volumeDb`,
-duck depth, keyframes), never the master, then measure again (T11 §4). Judge `musicUnderSpeech`, not
+duck depth, keyframes), never the master, then measure again (T11 §4). For the bed: voice LUFS − N − the music
+file's LUFS at 0 dB is the `--db` to set (N from the range below). Judge `musicUnderSpeech`, not
 `duckUnderSpeechDb`: a quiet take can get almost no ducking from the same setting (open-edit, T11 §2).
 
 ## 2. Levels: ranges and what moves them
@@ -36,9 +40,10 @@ duck depth, keyframes), never the master, then measure again (T11 §4). Judge `m
 |---|---|---|
 | Voice (real speech or voiceover), per stem before the mix | −16 to −20 LUFS | Level each speaking clip first: cameras can differ by 15–20 dB (kit edits). |
 | Music under speech | 5–18 dB under the voice | Less when the music carries the piece (montage-like vlog, sparse speech, low `presenceShare`); more for dense information, a soft voice, music with vocals or strong 1–4 kHz energy, accessibility. Sources: ~5 dB, with ~10 dB reported by viewers as "there is no music" (bestagentkits, outcome); 10–14 (reelmimic); 18–20 (openmontage). |
-| Music in speech gaps | gaps longer than ~1.5 s may rise toward voice level; shorter gaps stay ducked | Read `musicInGaps`, not the setting (bestagentkits, video-recap). |
-| Duck timing | attack 5–200 ms, release 350–600 ms (frames = ms × fps / 1000) | Fast attack for speech that starts hard; longer release when gaps are short, so the bed does not pump between words. |
-| Duck depth (setting) | 6–14 dB | Then check the measured ratio. |
+| Music under continuous voiceover | one fixed level 14–18 dB under the voice (default 16) | No level change between lines (Nolan, #630). |
+| Music in speech gaps | short gaps (under 2.5 s) never rise; only a silence of 2.5 s or more (intro before the first line, a montage break, the outro) may rise toward voice level | Read `musicInGaps` and `musicBeds`, not the setting (bestagentkits, video-recap, #630). |
+| Duck timing (ducking on) | attack 5–200 ms, release 350–600 ms (frames = ms × fps / 1000), hold 2.5 s | The hold keeps the bed down through gaps between lines. |
+| Duck depth (ducking on) | 6–14 dB | Then check the measured ratio. |
 | SFX, relative to the voice's p95 | subtle UI −16…−12, transitions −14…−8, impacts and memes −8…−3 dB | By role (ghost-editor). Files differ by 20 dB, so measure the file. |
 | SFX density | 6–12 subtle per minute plus 1–3 memes (ghost-editor); none for a calm tutorial | Genre (T11 §7). Never the same sample twice in a row. |
 | SFX sync | audible peak within 2 frames of its anchor | A correctness rule (guizang, shotcraft); `mix-measure` gives the offsets. |
@@ -49,10 +54,11 @@ Seen in our edits (not targets): SFX peaking near −21 dB were audible without 
 
 ## Two mixing styles
 
-**Review / food / talking**: one structured song under everything, ducked near the deep end of the range; a
+**Review / food / talking**: one structured song under everything at one fixed level near the deep end of the range; a
 whoosh or pop on the hook's special transition; SFX matched to on-screen motion.
 
-**Narrative / cinematic**: music is not a constant bed. Loud in montage, ducked while information is spoken. No
+**Narrative / cinematic**: music is not a constant bed. Loud in montage (ducking on, rising only in the montage's
+silences of 2.5 s or more), down while information is spoken. No
 whoosh on ordinary cuts. SFX only with a reason (shutter on a photo cut, real foley pushed up on a montage cut).
 Silence is a tool: drop the music 1.5–3 s before the punchline (split the music clip and fade out), leave the most
 honest line with no music. Keep the music continuous across section changes.
