@@ -36,6 +36,10 @@ word and `show`), the facts and numbers, the look and whether the voice is final
    "$P/bin/graphic" plan --only g-s1 --snapshot 0.8,2.4,4.1   # PNGs in seconds: look, fix the row, again
    "$P/bin/graphic" plan             # the full render: long timeout, minutes for a long graphic
    ```
+   **Short rows, never one long one.** A graphic over more than ~10 s or more than one section is one row per
+   section (or group of 2–3 voice lines), each anchored to its section; a diagram that grows over the video is one
+   row per section with the same `render.scene`, so the slices meet exactly. `plan` re-renders only the rows that
+   changed: a fix to one block re-renders seconds, not the whole video.
    **Look before you render.** A full `plan` renders every changed row end to end (a 40 s diagram takes about
    3 min); `--snapshot` (seconds from the graphic's start) shows the same row, set, frame and brand as PNGs in
    seconds, with nothing placed. Tweak with snapshots until the frames in step 4 are right, then render once.
