@@ -86,7 +86,7 @@ A font from a project's `fonts/` folder is not copied with the preset: `fonts im
 present it as theirs. `library apply ID` (no `--item`) puts it on the whole project.
 
 ```sh
-bashcut library add --kind brand --name "Acme" --params '{"palette": {"accent": "#F2B544", "text": "#2B1B0E", "background": "#EADBC4"}, "fonts": {"heading": "BeVietnamPro-Black"}, "logo": "acme-logo", "disclosure": "Ảnh tạo bằng AI"}'
+bashcut library add --kind brand --name "Acme" --params '{"palette": {"accent": "#F2B544", "text": "#2B1B0E", "background": "#EADBC4"}, "fonts": {"heading": "BeVietnamPro-Black"}, "logo": "acme-logo"}'
 ```
 
 Every item: a clear English `--name` (the ID comes from it), `--tags` for mood and use, `--pack` for a set (the
