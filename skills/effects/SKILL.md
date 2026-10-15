@@ -72,7 +72,7 @@ longer), fewer than 3 families when there are 5+ cuts, one ease on more than hal
   (our edits; T08 §3).
 - A few frames short: slow the clip slightly, never freeze its last frame (vox-director ~1.02–1.1; T08 §3).
 - Fast-forward: 1.5–2× when narrated over, 4–20× for silent waiting (digitalsamba, vlog tutorial; T19 §3);
-  `setSpeed` goes to 16×. One example: a 65 s typing stretch read clearly at 18× (3.6 s) with no presenter or
+  `setSpeed` goes to 16×. One example: a 65 s typing stretch read clearly at 16× (about 4 s) with no presenter or
   captions and one label saying what happens (the action, never the speed or effect name).
 
 **Graphic moves and transitions.** Durations in seconds; frames = seconds × the project fps (T08 §3).
