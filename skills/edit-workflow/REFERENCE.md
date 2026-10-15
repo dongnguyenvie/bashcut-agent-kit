@@ -1,50 +1,39 @@
 # Edit workflow: reference
 
-Detail for `bc:edit-workflow`. Read the section you need; the stage order, gates and rules are in SKILL.md.
+Detail for `bc:edit-workflow`; read only the section a step names.
 
 ## Starting a project
 
 ```sh
 bashcut project create --name "Market vlog" --dir ~/Movies/BashCut --footage /abs/path/footage \
   --canvas portrait --fps 29.97 --language <tag>      # the user's language, e.g. en, vi, ja
-bashcut media list                        # media IDs, fps, frames, hasAudio, proxy state
 ```
 
-A new project has no default language: it is one of the intake questions (below) unless the prompt names it.
-The language the user writes in is a good first option, not an answer: a Vietnamese prompt can ask for an English
-video, and footage can speak another language. Pass the answer as `--language` (BCP 47: `vi`, `en`, `en-US`, `ja`).
-It drives captions, speech-rate units, voices (`capabilities get --voices` › `speaksContentLanguage`) and fonts
-(`fonts list --covers`). When the user does not know yet, create the project without it and set it once the footage
-is transcribed: `project format --language <tag> --base-rev last` (`plan check` problem `content-language-unset`
-names the language heard). Write the answers into the brief as `stated`. Questions
-left unanswered are decided by you and written as `inferred` with the reason in `source`; the strategy audit's
-packet lists them so the critic checks each guess. They are not asked again later.
+Language is an intake question unless the prompt names it. The user's writing language is a good first option, not
+an answer: a Vietnamese prompt can ask for an English video, and footage can speak another language. It drives
+captions, speech-rate units, voices (`speaksContentLanguage`) and fonts (`fonts list --covers`). Unknown yet: create
+without it, set it once transcribed (`project format --language <tag> --base-rev last`; `plan check` problem
+`content-language-unset` names the language heard).
 
-Pick the canvas from where the video will be watched: `portrait` for TikTok/Reels/Shorts, `landscape` (16:9)
-for YouTube and computers, `square` for feeds. Ask when it is not clear. It can change later with
-`project format --canvas landscape` (one undoable edit), but reframing and text placement must then be checked
-again with `ui frame`.
+Canvas from where it will be watched: `portrait` for TikTok/Reels/Shorts, `landscape` (16:9) for YouTube and
+computers, `square` for feeds. Ask when unclear. Changed later (`project format --canvas`): recheck reframing and
+text placement with `ui frame`.
 
-Then name the platforms: `project format --outputs reels,tiktok --base-rev N` (export presets, first one primary;
-a recipe sets them for you; the Export sheet starts with the first). `platforms get` gives each platform's facts —
-shape, longest length, safe zones, loudness target, true peak — and which are outputs; `platforms get <id>` gives one
-platform's facts with their source and whether each is hard or a recommendation. The review checks text against the
-zones of every output of the frame's shape (the strictest wins; with none, `layout` is null and zones are not
-checked), and each export is normalized to its own preset's loudness target. Caption delivery per output (burned in,
-a sidecar file, both or none) is the project's `output.captions` setting; the export follows it.
+Then the platforms: `project format --outputs reels,tiktok --base-rev N` (first one primary; a recipe sets them).
+`platforms get` gives their facts (shape, length, safe zones, loudness) with sources. Review checks text against the
+zones of every output of the frame's shape (the strictest wins; no outputs, no zones checked); each export is
+normalized to its own preset's loudness. Caption delivery per output is the project's `output.captions`.
 
-`--footage` links the footage folder into the project (it is never modified). Import the clips before the survey,
-the whole folder in one call: `media import /abs/path/footage --base-rev N` (it does not touch the timeline;
-`bc:footage-survey` needs them as project media; one file with a file path). Build the cut with `plan.cut` and
-`plan apply` (SKILL.md, "The quick path"), or place single clips with `media place --media ID --at-frame F`. The CLI resolves relative paths against its own working directory, so pass absolute paths.
-Before planning, `context get` › `analysis` lists the media not yet measured, transcribed or described and the
-analysis jobs still running: wait for them or say what the plan does not know yet.
+`--footage` links the footage folder (never modified). Import it whole before the survey in one call (`media import
+/abs/path/footage --base-rev N`; the survey needs project media). Pass absolute paths: the CLI resolves relative
+ones against its own working directory. Before planning, `context get` › `analysis` lists media not yet measured,
+transcribed or described and running jobs: wait, or say what the plan does not know yet.
 
 ## Intake questions
 
 One round, never one by one: AskUserQuestion in Claude Code, a numbered list in plain text elsewhere (Codex, chat
-agents). At most 4 questions, in this order; skip one the prompt, the brief or the knowledge facts already answer,
-and drop the least important to stay at 4 (a dropped one is decided and written `inferred`):
+agents). At most 4, in this order; skip any the prompt, brief or knowledge facts answer, drop the least important to
+stay at 4 (a dropped one is decided and written `inferred`):
 
 | Question | Your choice, first option | Other options |
 |---|---|---|
@@ -56,19 +45,18 @@ and drop the least important to stay at 4 (a dropped one is decided and written 
 | A recipe's `askAtIntake` field (a truth source, a channel name) | only when the footage or knowledge facts give it; else ask without a guess | what the recipe suggests |
 
 Every first option names the concrete choice, never a bare "auto": `AI chọn: talking-head + chèn màn hình
-(Recommended)`, with the reason in its description. The user then knows what you will do, and the strategy audit can
-check it. Text-only agents end the list with "Không trả lời: mình làm theo lựa chọn 1 của mỗi câu".
+(Recommended)`, with the reason in its description, so the strategy audit can check it. Text-only agents end the
+list with "Không trả lời: mình làm theo lựa chọn 1 của mỗi câu".
 
 Answers go into the brief as `stated`; a first option taken because the user did not answer is `inferred` with your
-reason in `source`. The chosen steps become `plan.stages` (`required: false` with the user's reason for a dropped
-one, `{"skill", "after"}` for an added one).
+reason in `source` (the strategy audit checks each guess), never asked again. The chosen steps become `plan.stages`
+(`required: false` with the user's reason for a dropped one, `{"skill", "after"}` for an added one).
 
 ## The brief and the plan as data
 
-The brief (`project set-data brief brief.json --base-rev N`) holds what the edit is for. Each field is
-`{value, status, source?}`: `stated` (the user said it), `inferred` (you guessed it from the footage or the
-platform) or `confirmed` (the user approved your guess at G1). Fields: `goal`, `audience`, `outputs`, `angle`,
-`lengthSeconds` (`{min, max}`), `notes`, plus `ideas` and `references` lists.
+The brief holds what the edit is for. Each field is `{value, status, source?}`: `stated` (user said it), `inferred`
+(your guess from footage or platform) or `confirmed` (approved at G1). Fields: `goal`, `audience`, `outputs`,
+`angle`, `lengthSeconds` (`{min, max}`), `notes`, plus `ideas` and `references` lists.
 
 ```json
 {
@@ -79,18 +67,14 @@ platform) or `confirmed` (the user approved your guess at G1). Fields: `goal`, `
 }
 ```
 
-The plan (`project set-data plan plan.json --base-rev N`, later `--merge` to change one field) holds how you mean to make it:
-`mode` (create, directed, revision), `stage`, `options` (the story options you compared), `sections`
+The plan holds how: `mode` (create, directed, revision), `stage`, `options` (story options compared), `sections`
 (`{id, label, lengthSeconds {min, max}, reason, frozen}`), `shots` (planned shots: `purpose`, `size`, `mustShow`,
-`source` footage, stock, graphic or generated), `beats` (script lines: `{id, section, text}`), `visuals` (what the
-viewer sees per line: `{line, from, to, at, treatment, show, why}`, `bc:visual-plan`), `decisions`
-(`{text, …}`, with the alternatives and the reason), `ranges` (the review limits you chose, `{min, max, source,
-reason}`) and `notes`. `context get` summarises both, so a later session (or you after a context reset) resumes from
-them; `review run` compares section lengths and the brief's length and outputs with the edit, as info;
-`review coverage` says which described shot each clip plays (match it with the planned shots yourself), and
-`script check` the beats (or `--beats`/`--text` you give) with the words heard.
+`source` footage, stock, graphic or generated), `beats` (script lines: `{id, section, text}`), `visuals` (per line,
+`bc:visual-plan`), `decisions` (`{text, …}`, with the alternatives and the reason), `ranges` (the review limits you
+chose, `{min, max, source, reason}`) and `notes`. Match `review coverage` (described shot per clip) with planned
+shots yourself; `script check` compares the beats with the words heard.
 
-A recipe adds its data to the same plan, only what differs from the defaults:
+A recipe adds only what differs from the defaults:
 
 ```json
 {
@@ -109,37 +93,31 @@ A recipe adds its data to the same plan, only what differs from the defaults:
 }
 ```
 
-`stages` keys are the stage ids of SKILL.md (never a skill name); `skill` replaces the stage's default skill; a
-key that is not one of them adds a stage, placed right after the stage its `after` names (else before review);
-`required: false` with `why` marks a stage `n/a` up front. `checks` are
-the recipe's own (at most 8); the kit's generic checks (`bc:review`) are always added. `promise` is generic: every
-video opens a question and must close it. `context get` summarises the recipe, the promise, the checks count and the
-required or `n/a` stages, so these rules survive a context reset without re-reading the recipe.
+`stages` keys are stage ids (never a skill name); `skill` replaces the stage's default skill; another key adds a
+stage, right after the stage its `after` names (else before review);
+`required: false` with `why` marks a stage `n/a` up front. `checks` are the recipe's own (at most 8); the kit's
+generic checks (`bc:review`) are always added. `promise` is generic: every video opens a question and must close
+it. `context get` summarises all this, so it survives a reset without re-reading the recipe.
 
-Update `stage` with `project set-data plan --merge` at each stage start, so the plan and the run log agree.
+Update `stage` (`project set-data plan --merge`) at each stage start, so plan and run log agree.
 
 ## Story
 
-- **Hook in the first 1–3 s**: the best or most surprising moment, often the ending shot or the loudest moment,
-  then go back to the start. A cold open of three shots (~8 s) worked well for travel and food vlogs.
-- Tool demos and tutorials: the hook is the tool's **output** with its own sound, then the presenter (see
-  "Screen recording with a presenter").
-- Sections in time order after the hook; mark them with `upsertSection` so the user sees the structure, and give
-  each a length range with its reason in the plan.
-- Talking videos: build the timeline as a **chain of spoken lines** (real speech + voiceover, ~0.14 s gaps) and
-  cut picture to what is being said; select the lines by quote (`bc:rough-cut`). Music-led montages: cut on the
-  beat grid (`bc:beat-cut`).
-- Find lines before cutting: `media transcribe` (a job, needs a `captions.transcribe` plugin) on the talking clips,
-  then `media transcript --media ID --as text --format text` to read each file's phrases in its own seconds. Once
-  cut, `transcript words --heard` gives each word's timeline frames through the clips as they are now, and
-  `captions find "words as said"` finds where a line is heard on the timeline.
-- CREATE mode: write 2–3 story options (T00 §3: ≥2 options compared before choosing), each in a few lines with what
-  the footage supports and what it lacks, into `plan.options`. The strategy at G2 is 4–8 sentences plus the section
-  table (T00 §3).
+- **Hook in the first 1–3 s**: the best or most surprising moment, often the ending or loudest shot, then back to
+  the start. A cold open of three shots (~8 s) worked well for travel and food vlogs.
+- Tool demos, tutorials: hook on the tool's **output** with its own sound, then the presenter ("Screen recording
+  with a presenter").
+- Sections in time order after the hook, each a section marker with a length range and its reason in the plan.
+- Talking videos: a **chain of spoken lines** (real speech + voiceover, ~0.14 s gaps), picture cut to what is said,
+  lines selected by quote (`bc:rough-cut`). Music-led montages: cut on the beat grid (`bc:beat-cut`).
+- Lines come from `media transcribe` (needs a `captions.transcribe` plugin) and `media transcript` (the surveyor
+  reads it); once cut, `transcript words --heard` and `captions find "words as said"` place them on the timeline.
+- CREATE mode: 2–3 story options in `plan.options` (T00 §3: ≥2 compared before choosing), each a few lines on what
+  the footage supports and lacks. The G2 strategy is 4–8 sentences plus the section table (T00 §3).
 
 ## Screen recording with a presenter
 
-Users describe this layout in their own words; map each phrase to the edit:
+Map the user's phrase to the edit:
 
 | The user says | Build |
 |---|---|
@@ -150,61 +128,45 @@ Users describe this layout in their own words; map each phrase to the edit:
 | "chọn nhạc phù hợp giọng" | measure candidates against the voice (`audio measure`, `bc:audio-mix`) |
 | (unsaid, always) | zoom onto the panel being talked about, fast-forward waiting and typing (`bc:effects`) |
 
-Real case: a 5 min session (camera + screen) became a 2:00 intro with speech over 92% of the time; dropped:
-fillers, muddled lines, reactions to bugs, and sentences where the camera mic heard the laptop playing the output.
-The first cut opened on the presenter's "hello"; the user sent it back: "end user muốn biết output".
+Real case: a 5 min session (camera + screen) became a 2:00 intro, speech over 92% of it; dropped: fillers, muddled
+lines, reactions to bugs, sentences where the camera mic heard the laptop playing the output. The first cut opened
+on the presenter's "hello"; the user sent it back: "end user muốn biết output".
 
 ## Taste of the user
 
-Preferences (length, pace, voice, style) live in BashCut, not in this kit. `context get` summarizes the active
-lessons, preferences and project facts: follow them. At the start of every edit also run `knowledge get`:
-`userMemo` holds the free-text notes for every project, `memo` and `skills` are this project's own (stored in the
-project folder). Record taste with `knowledge set-pref`, project facts with `knowledge set-fact` and lessons with
-`knowledge add-lesson` (see `bc:self-learn`).
+Preferences (length, pace, voice, style) live in BashCut, not this kit. Run `knowledge get` at the start of every
+edit: `userMemo` is notes for every project, `memo` and `skills` this project's own. Recording taste, facts and
+lessons: `bc:self-learn`.
 
 ## Working efficiently
 
-Measured on real runs: one ad took 778 BashCut calls (159 `context get`, 119 `media import`, 110 `jobs wait`, 37
-`export status`, 36 `ui frame`); a vlog spent 12M tokens before its first cut. A headless ad run on the quick path
-(kit 0.1.27) took 108 turns and 13.4M input tokens: its context grew from 34k to 180k because every transcript,
-image, skill and schema it read stayed, and each later turn paid for it again. With sub-agents (0.1.28) it took 54
-turns and 7.1M; a third of that went to a critic round over text a measurement would have caught (an outline of
-0.12 pt, a subline at 2% of the frame) and the skill and recipe text read whole at the start.
+Measured on real runs: one ad took 778 calls (159 `context get`, 119 `media import`, 110 `jobs wait`); a vlog
+spent 12M tokens before its first cut. A quick-path ad (kit 0.1.27) took 108 turns and 13.4M input tokens: context
+grew from 34k to 180k because every transcript, image, skill and schema it read stayed. With sub-agents (0.1.28):
+54 turns and 7.1M, a third of it on a critic round over text a measurement would have caught (an outline of
+0.12 pt, a subline at 2% of the frame) and on skill and recipe text read whole.
 
-- **One call for many things.** `media import <folder>`; `media transcribe` without `--media` (every media);
-  `jobs wait ID1,ID2,…`; the cut as `plan.cut` + `plan apply --sheet` (build, review and storyboard in one); several `timeline apply` ops in one call. In a shell,
-  chain commands whose output you do not need to read (`run append … && run append …`); with MCP tools, send
-  independent calls together in one turn.
-- **Sub-agents read, you decide.** The survey goes to `bc:surveyor` and the draft audit to `bc:critic` (Claude
-  Code's sub-agents, on a cheaper model); another agent gives its own sub-agent the brief file
-  (`<skill_dir>/../footage-survey/SURVEYOR.md`, `<skill_dir>/../review/CRITIC.md`). The surveyor reads the whole
-  transcript, stores shot descriptions with `media describe` and answers with hook candidates and exact quotes in
-  under 450 words; you plan from that and never print a transcript, a whole digest or source frames (run 6 printed
-  a 23-min transcript, 25k characters, that each of its 25 later turns paid again). The critic returns its fixes as
-  one `plan.cut` patch; apply it without re-reading the packet. Without sub-agents, follow the same briefs
-  yourself and read the digest a stretch at a time (`--from/--to`).
-- **Catch it in the plan, not in a critic round.** `plan check` gives each title's `textShare` and warns
-  `stroke-units` and `review-profile-unset` (its `facts.unsetLimits` lists every limit this edit needs); put them
-  in `plan.cut.review` from the recipe's ranges before the build, so `plan apply` writes them and `plan apply` and
-  `review measure` report small text and low contrast themselves. Loudness waits for the normalized export
-  (`atExport`) and does not hold the review back.
+- **One call for many things** (BashCut's batching rules), plus `media transcribe` without `--media` (every media),
+  `plan apply --sheet` (build, review, storyboard); in a shell chain commands whose output you skip (`run append …
+  && run append …`); with MCP send independent calls together.
+- **Sub-agents read, you decide.** `bc:surveyor` and `bc:critic` run on a cheaper model; other agents brief their
+  own sub-agent with the file (SKILL.md steps 3, 8). Plan from the surveyor's answer; never print a transcript,
+  whole digest or source frames (run 6 printed a 23-min transcript, 25k characters, that each of its 25 later turns
+  paid again); apply the critic's patch without reading the packet. No sub-agents: follow the briefs yourself, the
+  digest a stretch at a time (`--from/--to`).
+- **Catch it in the plan, not in a critic round.** Set every limit `review-profile-unset` names in `plan.cut.review`
+  before the build, so `plan apply` and `review measure` report small text and low contrast. Loudness waits for the
+  normalized export (`atExport`), not holding review back.
 - **Look in batches.** One image costs about 1000 tokens; one contact sheet of 12–24 cells is ~15× cheaper per frame
-  (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace,
-  `media frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames
-  (`ui frame F --phone`) only on doubt; `review window F` only at a decision point (T16 §2). Read text results
-  before images.
-- **Wait, don't poll.** Jobs: `jobs wait <job> --done --timeout 100` returns when it ends (again only on
-  `timedOut`); an export is a job too (never loop on `export status`). Gates: `checkpoint status --wait 100`. After
-  about 30 min, give the user the job ID. Start long jobs together (`media transcribe` and `media analyze` right
-  after import) and do the work that does not need them while they run, instead of a wait per turn.
-- **Revise by patch.** `plan check|apply --patch '{"clips": {"c2": {…}}}'` changes entries by ID in one call;
-  never rewrite `cut.json` with a script turn by turn.
-- **Revision without a read.** `--base-rev last` is the revision as of your last command (your own edits
-  included); a stale error means someone else edited: then `context get`. Every edit's result carries `rev`.
-- **Read once, read little.** `context get` when you start or resume and after a gate, not before every command;
-  `timeline get` only before hand-written ops (`plan check` and `review run` already say what you need). Filter big
-  JSON in the same call; command shapes are in `bashcut help` and each command's description, so read `schema get`
-  only for a field the description does not name. A skill you load stays for the rest of the run.
+  (T20 §3, §7): `timeline sheet --cuts --text` for continuity and text, `timeline sheet --every 2` for pace, `media
+  frames --sheet` for footage, `timeline sheet --at F1,F2,…` for a few frames. Single frames (`ui frame F --phone`)
+  only on doubt, `review window F` only at a decision point (T16 §2). Text results before images.
+- **Wait, don't poll.** `jobs wait` again only on `timedOut`; an export is a job too (never loop on `export
+  status`). After ~30 min give the user the job ID. Start long jobs together; do work that does not need them
+  meanwhile.
+- **Read once, read little.** `context get` on start, resume and after a gate, not per command; `timeline get` only
+  before hand-written ops (`plan check` and `review run` already say what you need). Filter big JSON in the same
+  call; `schema get` only for a field no command description names. A loaded skill stays for the run.
 
 ## Run log
 
@@ -215,17 +177,14 @@ bashcut run append measured --measured picture,loudness,layout --not-measured so
 bashcut run append end --text "Draft approved, exports queued"
 ```
 
-Stage entries come from `run append stage` (FULL.md, "Stages, checklist and gates"), except the ones BashCut
-writes itself (`auto: true`): intake when the brief is set, survey when every media is described, story, rough-cut
-and captions on `plan apply`, review on a `review run` that passes, export when an export lands. Optional stages
-you leave out need no entry; the two audits (strategy, draft) are always yours. Gate entries come from
-`checkpoint request` and the user's answer, never from you. End with `end`, then build the hand-off report below.
+Stage entries: FULL "Stages, checklist and gates". The two audits (strategy, draft) are always yours; gate entries
+come from `checkpoint request` and the user's answer, never you. End with `end`, then the hand-off report.
 
 ## The hand-off report
 
-Build it from `run checklist` and `run log`, not from memory of the chat. Start with the checklist's `open` items
+Build it from `run checklist` and `run log`, not chat memory. Start with the checklist's `open` items
 (required stages skipped, `done` without evidence, missing audits), then each audit's verdict (say "self-audited"
-for `by: self`), the missing recipe when none was installed, the stages run, each gate with the user's answer, the review
+for `by: self`), the missing recipe if none was installed, stages run, each gate with the user's answer, the review
 rounds (fixed, left), what was measured and what was not (sound not listened to, plugin checks that timed out),
 every kept issue with its reason and the `needs_user` items. Example: "Review: 2 rounds. Closed a 1.2 s black gap at
 0:41, raised the caption out of the Reels bar. Profile: static shots up to 6 s, a calm travel vlog. Kept: the 9 s

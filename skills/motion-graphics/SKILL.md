@@ -1,111 +1,93 @@
 ---
 name: motion-graphics
-description: Add designed, animated graphics to a BashCut edit — checklist and stat cards, counters, lower thirds, simple diagrams and kinetic type over footage — decide whether a sentence needs one, anchor it to the payoff word, hold it through the narration, and make anything native text cannot do with a graphics plugin (`graphics.render`, such as HyperFrames Graphics: a composition the agent designs, rendered to a .mov with alpha). Use when the user asks for "đồ hoạ", "motion graphic", "thẻ thông tin", "card", "checklist", "số liệu chạy", "counter", "lower third", "infographic", "animation chữ", or when an explainer, tutorial or review needs the example, number or relationship the words don't show.
+description: Designed, animated graphics over footage in BashCut: stat and checklist cards, counters, lower thirds, diagrams, kinetic type; whether a sentence needs one, anchored and held, made with a graphics.render plugin. Triggers: "đồ hoạ", "motion graphic", "thẻ thông tin", "số liệu chạy", "counter", "lower third", "infographic", "animation chữ".
 ---
 
 # Motion graphics
 
-Reply in the user's language. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
-Numbers below are ranges with their sources (T13 = the motion-graphics study, T22 = the renderer study); choose
-inside them from this video's speech, genre and frame, and say why. Captions and plain titles are
-`bc:captions-text`; transitions and punch-ins are `bc:effects`.
+Sources: T13 = motion-graphics study, T22 = renderer study. Choose inside each range from this video's speech, genre
+and frame; say why. Captions and plain titles: `bc:captions-text`; transitions, punch-ins, item In/Out: `bc:effects`.
 
 ## 1. Does this sentence need a graphic?
 
-With `plan.visuals` (`bc:visual-plan`), its `graphic` rows are the answer: build those, at their `at` word, showing
-their `show`; question a row only when building it shows it does not work, and update the plan. Without one:
-
-A graphic shows what the words don't: the example, the number, the relationship, the consequence. Before adding
-one, read the words (`transcript words --from F --to F2`) and ask what the speaker just made the viewer imagine.
+With `plan.visuals` (`bc:visual-plan`), build its `graphic` rows at their `at` word, showing their `show`; question
+a row only when building shows it fails, and update the plan. Without one: a graphic shows what the words don't
+(example, number, relationship, consequence). Read `transcript words`: what did the speaker make the viewer imagine?
 - Skip it when the card would restate the caption: captions and on-screen text take one role each, never both
   (openmontage). Leave some sentences bare so the next card lands (ghost-editor).
 - Change the graphic when the content changes, never on a timer ("every 15 s" is an anti-pattern, digitalsamba).
 - Graphics over talk keep the voice under them; never cut to a silent standalone card (vibetube).
-- Vary the device; the same card on every point reads as a template (T13 anti-patterns).
+- Vary the device; one card on every point reads as a template (T13).
 
 ## 2. Pick the cheapest tool that does it
 
-1. **Native text** (`bc:captions-text`): titles, labels, keyword stickers, place and chapter cards, with
-   `textStyle` plates, accent bars, keyframes and motion presets. Editable, no render. First choice.
-2. **A library item**: `library list --panel stickers` / `--kind text-preset` for a saved card or alpha movie.
-3. **A designed graphic from a `graphics.render` plugin** (§4): any layout and motion text items can't do — kinetic
-   type, a counter or chart, a pointer that clicks, a mock screen, a full-frame card, a diagram that builds, the
-   speaker shrinking into a card. Rendered once into a `.mov` with alpha; re-render after its words change.
-Say which you chose and why. Designing well beats the cheapest tool when the reference or the genre is
-graphics-led: a dense explainer short built on designed type and cards needs §4 for most of its sentences.
+1. **Native text** (`bc:captions-text`), first choice: titles, labels, keyword stickers, place and chapter cards.
+   Editable, no render.
+2. **A library item**: `library list --panel stickers` / `--kind text-preset` (saved card, alpha movie).
+3. **A `graphics.render` plugin** (§4): kinetic type, counter, chart, clicking pointer, mock screen, full-frame
+   card, building diagram, speaker shrinking into a card. Rendered once to a `.mov` with alpha; re-render when its
+   words change.
+Say which and why. A graphics-led reference or genre (a dense explainer short of designed type and cards) needs §4
+for most sentences.
 
 ## 3. Timing (anchor to words, not seconds)
 
 | What | Range | Sources and why it varies |
 |---|---|---|
 | Entrance lands on the payoff word | entrance end = the word's start; entrance 0.15–0.6 s | video-use, vibetube (~0.4 s), student-kit (0.15–0.6 s); shorter for energetic cuts, ≤0.15 s for impacts |
-| Hold, one idea | 3–8 s, and at least its narration + about 1 s | video-use (floor 3, simple 5–7), vibetube (≥ narration + 1 s), openmontage (3–5 s). **Contradiction:** openmontage's 3–5 s cap vs vibetube's "cover the whole narration": tie the hold to the narration span |
+| Hold, one idea | 3–8 s, and at least its narration + about 1 s | video-use (floor 3, simple 5–7), vibetube (≥ narration + 1 s), openmontage (3–5 s cap). They conflict: tie the hold to the narration span |
 | Hold, diagram that builds | 8–14 s | video-use; complexity and words on it |
 | Accent hit | 0.5–2 s, recognisable not readable | video-use, openmontage; only for emphasis or music hits |
 | Final-frame hold | 0.5–1.5 s | video-use (≥1 s); longer for a number the viewer must remember |
 | Stagger between elements | 0.06–0.10 s opener, 0.3–0.4 s narrative, 0.5–0.6 s dramatic | student-kit; one new element at a time when each is read |
 | Entrance / exit | 0.2–0.8 s / 0.15–0.5 s, entrance stronger | talkcraft |
 | Words on a card | ≤ about 2–3 per second of hold | student-kit, guizang (6–9 CJK chars/s); measure the real text |
-| Density, talking footage | 3–8 graphics a minute, sparser for long videos; a measured reference replaces it | openmontage (3–6/min), hyperframes (card every 6–20 s by length); high for tutorials and explainers, low for vlogs and when the face carries the emotion. Graphics-led explainer shorts run far above: one measured reference changed the picture every ~1.6 s with about 30 graphics a minute (blycreativs before/after, 2026-10-09). Take the number from `bc:style-study` when the user gives a reference |
+| Density, talking footage | 3–8 graphics a minute, sparser for long videos; a measured reference replaces it | openmontage (3–6/min), hyperframes (card every 6–20 s by length); high for tutorials and explainers, low for vlogs and when the face carries the emotion. Graphics-led explainer shorts run far above: one measured reference changed the picture every ~1.6 s with about 30 graphics a minute (blycreativs before/after, 2026-10-09). With a user reference, take the number from `bc:style-study` |
 | First graphic | within the first ~5 s, usually the hook title | vibetube |
 
-Taste stated as law ("never linear", "no bounce") is not a rule: linear is right for constant pans and counters;
-overshoot 1.05–1.12 suits playful, none suits calm or premium (shotcraft, saas).
+Taste stated as law ("never linear", "no bounce") is not a rule: linear suits constant pans and counters; overshoot
+1.05–1.12 suits playful, none calm or premium (shotcraft, saas).
 
-Steps: `transcript words` → the payoff word's timeline frame W → entrance length E (frames) → overlay starts at
-W − E (the composition's own entrance takes E) → hold until the narration it illustrates ends + 0.5–1 s.
+Steps: payoff word's timeline frame W → entrance length E → overlay starts at W − E (the composition's entrance
+takes E) → hold until the narration it illustrates ends + 0.5–1 s.
 
 ## 4. Make it with a graphics plugin
 
-Graphics that native text cannot make come from a plugin that provides `graphics.render`; this kit only decides
-what, where and when. `bashcut plugins list` shows whether one is ready:
+This kit decides what, where and when; a `graphics.render` plugin makes it (`plugins list`):
 
-- **HyperFrames Graphics** (`bashcut.hyperframes`): its skill `bashcut.hyperframes:hyperframes` is the toolkit —
-  design the composition for this video (HTML/CSS + GSAP, its examples and a catalog of 390+ blocks as raw
-  material), look at frames (`snapshot`, also against a reference), render (`bashcut plugins invoke graphics.render`)
-  and place it. Read that skill before building the first graphic. Many graphics over a voice (an explainer):
-  list them in `plan.cut.graphics` with their `render` inputs and build them all with its `bin/graphic plan` in
-  one call (`"@words"` values land rows on their words) instead of placing them one by one; a shared `render.frame`
-  (backdrop, section chip, credit, callout, scale) gives a series one look without editing any widget's HTML.
-  Brand mascot: widgets that declare `mascot` take the brand's pose, one per section with `--set pose=thinking`
-  (poses from a photo: `bashcut library brand-pose <kit> --pose X --image photo.jpg`). A place video (real
-  estate, a venue): all location data in one `bin/osm-map --points … --legs star --amenities … --radius` call
-  into a copy of `amenity-radius`; every count, minute and km on screen comes from its output.
-- None ready: `bashcut plugins search --capability graphics.render` names one; install it (`bc:edit-workflow`) and
-  `plugins setup` it if its health says so. If the install waits for the user's approval or fails, use native text
-  meanwhile and say what is missing.
-- The user's own Remotion or After Effects project: they render it themselves (ProRes 4444 or HEVC with alpha) and
-  you import it with `library add --kind sticker --file` (keeps the alpha). Never run Remotion renders for them (its
-  licence, T22).
+- **HyperFrames Graphics**: read `bashcut.hyperframes:hyperframes` before the first graphic; its examples and
+  catalog are raw material. Many graphics over a voice: rows in `plan.cut.graphics`, built in one `bin/graphic plan`
+  call, never one by one, one shared `render.frame` for one look. Brand mascot: one pose per section. A place video (real estate, a
+  venue): all location data from one `bin/osm-map` call into a copy of `amenity-radius`; every count, minute and km
+  on screen comes from its output.
+- None ready: `plugins search --capability graphics.render`, install, `plugins setup` if its health asks. While
+  the install waits or fails, use native text and say what is missing.
+- The user's Remotion or After Effects project: they render it (ProRes 4444 or HEVC with alpha); import with
+  `library add --kind sticker --file`. Never run Remotion renders for them (licence, T22).
 
-**Numbers on a card: facts table first.** Before searching the web for a figure, ask open data for all of them in
-one call: `uv run <skill_dir>/fetch_facts.py --questions facts.jsonl --json` (or inline `"id|entity|property[|year]"`),
-one question per number: `{id, entity, property|indicator|summary, year?, lang?}`: a Wikidata property (population,
-area, elevation, height, inception… or a P-id), a World Bank indicator for a country (gdp per capita, population… or
-a code; latest year without `year`), or `summary` (Wikipedia's first sentence, `lang` vi works). It prints one row
-each: value, unit, date, source URL and what was matched (check it is the right place or thing). Rows go straight into
-widget data: `value` → a counter's `to` or a bar's `value`, `" " + unit` → `unit`, `credit` + date → the frame's
-`credit`; keep the source URL with the script line. Answers are cached in the project (`project data facts`) and
-reused on reruns. Search the web by hand only for rows that came back `none`, never to replace an answered one; a
-figure the table cannot hold (a price, a ticket fee) is a web row from the start.
+**Numbers on a card: facts table first.** Before searching the web, ask open data for every figure in one call:
+`uv run <skill_dir>/fetch_facts.py --questions facts.jsonl --json`, one question per number (a Wikidata property, a
+World Bank indicator for a country, or a Wikipedia `summary`; `--help` for the fields). Check each matched the right
+place or thing. Rows go straight into widget data: `value` → a counter's `to` or a bar's `value`, `" " + unit`
+→ `unit`, `credit` + date → the frame's `credit`; keep the source URL with the script line. Answers are cached in
+`project data facts`. Search the web only for rows that came back `none`, never to replace an answered one; a
+figure the table cannot hold (a price, a fee) is a web row from the start.
 
-**Animated accents (Lottie): a check, an arrow, a loader, confetti.** All of a video's in one call: `uv run
-<skill_dir>/fetch_lottie.py --words "check,arrow,loader,confetti" --dest <project>/media/lottie` draws one sheet of
-frame strips (useAnimations MIT, Noto Animated CC BY 4.0, LottieFiles Lottie Simple License). One look, then
-`--pick "check=2;confetti=1"` copies each JSON and prints its licence, `mono` and a ready `place` line: one accent =
-one `bin/graphic place lottie --set file=<file>` (`color=accent` only for a `mono` pick, `loop=true` for a loader).
-Credit "Google (Noto Emoji)" for a Noto pick. Never `.lottie` zips or animations with image assets.
+**Animated accents (Lottie): a check, an arrow, a loader, confetti.** All of a video's in one call:
+`uv run <skill_dir>/fetch_lottie.py --words "check,arrow,loader,confetti" --dest <project>/media/lottie` draws one
+sheet (useAnimations MIT, Noto Animated CC BY 4.0, LottieFiles Lottie Simple License). One look, then
+`--pick "check=2;confetti=1"`; one accent = one `bin/graphic place lottie` (options in the plugin skill). Credit
+"Google (Noto Emoji)" for a Noto pick. Never `.lottie` zips or animations with image assets.
 
-Hand the plugin a brief, not a template: the words and the payoff word's frame, what the viewer should see, the
-hold, and the look (style profile, reference frames, the video's own titles).
+Hand the plugin a brief, not a template: words, payoff frame, what the viewer sees, hold, look (style profile,
+reference frames, the video's titles).
 
 ## 5. Check
 
-- Look at the landing frame and across the entrance: `ui frame W --phone`, `review window W --span E`. The card must be readable at phone size, land on the word and leave the face clear (`media subjects`
-  boxes vs the card's rectangle).
-- `review layout --from F --to F2` for the native text around it; `review shots` sees the overlay as a layer.
-- Re-timing the voice moves words but not the overlay: after cuts in that range, re-read `transcript words` and move
-  or re-render the card.
+- Landing frame and entrance: `ui frame W --phone`, `review window W --span E`. Readable at phone size, on the word,
+  face clear (`media subjects` boxes vs the card's rectangle).
+- `review layout` for the native text around it; `review shots` sees the overlay as a layer.
+- Re-timing the voice moves words, not the overlay: after cuts there, re-read `transcript words`, move or re-render.
 
 ## Report
 

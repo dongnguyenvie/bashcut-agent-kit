@@ -2,7 +2,7 @@
 
 <!-- Generated from CommandCatalog by scripts/update-commands.sh. Do not edit by hand. -->
 
-Every automation command, 237 in all. Each is the same command on the CLI (`bashcut …`), as an
+Every automation command, 239 in all. Each is the same command on the CLI (`bashcut …`), as an
 MCP tool (`bashcut_<group>_<command>`, same parameter names as JSON-RPC) and over the socket. Modes and
 approval are explained in the [automation guide](../guides/automation.md#permission-modes).
 
@@ -1077,6 +1077,19 @@ Fill a fitted picture's bars with a blur of itself or a colour (Inspector › Vi
 - `dim`: number, 0…1. Darkening, 0–1 (default 0)
 - `baseRev`: integer, required, ≥ 0. Current project revision (rev of context.get or of your last edit), or "last": the revision as of your session's last command, still stale when anyone else changed the project since
 
+### `bashcut clip transition [<item>] [--items <items>] --side <side> --kind <kind> [--frames <frames>] [--easing <easing>] --base-rev <baseRev>`
+
+Give a text, sticker, graphic or overlay item a transition kind as its own entrance or exit (Inspector › In and Out), played inside the item's frame: enter plays the kind's incoming side over its first frames, exit its outgoing side (a wipe or shape runs backwards) over its last; a whip or zoom fades the item on the way. A cut transition at the same edge of a clip wins. Kinds as on upsertTransition; none removes. Stored as the item's enter and exit fields. Returns rev and items.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_clip_transition`
+- `item`: string. Item ID; the selection by default
+- `items`: string. Several item IDs, comma separated
+- `side`: string, required, one of in, out, both. in, out or both
+- `kind`: string, required, one of dissolve, blink, flash, dip-black, double-exposure, whip, whip-right, whip-up, whip-down, wipe, wipe-right, wipe-up, wipe-down, barn-door, shutter, slide, slide-up, iris, diamond, zoom, crash-zoom, crash-out, spin, roll, roll-right, swing, arc, arc-right, infinite-zoom, infinite-out, screen-in, screen-out, blur, seamless-zoom, glitch, halftone, flicker, color-shift, kaleidoscope, none. Transition kind, or none
+- `frames`: integer, 1…100000. Length in frames; the item's own or half a second by default
+- `easing`: string. linear, in, out, inOut or cubic-bezier(x1,y1,x2,y2)
+- `baseRev`: integer, required, ≥ 0. Current project revision (rev of context.get or of your last edit), or "last": the revision as of your session's last command, still stale when anyone else changed the project since
+
 ### `bashcut clip reverse [<item>]`
 
 Play a video clip backwards (with its linked sound): renders a reversed copy of the source it uses into the project's reversed/ folder and points the clip at it. Reversing again restores the original.
@@ -1795,7 +1808,7 @@ List every editor action (buttons, menu items, keyboard shortcuts) with its shor
 
 ### `bashcut ui action <action> [<target>] [--in <in>] [--out <out>]`
 
-Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, playback.toggle) or by shortcut (cmd+b, space, cmd+=). Actions that open a dialog return at once; answer it with ui.respond. With a target: open DIALOG (a sheet or popover: new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts, add-plugin, library-search, library-generate, quick-edit, recents, voice-clone), panel PANEL (a library panel in the left rail: media, audio, text, stickers, effects, transitions, filters, voice, brand), source MEDIA (the source viewer, with --in/--out frames marked) or notify MESSAGE (a short status message).
+Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, playback.toggle) or by shortcut (cmd+b, space, cmd+=). Actions that open a dialog return at once; answer it with ui.respond. With a target: open DIALOG (a sheet or popover: new-project, export, export-report, agent-changes, review, history, plugins, settings, doctor, knowledge, ask, sections, external-changes, plugin-proposals, commands, shortcuts, add-plugin, library-search, library-generate, quick-edit, recents, voice-clone), panel PANEL (a library panel in the left rail: media, audio, text, stickers, effects, transitions, filters, brand, tools, captions, voice, beats), source MEDIA (the source viewer, with --in/--out frames marked) or notify MESSAGE (a short status message).
 
 - Mode: edit · Runs: immediately · MCP: `bashcut_ui_action`
 - `action`: string, required. Action ID or shortcut, or open, panel, source, notify
@@ -1803,9 +1816,9 @@ Run an editor action like the user: by ID (timeline.split, timeline.zoom-in, pla
 - `in`: integer, ≥ 0. source: in frame
 - `out`: integer, ≥ 1. source: out frame (exclusive)
 
-### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--settings-search <settingsSearch>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>] [--media-source <mediaSource>] [--library-query <libraryQuery>] [--library-pack <libraryPack>] [--library-tag <libraryTag>] [--library-scope <libraryScope>]`
+### `bashcut ui view [--zoom <zoom>] [--zoom-anchor <zoomAnchor>] [--snap <snap>] [--safe-area <safeArea>] [--viewer-zoom <viewerZoom>] [--compare <compare>] [--agent-dock <agentDock>] [--right-tab <rightTab>] [--reveal <reveal>] [--inspector <inspector>] [--settings-section <settingsSection>] [--settings-search <settingsSearch>] [--knowledge-section <knowledgeSection>] [--plugins-tab <pluginsTab>] [--plugins-category <pluginsCategory>] [--media-source <mediaSource>] [--library-query <libraryQuery>] [--library-pack <libraryPack>] [--library-tag <libraryTag>] [--library-scope <libraryScope>] [--library-source <librarySource>] [--library-collection <libraryCollection>] [--library-width <libraryWidth>] [--library-wide <libraryWide>] [--library-layout <libraryLayout>] [--library-tile-size <libraryTileSize>]`
 
-Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, inspector tab, Settings section and search, Knowledge section, Plugins tab and Browse category, the Media panel's source (footage, project, shared, selects, clips), the open library panel's search and filters, and scroll the timeline to a frame; fullScreen: the preview of viewer.fullscreen is on.
+Read the editor view state, or change it: timeline zoom (pixels per second), viewer zoom, snapping, safe area, color compare, agent dock, right column tab, inspector tab, Settings section and search, Knowledge section, Plugins tab and Browse category, the Media panel's source (footage, project, shared, selects, clips), the open library panel's search and filters, and scroll the timeline to a frame; fullScreen: the preview of viewer.fullscreen is on.
 
 - Mode: ui · Runs: immediately · MCP: `bashcut_ui_view`
 - `zoom`: integer, 1…600. Timeline zoom in pixels per second
@@ -1814,7 +1827,8 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `safeArea`: boolean. Safe-area overlay on or off
 - `viewerZoom`: string, one of fit, 25, 50, 100, 200. Viewer zoom: fit, or a percentage of the output size
 - `compare`: boolean. Color before/after compare on or off
-- `agentDock`: boolean. Agent dock shown or hidden
+- `agentDock`: boolean. Agent tab of the right column shown or hidden
+- `rightTab`: string, one of inspector, agent. Right column tab to show
 - `reveal`: integer, ≥ 0. Scroll the timeline so this frame is visible
 - `inspector`: string, one of video, audio, text, color, speed. Inspector tab
 - `settingsSection`: string, one of general, agents, plugins, storage. Settings section (open Settings with ui.action open settings)
@@ -1827,6 +1841,12 @@ Read the editor view state, or change it: timeline zoom (pixels per second), vie
 - `libraryPack`: string. Pack the open library panel shows; empty shows all
 - `libraryTag`: string. Tag the open library panel shows; empty shows all
 - `libraryScope`: string, one of all, built-in, user, project, plugin. Scope the open library panel shows
+- `librarySource`: string, one of all, mine, packs. Source chip of the open library panel: mine (this project and this Mac), packs (built in and plugin) or all
+- `libraryCollection`: string, one of all, recent, favorites. List the open library panel shows instead of its home view: recent (this project), favorites (this Mac) or all
+- `libraryWidth`: number, 300…520. Width of the library panel in points
+- `libraryWide`: boolean. The wide library panel (760 pt over the viewer, with a category sidebar) on or off
+- `libraryLayout`: string, one of grid, list. Grid or list for the open library panel (remembered per panel)
+- `libraryTileSize`: number, 0…1. Tile size of the open library panel, 0 (small) to 1 (large)
 
 ### `bashcut ui seek <frame>`
 
@@ -2168,13 +2188,13 @@ Propose a change to an agent kit skill: the line diff against the kit's SKILL.md
 
 ## library
 
-### `bashcut library list [--kind <kind>] [--panel <panel>] [--offset <offset>] [--limit <limit>] [--tag <tag>] [--scope <scope>] [--created-by <createdBy>] [--pack <pack>] [--query <query>]`
+### `bashcut library list [--kind <kind>] [--panel <panel>] [--offset <offset>] [--limit <limit>] [--tag <tag>] [--scope <scope>] [--created-by <createdBy>] [--pack <pack>] [--query <query>] [--favorites] [--recent]`
 
 List library items. Kinds: Media clips, Audio, Text, Stickers, Effects, Transitions, Filters, Voice; from the open project, this Mac, plugins and built-in packs, with usage. Check here before making something new. With offset or limit, one page: {items, total, offset, limit, next} (next: the offset of the following page, null after the last); without them, every match as an array.
 
 - Mode: read · Runs: immediately · MCP: `bashcut_library_list`
 - `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice, clip, brand. Item kind
-- `panel`: string, one of media, audio, text, stickers, effects, transitions, filters, voice, brand. Only items the library panel shows
+- `panel`: string, one of media, audio, text, stickers, effects, transitions, filters, brand, tools, captions, voice, beats. Only items the library panel shows
 - `offset`: integer, ≥ 0. Skip this many matches (paging)
 - `limit`: integer, 1…500. At most this many matches (paging; 50 with offset alone)
 - `tag`: string. Only items with this tag
@@ -2182,6 +2202,17 @@ List library items. Kinds: Media clips, Audio, Text, Stickers, Effects, Transiti
 - `createdBy`: string, one of user, agent, plugin, built-in. Only items made by
 - `pack`: string. Only items in this pack
 - `query`: string. Text to find in the id, name, pack or tags
+- `favorites`: boolean. Only favourites (starred on this Mac)
+- `recent`: boolean. Only the items placed or applied in this project, newest first (at most 20)
+
+### `bashcut library favorite <id> [--scope <scope>] [--off]`
+
+Star a library item of any scope (built-in and plugin ones too) so the panels list it under Favorites, or remove the star with off. Favorites are global: kept on this Mac and shown in every project. library list marks them with favorite: true.
+
+- Mode: edit · Runs: immediately · MCP: `bashcut_library_favorite`
+- `id`: string, required. Item ID, or scope:id to pick one scope
+- `scope`: string, one of built-in, user, project, plugin. Look only in this scope; without it project, user, plugin, then built-in
+- `off`: boolean. Remove the star
 
 ### `bashcut library get <id> [--scope <scope>]`
 
@@ -2197,7 +2228,7 @@ Usage of every library item, the saved items nobody used, and groups of duplicat
 
 - Mode: read · Runs: immediately · MCP: `bashcut_library_stats`
 - `kind`: string, one of audio, text-preset, sticker, effect-preset, transition-preset, look, voice, clip, brand. Item kind
-- `panel`: string, one of media, audio, text, stickers, effects, transitions, filters, voice, brand. Only items the library panel shows
+- `panel`: string, one of media, audio, text, stickers, effects, transitions, filters, brand, tools, captions, voice, beats. Only items the library panel shows
 
 ### `bashcut library add [--kind <kind>] [--name <name>] [--from-result <fromResult>] [--id <id>] [--scope <scope>] [--origin <origin>] [--author <author>] [--tags <tags>] [--pack <pack>] [--params <params>] [--file <file>] [--profile <profile>] [--preview <preview>] [--source <source>] [--license <license>]`
 
