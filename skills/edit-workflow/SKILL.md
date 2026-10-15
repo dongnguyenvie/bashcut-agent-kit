@@ -81,14 +81,15 @@ Same gates and audits. Target: a 45 s ad or explainer in about 20 main calls (tw
                         "preset": "place-card", "style": {"positionY": 0.8}, "enter": "slide", "exit": "iris:8"}],
             "captions": {"from": "speech", "style": {"background": {"color": "#000000", "opacity": 0.6}},
                          "replace": {"misheard": "right"}},
-            "music": {"media": "S", "duckDb": -14}, "sfx": [{"media": "W", "on": "t1", "offset": -0.1}],
+            "music": {"media": "S"}, "sfx": [{"media": "W", "on": "t1", "offset": -0.1}],
             "review": {"minTextSize": 0.035, "minTextContrast": 3, "minShotSeconds": 0.6}}}
    ```
 
    Transitions live in the plan: `transition` on a clip or graphic row is the cut into it, `enter`/`exit` on a title
    or graphic its In/Out (`"kind"`, `"kind:frames"` or `"none"`; kinds in `bc:effects`). Later applies and graphic
    re-renders keep them; don't set them by hand afterwards. White text over daylight measured 1.2–2:1: plate
-   captions and titles now; two texts at once need different `positionY`. **Sound**: a `music` bed unless the brief says none; `sfx` only where a moment needs one (`offset`
+   captions and titles now; two texts at once need different `positionY`. **Sound**: a `music` bed unless the brief says none (one fixed level, set on apply 16 dB under the measured
+   voice; `duck` only for silences of 2.5 s or more, `bc:audio-mix`); `sfx` only where a moment needs one (`offset`
    -0.1 peaks on it; `bc:audio-mix` "SFX"). Not in the library (`library list --kind audio --query <word>`; `library
    search` is a plugin job, not a library read): `uv run <skill_dir>/../audio-mix/fetch_audio.py --dest
    <project>/media/audio --music "chill electronic" --music-count 2 --min-seconds 50 --sfx whoosh,pop --sfx-count 1
