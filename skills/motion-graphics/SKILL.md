@@ -57,7 +57,8 @@ This kit decides what, where and when; a `graphics.render` plugin makes it (`plu
 
 - **HyperFrames Graphics**: read `bashcut.hyperframes:hyperframes` before the first graphic; its examples and
   catalog are raw material. Many graphics over a voice: rows in `plan.cut.graphics`, built in one `bin/graphic plan`
-  call, never one by one, one shared `render.frame` for one look. Look before you render: `bin/graphic plan --only
+  call, never one by one, one shared `render.frame` for one look. Short rows: a graphic over more than ~10 s is one row per section (a growing
+  diagram: same `render.scene` on each), so an edit re-renders one slice. Look before you render: `bin/graphic plan --only
   ID --snapshot S1,S2,…` shows a row as PNGs in seconds; tweak with snapshots, then one full `plan` (a 40 s graphic
   takes about 3 min to render). Brand mascot: one pose per section. A place video (real estate, a
   venue): all location data from one `bin/osm-map` call into a copy of `amenity-radius`; every count, minute and km
