@@ -40,18 +40,25 @@ word and `show`), the facts and numbers, the look and whether the voice is final
    EOF
    bashcut project set-data plan /tmp/g.json --merge --base-rev "$(bashcut project get | jq .rev)"
    bashcut plan check --words        # fix what it reports, no --patch
-   "$P/bin/graphic" plan             # long timeout
+   "$P/bin/graphic" plan --only g-s1 --snapshot 0.8,2.4,4.1   # PNGs in seconds: look, fix the row, again
+   "$P/bin/graphic" plan             # the full render: long timeout, minutes for a long graphic
    ```
+   **Look before you render.** A full `plan` renders every changed row end to end (a 40 s diagram takes about
+   3 min); `--snapshot` (seconds from the graphic's start) shows the same row, set, frame and brand as PNGs in
+   seconds, with nothing placed. Tweak with snapshots until the frames in step 4 are right, then render once.
    Anchor: `section`, `on` (a line, clip or graphic id) or `at` seconds, plus `offset`; length to the anchor's end,
    else `seconds` or `until` (an entry id). `track` "main" is the picture of an edit made of graphics (back to back,
    hard cuts), else the overlay. `composition`: an example's bare name or a folder relative to the project. `set`:
    only ids `examples NAME` lists; `"@words"` is when those words are said. `--merge` replaces the whole graphics
    list: send every row. An SFX on a card: `sfx` [{id, media, on: "g-s1", offset: -0.1, volumeDb}]. A cut or In/Out:
    `transition` / `enter` / `exit` on the row (`"swing:9"`); re-renders keep them, never `clip transition`.
-4. Look and fix before you return (the editor sends no rounds back): one contact sheet of the landing frames
-   (`bashcut timeline sheet --at F1,F2,… --outputs <preset>`); unreadable, off its word, outside the safe area or
-   off-style: fix the rows, run `plan` again. At most two rounds.
+4. Look and fix before you return (the editor sends no rounds back, and does not look for you). Snapshot every
+   row at its checkpoints: the first second (the hook: never an empty stage), each element's landing word, the
+   recap or payoff, the last second. Check each against: readable at phone size, on its word, inside the safe area
+   and clear of the caption band (`platforms get`, the project's caption position), on-style, nothing crowding a
+   label. Fix the rows and snapshot again; then one full `plan`, then one contact sheet of the landing frames
+   (`bashcut timeline sheet --at F1,F2,… --outputs <preset>`). At most two full renders per round.
 
 Answer in under 200 words, nothing else: per graphic id, its timeline item or media ID, span (seconds) and the
-word it lands on; the build's problems and review errors left (kind, id); what you changed against the
+word it lands on; full renders used and snapshot calls; the build's problems and review errors left (kind, id); what you changed against the
 editor's rows and why; what you could not check (motion between frames).

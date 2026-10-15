@@ -11,7 +11,7 @@ You cannot listen: measure, change, measure again, and report the numbers.
 
 | Need | How |
 |---|---|
-| Clip level, fades, mute | `setProperties` `volumeDb` (−120…+24), `fadeIn`/`fadeOut` (frames), `muted`; layer: `layers set --muted on` |
+| Clip level, fades, mute | Level: `clip volume <item> --db -4 --base-rev last` (`--items a,b` for several; linked sound follows), never `timeline apply` for it. Fades and mute: `setProperties` `fadeIn`/`fadeOut` (frames), `muted`; layer: `layers set --muted on` |
 | Volume over time (swell at a drop, dip for one line) | `clip keyframe --property volume` (dB) on audio items or clips with linked sound; replaces `volumeDb`, stacks with fades and ducking |
 | Music under speech | music layer `setTrackProperties` `{"duckingEnabled": true, "duckUnderSpeechDb": -D, "duckAttackFrames": A, "duckReleaseFrames": R}` (ranges below) |
 | New layers | `layers add --kind audio --role music` or `sfx` (voiceover: `bc:voiceover`) |
