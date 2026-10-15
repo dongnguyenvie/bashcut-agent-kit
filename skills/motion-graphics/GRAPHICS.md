@@ -13,12 +13,13 @@ final.
    Support/BashCut/Plugins/bashcut.hyperframes"`) and the widgets (`"$P/bin/graphic" examples`; `examples NAME`
    for the variables of the ones you use). Never read the plugin's `lib/` scripts or an example's HTML to learn a
    variable or option.
-2. Take data from the plugin's tools (maps, routes, areas); never work it out. Fill widgets with variables and
-   give the series one look with the same `render.frame` on every row; no copies of example HTML patched by a
-   script. Look: `backdrop` "paper" or "texture"; `scale` 1.2–1.4; `float` true against frozen-picture warnings;
-   section `chip`, source `credit`, a `callout` on the payoff word. Colours and fonts: the project's brand, else
-   the same `accent`, `background`, `text`, `headingFont`, `bodyFont` in every row's `set`. Write HTML (read the
-   skill's "The loop" and "Composition rules" first) only for what neither a variable nor the frame can draw.
+2. Take data from the plugin's tools (maps, routes, areas); never work it out. Fill widgets with variables and give
+   the series one look with the same `render.frame` on every row; no copies of example HTML patched by a script.
+   Look: `backdrop` "paper" or "texture"; `scale` 1.2–1.4; `float` true against frozen-picture warnings; section
+   `chip`, a `callout` on the payoff word; a `credit` only when the user asks (no credit, source or licence line on
+   the picture by default). Colours and fonts: the project's brand, else the same `accent`, `background`, `text`,
+   `headingFont`, `bodyFont` in every row's `set`. Write HTML (read the skill's "The loop" and "Composition rules"
+   first) only for what neither a variable nor the frame can draw.
 3. Many rows over a voice: `plan.cut.graphics`, built in one call; one graphic: `"$P/bin/graphic" place`. Fix
    errors in the rows and run again; never place clip by clip.
    ```sh
@@ -28,7 +29,7 @@ final.
        "set": {"label": "Hồ Gươm · mặt hồ", "to": 11.2, "decimals": 1, "locale": "vi-VN", "unit": " ha",
                "at": "@mười một phẩy hai"},
        "frame": {"backdrop": "paper", "float": true, "scale": 1.3, "chip": "1/4",
-                 "credit": "© OpenStreetMap contributors", "callout": {"text": "1 vòng: *1,54 km*", "at": "@một phẩy năm tư"}}}}
+                 "callout": {"text": "1 vòng: *1,54 km*", "at": "@một phẩy năm tư"}}}}
    ]}}
    EOF
    bashcut project set-data plan /tmp/g.json --merge --base-rev "$(bashcut project get | jq .rev)"

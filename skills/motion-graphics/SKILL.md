@@ -65,19 +65,20 @@ This kit decides what, where and when; a `graphics.render` plugin makes it (`plu
 - The user's Remotion or After Effects project: they render it (ProRes 4444 or HEVC with alpha); import with
   `library add --kind sticker --file`. Never run Remotion renders for them (licence, T22).
 
-**Numbers on a card: facts table first.** Before searching the web, ask open data for every figure in one call:
-`uv run <skill_dir>/fetch_facts.py --questions facts.jsonl --json`, one question per number (a Wikidata property, a
-World Bank indicator for a country, or a Wikipedia `summary`; `--help` for the fields). Check each matched the right
-place or thing. Rows go straight into widget data: `value` → a counter's `to` or a bar's `value`, `" " + unit`
-→ `unit`, `credit` + date → the frame's `credit`; keep the source URL with the script line. Answers are cached in
-`project data facts`. Search the web only for rows that came back `none`, never to replace an answered one; a
-figure the table cannot hold (a price, a fee) is a web row from the start.
+**Numbers on a card: facts table first.** Before searching the web, ask open data for every figure in one call: `uv
+run <skill_dir>/fetch_facts.py --questions facts.jsonl --json`, one question per number (a Wikidata property, a World
+Bank indicator for a country, or a Wikipedia `summary`; `--help` for the fields). Check each matched the right place
+or thing. Rows go straight into widget data: `value` → a counter's `to` or a bar's `value`, `" " + unit` → `unit`;
+keep `credit`, date and source URL with the script line (the frame's `credit` only when the user asks). Answers are
+cached in `project data facts`. Search the web only for rows that came back `none`, never to replace an answered one;
+a figure the table cannot hold (a price, a fee) is a web row from the start.
 
-**Animated accents (Lottie): a check, an arrow, a loader, confetti.** All of a video's in one call:
-`uv run <skill_dir>/fetch_lottie.py --words "check,arrow,loader,confetti" --dest <project>/media/lottie` draws one
-sheet (useAnimations MIT, Noto Animated CC BY 4.0, LottieFiles Lottie Simple License). One look, then
-`--pick "check=2;confetti=1"`; one accent = one `bin/graphic place lottie` (options in the plugin skill). Credit
-"Google (Noto Emoji)" for a Noto pick. Never `.lottie` zips or animations with image assets.
+**Animated accents (Lottie): a check, an arrow, a loader, confetti.** All of a video's in one call: `uv run
+<skill_dir>/fetch_lottie.py --words "check,arrow,loader,confetti" --dest <project>/media/lottie` draws one sheet
+(useAnimations MIT, Noto Animated CC BY 4.0, LottieFiles Lottie Simple License). One look, then `--pick
+"check=2;confetti=1"`; one accent = one `bin/graphic place lottie` (options in the plugin skill). A Noto pick's
+credit ("Google (Noto Emoji)") goes in the description only when the user asks. Never `.lottie` zips or animations
+with image assets.
 
 Hand the plugin a brief, not a template: words, payoff frame, what the viewer sees, hold, look (style profile,
 reference frames, the video's titles).
