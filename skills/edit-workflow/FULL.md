@@ -1,8 +1,7 @@
 # Edit workflow: the full path and the rules behind the quick path
 
-Read a section when SKILL.md sends you here (`sed -n '/^## Gates/,/^## [A-Z]/p' <skill_dir>/FULL.md`), never the
-whole file. The full path (the user asked for it, the video runs over ~3 min, or `plan.mode: "full"`) runs every
-stage below with its stage skill and a fresh critic sub-agent at each audit.
+Read one section when SKILL.md sends you here (`sed -n '/^## Gates/,/^## [A-Z]/p' <skill_dir>/FULL.md`). The full
+path runs every stage below with its stage skill and a fresh critic sub-agent at each audit.
 
 ## Modes
 
@@ -35,12 +34,11 @@ before music and SFX: changing clip lengths later breaks every sync point.
 | 11 | `export` per output | this skill | — |
 | 12 | `learn` | `bc:self-learn`, `bc:library` | **process audit** first |
 
-When you start or resume: `context get` › `workflow.next` gives `{stage, skill, skillRead}`; read that skill when
-the stage needs it (Skill tool for `bc:*`, `skills get` for plugin skills). Reads are recorded by BashCut and the
-kit's hook; an agent without hooks (Codex, chat agents) records its own with `run append skill --name <skill>`.
-BashCut records `intake` (brief set), `survey` (every media described), `story`, `rough-cut` and `captions` (plan
-apply), `review` (a passing review run) and `export` itself (`auto: true`). Record the other stages you work on at
-their end (several in one shell command when they are ready together):
+When you start or resume, `context get` › `workflow.next` names the stage and its skill: read it when the stage
+needs it (Skill tool for `bc:*`, `skills get` for plugin skills). An agent without the kit's hook (Codex, chat
+agents) records its reads with `run append skill --name <skill>`. BashCut records `intake` (brief set), `survey`
+(every media described), `story`, `rough-cut` and `captions` (plan apply), `review` (a passing review run) and
+`export` itself; record the other stages you work on at their end, several in one command when ready together:
 
 ```sh
 bashcut run append stage --stage survey --status done --evidence "survey/contact-sheet.png;media transcribe job 41"
@@ -48,24 +46,23 @@ bashcut run append stage --stage colour --status skipped --reason "screen record
 bashcut run checklist
 ```
 
-`done` without `--evidence` counts as unverified; `skipped` needs `--reason`; a stage the plan marks
-`required: false` is `n/a` already. `run checklist` (and `context get` › `workflow.checklist`) derives the list from
-the plan and the run log; its `open` list is what still needs attention and starts the hand-off report.
+`done` without `--evidence` counts as unverified; a stage the plan marks `required: false` is `n/a` already.
+`run checklist`'s `open` list is what still needs attention and starts the hand-off report.
 
 Missing coverage at G3 sends you back to survey or effects (stock, generation, a reshoot: ask), once per pair.
 
 ## Gates
 
-Read `workflow gates` at intake: each gate is `ask`, `notify` or `skip` (skip unless the user changed it), plus
-`maxReviewRounds`. At every gate, whatever its mode, request it with something cheap to look at:
+`workflow gates` (read at intake): each gate is `ask`, `notify` or `skip` (skip unless the user changed it), plus
+`maxReviewRounds`. Request every gate, whatever its mode, with something cheap to look at:
 
 ```sh
 bashcut checkpoint request G2 --summary "Strategy: one message — …; hook → payoff …" --attach renders/story-sheet.png
 bashcut checkpoint status --wait 100
 ```
 
-- `ask`: repeat `checkpoint status --wait 100` while `awaiting_user` (it returns when the user answers). `approved`:
-  go on; `changes`: apply the note, request again; `rejected`: stop and ask; `stale`: request again.
+- `ask`: repeat `checkpoint status --wait 100` while `awaiting_user`. `approved`: go on; `changes`: apply the
+  note, request again; `rejected`: stop and ask; `stale`: request again.
 - `notify`: the user is told and you go on. `skip`: nothing is shown.
 - Only the user answers a gate: never treat silence or an earlier "go ahead" as approval, never loosen a gate. A
   skill may add its own (`checkpoint request music-pick …`) only for a real decision the user must make.
@@ -90,8 +87,8 @@ bashcut run append audit --point strategy --verdict changes --findings 2 --by cr
 G2 `skip` → the strategy audit is required; G5 `skip` → the draft audit is required. With `ask` or `notify` the
 audit still runs and its verdict goes in the gate summary. The quick path audits itself from the packet only
 (`--by self`: it counts, reported as self-audited); the full path gives each audit to a fresh critic. BashCut
-refuses a non-draft `export start` without a passing draft audit (`audit_missing`, remediation `review packet --point draft`), and the rough cut without the
-recipe read (`recipe_unread`) or the strategy audit: run what the error names, never work around it.
+refuses a final export without a passing draft audit, and the rough cut without the recipe read or the strategy
+audit: run what the error names, never work around it.
 
 ## Review, draft and export
 
@@ -104,9 +101,8 @@ bashcut checkpoint request G5 --summary "Draft v1: 0:58, 2 review rounds, draft 
   --attach renders/draft-sheet.png
 ```
 
-`review run` status `incomplete` is never a pass. After G5, export each output (`export start --preset reels …`);
-`export cover <frame>` and `export chapters --write` make covers and chapters from real frames. Never call the video
-done while an error is unexplained.
+After G5, export each output (`export start --preset reels …`); `export cover` and `export chapters` make covers
+and chapters from real frames. Never call the video done while an error is unexplained.
 
 ## Learn
 

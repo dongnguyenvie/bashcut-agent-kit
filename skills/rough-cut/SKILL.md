@@ -1,52 +1,39 @@
 ---
 name: rough-cut
-description: Build the rough cut in BashCut by what is said — pick lines by quote, resolve each to a word-exact source range, keep them as selects with reason and evidence, and place them in story order; also long → short (self-contained clips from a podcast, talk or stream, a blind second pass, one derived project per short). Use at the rough-cut stage of a talking video, tutorial or interview, when cutting shorts from a long recording, or when cuts land inside words. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "cắt clip ngắn từ video dài", "highlight", "selects", "cắt giữa chữ".
+description: Build the rough cut in BashCut by quote: lines resolved to word-exact ranges, kept as selects with reasons, placed in story order; also long → short clips from a podcast or stream. Triggers: "cắt thô", "rough cut", "chọn đoạn", "lọc câu hay", "cắt podcast thành short", "highlight", "selects", "cắt giữa chữ".
 ---
 
 # Rough cut by quote
 
-Reply in the user's language. With a `[Scope]` (Send to Agent), work only on those items (`bc:edit-workflow`).
-
-You choose by **text**; BashCut turns the text into frames and tells you where an edge falls inside a word or a
-sentence. Never type timestamps from memory or from SRT lines: tools that let the model write times are off by
-0.6–1.5 s (T06 §4). Core resolves and measures; it never ranks or picks. The ranges below are starting points with
-their source; choose within them for this footage.
+You choose by **text**; BashCut resolves it to frames and flags edges inside a word or sentence; it never ranks or
+picks. Never type timestamps from memory or from SRT lines: tools that let the model write times are off by
+0.6–1.5 s (T06 §4). The ranges below are starting points; choose within them for this footage.
 
 A rough cut is selection and order only: no music, titles, grade or effects unless the user asks (T06 §4). Be
 generous on the first pass and tighten later: a discarded moment is slow to find again (T06 §2).
 
 ## Before selecting
 
-1. Transcripts: `media transcribe --media ID` (a job; needs a `captions.transcribe` plugin) for each talking file,
-   then read it in its own seconds: `media transcript --media ID --as text --format text` (one line per phrase).
-2. Sound and gaps: `media speech-map --media ID` gives speech spans and gaps with the calibration it used. When it
-   says there is no separation (music or noise under the voice), it gives no gaps: do not invent them.
-3. Classify the source (T06 §4): **words** (the content is what is said: talks, interviews, tutorials), **reactions**
+1. Transcripts and speech gaps of each talking file (`media transcribe`, `media transcript`, `media speech-map`;
+   `bc:footage-survey`). When the speech-map says there is no separation (music or noise under the voice), it gives
+   no gaps: do not invent them.
+2. Classify the source (T06 §4): **words** (the content is what is said: talks, interviews, tutorials), **reactions**
    (laughter, surprise: watch the picture; laughter and "clip that" lag the moment they react to) or **visual**
    (demonstrations, sport: the transcript is weak evidence, use the survey's descriptions).
-4. Read the brief and plan (`project data brief`, `project data plan`): the length range, the outputs and the
-   sections decide what is worth keeping.
-5. Take the survey's recording cues (`bc:footage-survey`, hygiene checklist): no range starts, ends or runs across a
+3. The brief and plan (`project data brief`, `project data plan`): length, outputs and sections decide what is
+   worth keeping.
+4. Take the survey's recording cues (`bc:footage-survey`, hygiene checklist): no range starts, ends or runs across a
    cue; after "cut that", "take two" or "làm lại" the dead take is not a candidate. Between two takes of a line
    (`[again T]` in `media digest`, `alternatives` from `resolve-range`) the later one wins unless you looked and the
    earlier is better; say which in the select's reason.
 
 ## The select-by-quote loop
 
-For each moment you want:
+For each moment: `bashcut media resolve-range M3 --quote "the first time I opened the app it crashed"`. Pick
+among `alternatives` by context.
 
-```sh
-bashcut media resolve-range M3 --quote "the first time I opened the app it crashed"
-```
-
-It returns `from`/`to` seconds, in and out frames, the matched text, and for each edge `midWord`, `midSentence`
-(inside a transcript phrase) and the nearest word and sentence edges before and after. Equal matches are listed in
-`alternatives`, in order, never ranked: pick by context. Instead of a quote you can give `--words FIRST-LAST`
-(indices from `media transcript --as words`) or rough `--from`/`--to` seconds, which snap outwards to the words.
-
-- `matched` is the share of the quote's words heard in place. Under 1, read `text`: a misheard word is fine, but a
-  range that holds only one or two of your words means the quote is not there; never place it.
-
+- `matched` under 1: read `text`. A misheard word is fine, but a range that holds only one or two of your words
+  means the quote is not there; never place it.
 - An edge `midSentence` is allowed only when you mean it (a deliberate interruption). Otherwise move it to the
   nearest sentence edge the result gives and resolve again.
 - **Cut on the `resolve-range` result as it is; never add padding by hand.** In connected speech the next word starts
@@ -55,39 +42,28 @@ It returns `from`/`to` seconds, in and out frames, the matched text, and for eac
   `--dry-run` (`cutsInsideWord` must be empty) before applying.
 - **Gaps as cut points** (T06 §3, video-use): ≥400 ms of quiet is a clean cut; 150–400 ms needs a look at the picture;
   <150 ms is unsafe. Whisper-style word ends hide pauses, so trust `media speech-map` gaps over word ends (T06 §4).
-- **Takes**: default to the last complete take ("people warm up", T06 §3), then confirm by reading or asking. A
-  fluent take is not always the better one.
+- **Takes**: default to the last complete take ("people warm up", T06 §3), then confirm by reading or asking; a
+  fluent take is not always better.
 - **Long lifts**: removing more than 10–20 s at once needs a look (T06 §3): quiet is not empty picture in a screen demo.
 
-Store what you chose as selects, with your reasons, as one edit:
-
-```sh
-bashcut selects set selects.json --base-rev N
-```
+Store your choices as selects with reasons, in one edit (`bashcut selects set selects.json --base-rev N`):
 
 ```json
-[
-  {"media": "M3", "from": 61.42, "to": 74.9, "quote": "the first time I opened the app it crashed",
-   "reason": "hook: the problem in one sentence", "evidence": "resolve-range: edges on sentence ends; gap after 0.6 s"},
-  {"media": "M3", "from": 210.1, "to": 236.3, "quote": "so we rebuilt the import from scratch",
-   "reason": "section 2: the fix", "evidence": "last complete take of three", "mustKeep": true}
-]
+[{"media": "M3", "from": 61.42, "to": 74.9, "quote": "the first time I opened the app it crashed",
+  "reason": "hook: the problem in one sentence", "evidence": "edges on sentence ends; last complete take of three",
+  "mustKeep": true}]
 ```
 
-New selects get an ID and status `candidate`. `order` sets the placing order (default: source start), so give it
-when the story order differs from the recording order. The user sees the selects in the Media panel (Selects) and
-can keep, reject or reorder them there: before placing, read `selects list` again and follow their choices. Never
-undo a user's rejection; ask instead.
-
-Keep and reject with a reason: `selects set` with `[{"id":"S1","status":"kept","reason":"hook and payoff"},{"id":"S4","status":"kept","reason":"hook and payoff"}]`. Mark the
-lines the edit cannot lose: `selects set` with `[{"id":"S2","mustKeep":true}]`; a must-keep select that no clip plays
-becomes a review warning after every later change.
+Give `order` when the story order differs from the recording order. The user can keep, reject or reorder selects
+in the Media panel: before placing, read `selects list` again and follow their choices. Never undo a user's
+rejection; ask instead. Keep and reject with a reason (`{"id":"S1","status":"kept","reason":"hook and payoff"}`);
+mark the lines the edit cannot lose with `mustKeep`.
 
 ## Blind second pass (long → short, or many candidates)
 
 Propose about 2× the clips you need (T06 §3): 30–45 % of AI picks are duds (hotclip, T06 §3). Then judge them
-blind: a fresh sub-agent (or you, deliberately ignoring your reasons) gets each candidate's text with one sentence
-of context on each side (`media transcript --media ID --from S --to E`) and returns a verdict with one sentence why:
+blind: a fresh sub-agent (or you, ignoring your reasons) gets each candidate's text with one sentence of context on
+each side (`media transcript --from S --to E`) and returns a verdict with one sentence why:
 
 - **publish**: stands alone and pays off; mark `kept`.
 - **review**: promising but needs a trim, a different start or the user's eye; keep `candidate` with the note.
@@ -120,38 +96,22 @@ Never cut natural speech short to hit a quota or a "sweet spot" (T06 §4).
 
 ## Placing and checking
 
-The quick path (`bc:edit-workflow`) writes the kept lines straight into `plan.cut` (`{media, quote, section}`, with
-`cover` for pictures over a line) and builds them in one call; the selects stay as the record of what was picked:
+The quick path writes the kept lines straight into `plan.cut` (`{media, quote, section}`, `cover` for pictures
+over a line), then `plan check` and `plan apply --why "rough cut: 7 lines, hook first"`; the selects stay as the
+record of what was picked. Or `selects place` (kept selects on Main, in order); then `timeline sheet --cuts`. One
+range without selects: `media place --media M3 --from 61.42 --to 74.9`. Before any later trim, `--dry-run` reports
+`cutsInsideWord`; fix those before applying. `captions find "words as said"` finds where a line now plays. A cut
+inside a word is a review error; look at doubtful cuts with `review window F`.
 
-```sh
-bashcut plan check                                  # quotes resolved, edges, lengths, the review as it would be
-bashcut plan apply --base-rev N --why "rough cut: 7 lines, hook first"   # one undoable edit; again to revise
-bashcut selects place --base-rev N                  # or: kept selects on Main, in order, one undoable edit
-bashcut timeline sheet --cuts
-```
-
-For one range without selects: `media place --media M3 --from 61.42 --to 74.9 --base-rev N`. Before any later
-trim, `timeline apply ops.json --base-rev N --dry-run` reports `cutsInsideWord`; fix those before applying.
-`captions find "words as said"` finds where a line now plays on the timeline. A cut inside a word is a review error
-(`bc:review`); look at doubtful cuts with `review window F`.
-
-Then request **G3** (`bc:edit-workflow`): `checkpoint request G3 --summary "<duration> against <plan range>, N
-selects, what was dropped and why" --attach <sheet path>`. When G3 is `ask`, wait for the user's answer before rhythm, sound and text; otherwise go on.
+Then **G3**: `checkpoint request G3 --summary "<duration> against <plan range>, N selects, what was dropped
+and why" --attach <sheet path>`. When G3 is `ask`, wait for the user's answer before rhythm, sound and text;
+otherwise go on.
 
 ## Several shorts from one source
 
-Make one project per short instead of cutting them all on one timeline:
+One project per short, not one timeline: `project derive` (a sibling per kept select; `variants list` shows
+them). Open each (`project open <path>`) and finish it through the stages of
+`bc:edit-workflow` (its own hook, captions and review). Compare two versions of one short with `variants create`
+and `variants diff`.
 
-```sh
-bashcut selects list --status kept
-bashcut project derive                              # a sibling project per kept select
-bashcut variants list                               # the derived projects and variants next to this one
-```
-
-Each derived project has the same canvas, outputs, review profile, brief and layers, only that media and the
-select's range on Main, and records where it came from. `project derive --ids S1,S5` derives only those. The open
-project does not change: open each derived project (`project open <path>`) and finish it through the stages of
-`bc:edit-workflow` (its own hook, captions and review). To compare two versions of one short, `variants create`
-records what one variant changes, and `variants diff` shows the difference.
-
-Log it: `run append stage --stage rough-cut --text "20 candidates, 9 kept, 3 shorts derived"`.
+Log: `run append stage --stage rough-cut --text "20 candidates, 9 kept, 3 shorts derived"`.
