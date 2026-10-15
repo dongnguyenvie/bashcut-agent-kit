@@ -140,20 +140,19 @@ lessons: `bc:self-learn`.
 
 ## Working efficiently
 
-Measured on real runs: one ad took 778 calls (159 `context get`, 119 `media import`, 110 `jobs wait`); a vlog
-spent 12M tokens before its first cut. A quick-path ad (kit 0.1.27) took 108 turns and 13.4M input tokens: context
-grew from 34k to 180k because every transcript, image, skill and schema it read stayed. With sub-agents (0.1.28):
-54 turns and 7.1M, a third of it on a critic round over text a measurement would have caught (an outline of
-0.12 pt, a subline at 2% of the frame) and on skill and recipe text read whole.
+Measured on real runs: one ad took 778 calls (159 `context get`); a quick-path ad (0.1.27) 108 turns and 13.4M,
+context 34k → 180k because every transcript, image and skill it read stayed. In the #553 bench (0.1.46) the editor
+starts at ~45k, so each call costs that: one run made 13 `plan check`, 10 `set-data` and 9 `project get` calls,
+and 6–7 idle wake-ups per run (0.5–0.7M) waited on sub-agents through `SendMessage`.
 
 - **One call for many things** (BashCut's batching rules), plus `media transcribe` without `--media` (every media),
   `plan apply --sheet` (build, review, storyboard); in a shell chain commands whose output you skip (`run append …
   && run append …`); with MCP send independent calls together.
-- **Sub-agents read, you decide.** `bc:surveyor` and `bc:critic` run on a cheaper model; other agents brief their
-  own sub-agent with the file (SKILL.md steps 3, 8). Plan from the surveyor's answer; never print a transcript,
-  whole digest or source frames (run 6 printed a 23-min transcript, 25k characters, that each of its 25 later turns
-  paid again); apply the critic's patch without reading the packet. No sub-agents: follow the briefs yourself, the
-  digest a stretch at a time (`--from/--to`).
+- **Sub-agents read, you decide**, in the foreground: one call returns the answer, a fix round is a new call with
+  the findings (no `SendMessage`, no turn ended to wait). `bc:*` agents run on a cheaper model; others brief their
+  own sub-agent with the file. Plan from the surveyor's answer; never print a transcript, whole digest or source
+  frames (run 6's 25k-character transcript was paid again by 25 later turns); apply the critic's patch without
+  reading the packet. No sub-agents: follow the briefs yourself, the digest a stretch at a time (`--from/--to`).
 - **Catch it in the plan, not in a critic round.** Set every limit `review-profile-unset` names in `plan.cut.review`
   before the build, so `plan apply` and `review measure` report small text and low contrast. Loudness waits for the
   normalized export (`atExport`), not holding review back.
@@ -164,9 +163,10 @@ grew from 34k to 180k because every transcript, image, skill and schema it read 
 - **Wait, don't poll.** `jobs wait` again only on `timedOut`; an export is a job too (never loop on `export
   status`). After ~30 min give the user the job ID. Start long jobs together; do work that does not need them
   meanwhile.
-- **Read once, read little.** `context get` on start, resume and after a gate, not per command; `timeline get` only
-  before hand-written ops (`plan check` and `review run` already say what you need). Filter big JSON in the same
-  call; `schema get` only for a field no command description names. A loaded skill stays for the run.
+- **Read once, read little.** `context get` on start, resume and after a gate, and keep it: no `project get` or
+  `timeline get` between steps (`plan check` and `review run` say what you need). One `plan check`, one patch.
+  Filter big JSON in the same call; `schema get` only for a field no command description names. A loaded skill stays
+  for the run.
 
 ## Run log
 

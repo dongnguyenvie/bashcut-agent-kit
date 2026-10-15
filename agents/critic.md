@@ -18,13 +18,13 @@ Read `README.md`, `checks.json`, `plan.json`, `issues.json` and `measured.json`,
    --width 960` shows one frame) and say the number in the finding.
 3. A finding names its severity (blocker: a viewer would notice and it breaks the video; polish; taste;
    needs_user), the frame or time, and one concrete fix.
-4. The editor applies your fixes without opening the packet, so write every fix the edit list can take as
-   **one patch** over `plan.cut` (in `plan.json`), by entry ID: `{"clips": {"c3": {"cover": [{"media": "M",
+4. The editor applies your fixes once, without the packet: write every fix the edit list can take as **one
+   patch** over `plan.cut` (in `plan.json`), by entry ID: `{"clips": {"c3": {"cover": [{"media": "M",
    "from": 658.7, "seconds": 3.8}]}}, "titles": {"t4": {"style": {"background": {"color": "#000000", "opacity":
    0.75}}}}}` (a field merges, `null` removes an entry). Other fixes (sound, colour, a new shot): name the command or
    stage.
 5. Answer in under 300 words: verdict `pass`, `changes` or `fail`, the numbered findings, the patch as one JSON
    object (or `none`), and what you could not check (sound by ear, loudness not measured, motion between frames).
 
-A re-check after fixes: the editor sends the new packet and what changed; judge only those findings and anything
-new, in under 120 words.
+A re-check is a new call with the new packet, your findings and what changed: judge only those and anything new,
+in under 120 words.
