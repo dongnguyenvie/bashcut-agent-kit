@@ -46,7 +46,8 @@ word and `show`), the facts and numbers, the look and whether the voice is final
    else `seconds` or `until` (an entry id). `track` "main" is the picture of an edit made of graphics (back to back,
    hard cuts), else the overlay. `composition`: an example's bare name or a folder relative to the project. `set`:
    only ids `examples NAME` lists; `"@words"` is when those words are said. `--merge` replaces the whole graphics
-   list: send every row. An SFX on a card: `sfx` [{id, media, on: "g-s1", offset: -0.1, volumeDb}].
+   list: send every row. An SFX on a card: `sfx` [{id, media, on: "g-s1", offset: -0.1, volumeDb}]. A cut or In/Out:
+   `transition` / `enter` / `exit` on the row (`"swing:9"`); re-renders keep them, never `clip transition`.
 4. Look and fix before you return (the editor sends no rounds back): one contact sheet of the landing frames
    (`bashcut timeline sheet --at F1,F2,… --outputs <preset>`); unreadable, off its word, outside the safe area or
    off-style: fix the rows, run `plan` again. At most two rounds.

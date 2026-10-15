@@ -152,7 +152,7 @@ parameters (`library get ID`) from sections 3–4, not the defaults. Saving, mak
 
 | Effect | Make it with |
 |---|---|
-| Transition | `upsertTransition` (clips adjacent on one video layer; frames), kinds above |
+| Transition | `transition` on the plan.cut row (`"whip:6"`), else `upsertTransition`; kinds above |
 | Speed, ramp, reverse | `setSpeed`, `setSpeedCurve` (preset or points), `clip reverse ITEM` (job) |
 | Freeze frame | select the clip, playhead on the frame, `ui action clip.freeze`; or `freezeFrame` (a source frame held for the whole item) on a split piece |
 | Punch-in / reframe | `setProperties` `transform` zoom/pan/tilt, zoom from the clip's headroom (`bc:beat-cut`) |
@@ -162,7 +162,7 @@ parameters (`library get ID`) from sections 3–4, not the defaults. Saving, mak
 | Stickers | `library place`; animated emoji and logos: `bc:stock-images` |
 | Fade from/to black | `dip-black` between clips; at the start or end, `dissolve` against a black clip; sound: `fadeIn`/`fadeOut` |
 | Ken Burns, slow push-in | `clip motion --preset zoom-in` (zoom-out, pan-*), or keyframes at the drift rate above |
-| Text or sticker entrance / exit | `enter` / `exit` (In and Out above); `clip motion --preset pop-in` for a pop that stays |
+| Text or sticker entrance / exit | `enter` / `exit` on the plan.cut row, else In and Out above; `clip motion --preset pop-in` for a pop that stays |
 | Custom move | `clip motion ITEM --keyframes` (frames from the item's start) or one key with `clip keyframe` |
 | Zoom onto a panel of a screen recording | `clip motion ITEM --focus x,y,w,h [--focus-to …]`, the panel's rectangle in the recording's pixels. One panel per sentence; the rectangle around the panel only. One example: at zoom 1.9 a 1920 px recording showed 1010 px and a neighbouring window crept in; 2.6 isolated the panel. Confirm with `ui frame` |
 | Presenter box over a screen recording | `setProperties` `crop` {left, right, top, bottom, radius (0.5 = circle)} on the camera clip, then `transform` to size and place it: 0.25–0.6 of the width, smaller when the screen text is dense, larger when the face carries the story (T19 §3). The visible part keeps its place in the picture: an uneven crop (left 0.28, right 0) left the face off-centre until pan moved it back by (left − right) / 2 × canvas width × zoom |
