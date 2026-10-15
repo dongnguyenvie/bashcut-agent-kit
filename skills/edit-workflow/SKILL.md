@@ -57,17 +57,19 @@ Same gates and audits. Target: a 45 s ad in about 20 calls.
    ```json
    {"cut": {"clips": [{"id": "c1", "media": "M", "quote": "exact words as transcribed", "section": "hook"},
                       {"id": "c2", "media": "M", "from": 642.8, "to": 648.0, "section": "proof", "zoom": 1.2,
-                       "cover": [{"media": "M", "from": 950.0}]}],
+                       "transition": "dissolve:9", "cover": [{"media": "M", "from": 950.0}]}],
             "titles": [{"id": "t1", "text": "HOOK LINE", "clip": "c1", "preset": "hook-title"},
                        {"id": "t2", "text": "Place", "section": "proof", "offset": 0.5, "seconds": 2.5,
-                        "preset": "place-card", "style": {"positionY": 0.8}}],
+                        "preset": "place-card", "style": {"positionY": 0.8}, "enter": "slide", "exit": "iris:8"}],
             "captions": {"from": "speech", "style": {"background": {"color": "#000000", "opacity": 0.6}},
                          "replace": {"misheard": "right"}},
             "music": {"media": "S", "duckDb": -14}, "sfx": [{"media": "W", "on": "t1", "offset": -0.1}],
             "review": {"minTextSize": 0.035, "minTextContrast": 3, "minShotSeconds": 0.6}}}
    ```
 
-   White text over daylight measured 1.2–2:1: plate captions and titles now; two texts at once need different
+   Transitions live in the plan: `transition` on a clip or graphic row is the cut into it, `enter`/`exit` on a title
+   or graphic its In/Out (`"kind"`, `"kind:frames"` or `"none"`; kinds in `bc:effects`). Later applies and graphic
+   re-renders keep them; don't set them by hand afterwards. White text over daylight measured 1.2–2:1: plate captions and titles now; two texts at once need different
    `positionY`. **Sound**: a `music` bed unless the brief says none; `sfx` only where a moment needs one (`offset`
    -0.1 peaks on it; `bc:audio-mix` "SFX"). Not in the library: `uv run <skill_dir>/../audio-mix/fetch_audio.py
    --dest <project>/media/audio --music "<mood words>" --sfx whoosh,pop --import`. **Review limits** (`review`) come
