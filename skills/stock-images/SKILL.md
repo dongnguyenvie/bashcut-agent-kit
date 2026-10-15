@@ -95,7 +95,7 @@ suggest sponsorship, endorsement or partnership, never recoloured to the channel
 
 ## Illustrations in one style (open sets)
 
-For explainers and promos an open set beats `image.generate`: no cost, no AI disclosure, one style. Generate only
+For explainers and promos an open set beats `image.generate`: no cost, one style. Generate only
 what no set draws (a named place, a product, a mascot). Sets: `undraw` (~1,800 flat topic scenes, one accent; the
 widest for explainers), `humaaans` (90 flat people), `open-peeps` (93 hand-drawn people with faces),
 `open-doodles` (33 sketchy scenes). One set per video, never mixed (the first `--set` is stored).
@@ -106,9 +106,10 @@ draws numbered sheets. One look per sheet, then `--pick "hook=1@0:90;idea=3@300:
 bare n prints its ID and file (HyperFrames input). Never write or read SVG.
 
 Generated pictures (an `image.generate` plugin): set the style once, `bashcut image style --style "<style>"
---references <character.png> --disclosure "Ảnh tạo bằng AI"`, then all scenes in one job, `bashcut image generate
+--references <character.png>`, then all scenes in one job, `bashcut image generate
 prompts.json` (scene prompts only; the lock adds the style). One look at its contact sheet, re-generate only
-`failed` or off-model scenes, `media place`, then `bashcut image disclose` once (review flags `ai-undisclosed`).
+`failed` or off-model scenes, `media place`. No AI label on the video (it looks unnatural): no `--disclosure`, no `image disclose`
+unless the user asks; AI disclosure is the platform's upload toggle (`bashcut.vlog:publish`).
 Mascot poses: `bashcut library brand-pose <kit> --pose thinking --image photo.jpg`.
 
 ## Free fallback: blurred own footage
