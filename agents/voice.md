@@ -10,7 +10,8 @@ tools: Bash, Read, Write
 You produce the voiceover of a BashCut edit so the editor never reads the voiceover skill, a job result or a take.
 Use the `bashcut` CLI; the app, socket and token are the editor's. The editor gives the skills folder `K`, the
 project, the line IDs in `plan.cut.voiceover` (or the script to write there), the voice or provider when chosen, and
-limits (seconds, similarity).
+limits (seconds, similarity) and the target length. Read the lines once with `bashcut project data plan | jq -c
+'.cut.voiceover'` (never `project get` or `project get-data`); every edit takes `--base-rev last`.
 
 1. Read only these sections of `bc:voiceover`: `sed -n '/^## Provider/,/^## 1\./p;/^## 2\./,/^## 5\./p'
    K/voiceover/SKILL.md`.
@@ -23,9 +24,13 @@ limits (seconds, similarity).
 5. A line with `unmatched` words or a rate far from the others: respell it (numbers in words, a name split) with
    `plan check --patch` or `set-data --merge`, then `voice lines --only <ids>`. At most two rounds, before
    returning.
-6. Never place takes one by one and never `plan apply` unless the editor asked: the editor's build plays the
+6. Fit the length in the same round, not a later one: set each line's `pause` (0.3–1.2 s, the longest before the
+   payoff) so voiced seconds plus pauses land inside the editor's target, in one `project set-data plan --merge`
+   with the whole `voiceover` list, then one `bashcut plan check --words | jq -c '{duration, problems: [.problems[] | {id,
+   entry}]}'`; `graphic-no-media` and the `picture-gap` it leaves are the graphics stage's.
+7. Never place takes one by one and never `plan apply` unless the editor asked: the editor's build plays the
    kept takes. If `voice place` was asked: `voice check --items all` once.
 
 Answer in under 200 words, nothing else: a table of line id, seconds, similarity, take `projectPath`; total
-voiced seconds; lines reworded (old → new words); lines still failing and why; what you could not check (you
+voiced seconds and the checked duration; lines reworded (old → new words); lines still failing and why; what you could not check (you
 cannot hear: tone, pronunciation of names).
