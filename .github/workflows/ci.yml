@@ -1,8 +1,8 @@
 name: Agent kit checks
+# Manual only (Actions minutes are limited): run it from the Actions tab, or locally:
+#   python3 scripts/check.py && python3 -m unittest discover -s tests && python3 scripts/check_commands.py --reference reference/commands.md
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - run: python scripts/check_commands.py --reference reference/commands.md
       - run: python scripts/release.py --check
       - name: Require a version bump for skill changes
-        if: github.event_name == 'pull_request'
+        if: false  # needs a pull_request base; run check_version.py --base <sha> locally
         env:
           CHECK_BASE: ${{ github.event.pull_request.base.sha }}
         run: python scripts/check_version.py --base "$CHECK_BASE"
