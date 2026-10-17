@@ -155,6 +155,10 @@ language.
 - Contrast is measured, not assumed: `review layout --contrast` (fill and outline against the picture behind).
   Below about 4.5 (the AA level one source checks, T09 §3), change fill or stroke, thicken the outline or move the
   text, then measure again.
+- A plate (caption pill, title box): `background {color, opacity, padding, radius}` and an emphasis `plate` take
+  padding and radius **× font size, never pixels**: a pill is about `{"opacity": 0.6, "padding": 0.3, "radius":
+  0.5}`, a rounded box radius 0.15–0.25. `"radius": 24` (CSS habit) draws a giant oval; `plan check` warns
+  `plate-units`.
 
 ## Placement
 
