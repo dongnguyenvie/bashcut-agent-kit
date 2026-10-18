@@ -144,5 +144,7 @@ Stage ids: `intake`, `survey`, `story`, `rough-cut`, `rhythm`, `voiceover`, `vis
 colour --status done --evidence "a;b"` in the call that finishes it (a long stage: `--text "…" --eta 120`). Request
 every gate, any mode, with something cheap to look at (`checkpoint request G2 --summary "…" --attach sheet.png`,
 then `checkpoint status --wait 100` while `awaiting_user`). Only the user answers a gate. Skipped G2 needs the
-strategy audit, skipped G5 the draft audit. Details: FULL "Stages, checklist and gates", "Gates", "Audits". `review
+strategy audit, skipped G5 the draft audit. A stage the plan marks required (a tutorial's effects, sound with a
+voiceover beside live speech) is done or logged skipped with the reason before review: BashCut answers
+`stage_pending` to review done, G5 and the final export while one is open. Details: FULL "Stages, checklist and gates", "Gates", "Audits". `review
 run` `incomplete` is never a pass.

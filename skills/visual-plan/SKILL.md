@@ -61,6 +61,9 @@ Guides, not rules:
   as the user's own shot, then stock, then an icon.
 - Anchor each row to one word (`at`): entrances end on its first frame. Hold until the idea's narration ends,
   unless it is an accent.
+- **Screen lines**: one `screen` row per narration line, `show` naming the panel the line names; a new row where
+  the screen changes inside a line (contact sheet and scene cuts, `bc:effects` §5). Never one framing for every
+  screen row. Each row is checked with `ui frame F --phone` at its `at` word.
 - Text and captions never say the same thing twice: decide the caption mode here (full, keywords only, none) and
   write it into `stages.captions.rules` (with all of `stages`, as in §0).
 

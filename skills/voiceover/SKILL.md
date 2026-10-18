@@ -44,6 +44,11 @@ a voice with no measured rate yet: one test line with `voice speak` (nothing is 
   (Vu et al., ACL 2025, PhoAudiobook: audiobooks 201; news, YouTube and conversation sets 224–243). A measurement
   far outside these: check the transcript for dropped or merged words before sizing lines from it.
 
+**Never say what the person is about to say.** Read the live speech on each side of every window (`transcript
+words --heard --from F --to G`, about 5 s each way) and drop or rewrite a line that repeats it: "Mình chỉ bạn làm
+từng bước nhé" right before the presenter said the same thing played the idea twice. A voiceover line bridges,
+sets up or adds what the speech does not say.
+
 Then `narration windows --min-seconds S --rate R` gives speech-free windows with a unit budget each. Write each
 line to its budget, with slack from the voice's p10–p90 spread. A line that does not fit: **cut text**, never
 plan to speed the voice (T02 §4). TTS length drifts (a 50 s script came out 40–45 s, T10 §3): final timing comes
