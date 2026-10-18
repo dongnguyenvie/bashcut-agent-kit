@@ -142,6 +142,25 @@ A crop decides what the viewer loses. Check the frame first, never crop blind.
    with a subject (nateherkai; T19 §3). Order: fit → a fixed crop at a position you checked → the original shape.
    A centre crop without a frame check is the anti-pattern (openmontage; T19 §4).
 
+## 5. Zooms on a screen recording
+
+One framing per narration line, aimed at the panel that line names, changing when the screen changes. One tutorial
+reused a single framing (pan 0, tilt −480, zoom 1.9) on every screen shot: each sentence named a different panel
+and the zoom showed none of them.
+
+1. **Where the screen changes**: `bashcut media frames --media ID --sheet --every 2` and the scene cuts in `bashcut
+   media analysis --media ID` (correct them with `media cuts`). A new page, dialog or menu inside a line starts a
+   new framing there.
+2. **What each line names**: join the line's words (`transcript words`) with the frame under its key word; read the
+   panel's rectangle in the recording's pixels on `bashcut media frame --media ID --at SECONDS`.
+3. **Build**: `clip motion ITEM --focus x,y,w,h` per line (split at line edges, or `--focus-to` / `--keyframes`
+   for a move inside one clip), out to the full screen between steps. Plan.cut clip rows take `focus` and
+   `focusKeys` once BashCut's focus-band change ships (branch `feat/focus-visible-band`); write them there then,
+   so `plan apply` keeps them.
+4. **Check every framing** with `bashcut ui frame F --phone` at the line's key word: the named panel fills the
+   frame and its text reads; no neighbouring window. Two lines in a row with the same transform on different
+   screens is a miss unless they name the same panel.
+
 ## Library first
 
 Built-ins: effect presets `ken-burns-in`, `ken-burns-out`, `zoom-punch-in`, `punch-in`, `speed-ramp`,
@@ -164,7 +183,7 @@ parameters (`library get ID`) from sections 3–4, not the defaults. Saving, mak
 | Ken Burns, slow push-in | `clip motion --preset zoom-in` (zoom-out, pan-*), or keyframes at the drift rate above |
 | Text or sticker entrance / exit | `enter` / `exit` on the plan.cut row, else In and Out above; `clip motion --preset pop-in` for a pop that stays |
 | Custom move | `clip motion ITEM --keyframes` (frames from the item's start) or one key with `clip keyframe` |
-| Zoom onto a panel of a screen recording | `clip motion ITEM --focus x,y,w,h [--focus-to …]`, the panel's rectangle in the recording's pixels. One panel per sentence; the rectangle around the panel only. One example: at zoom 1.9 a 1920 px recording showed 1010 px and a neighbouring window crept in; 2.6 isolated the panel. Confirm with `ui frame` |
+| Zoom onto a panel of a screen recording | `clip motion ITEM --focus x,y,w,h [--focus-to …]`, the panel's rectangle in the recording's pixels. One panel per sentence; the rectangle around the panel only. One example: at zoom 1.9 a 1920 px recording showed 1010 px and a neighbouring window crept in; 2.6 isolated the panel. Confirm with `ui frame`; per line, §5 |
 | Presenter box over a screen recording | `setProperties` `crop` {left, right, top, bottom, radius (0.5 = circle)} on the camera clip, then `transform` to size and place it: 0.25–0.6 of the width, smaller when the screen text is dense, larger when the face carries the story (T19 §3). The visible part keeps its place in the picture: an uneven crop (left 0.28, right 0) left the face off-centre until pan moved it back by (left − right) / 2 × canvas width × zoom |
 
 ## Not possible yet: say so and offer the alternative

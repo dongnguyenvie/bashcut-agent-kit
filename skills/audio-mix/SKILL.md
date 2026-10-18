@@ -39,6 +39,7 @@ file's LUFS at 0 dB is the `--db` to set (N from the range below). Judge `musicU
 | Stem | Range (T11 §3) | Moves it |
 |---|---|---|
 | Voice (real speech or voiceover), per stem before the mix | −16 to −20 LUFS | Level each speaking clip first: cameras can differ by 15–20 dB (kit edits). |
+| Real speech beside a voiceover | each live-speech clip within ~2 LU of the voiceover | One tutorial left the presenter's camera at −31 LUFS against a −17.5 LUFS voiceover: it sounded like another room. |
 | Music under speech | 5–18 dB under the voice | Less when the music carries the piece (montage-like vlog, sparse speech, low `presenceShare`); more for dense information, a soft voice, music with vocals or strong 1–4 kHz energy, accessibility. Sources: ~5 dB, with ~10 dB reported by viewers as "there is no music" (bestagentkits, outcome); 10–14 (reelmimic); 18–20 (openmontage). |
 | Music under continuous voiceover | one fixed level 14–18 dB under the voice (default 16) | No level change between lines (Nolan, #630). |
 | Music in speech gaps | short gaps (under 2.5 s) never rise; only a silence of 2.5 s or more (intro before the first line, a montage break, the outro) may rise toward voice level | Read `musicInGaps` and `musicBeds`, not the setting (bestagentkits, video-recap, #630). |
@@ -118,6 +119,17 @@ ProductionCrate (T21 §3).
 - B-roll under voiceover often has people talking: at −15/−28 dB the words stayed intelligible. Split at the
   voiceover's edges and mute only that piece, or use an installed vocal-removal plugin. Keep the original sound
   everywhere the voiceover is silent: stripping it everywhere made a cameraman's real voice disappear.
+- **Match real speech to the voiceover** (the sound stage is required whenever both are in the edit):
+  1. `bashcut audio mix-measure`: read `speechWindows` and note which window is a camera clip and which the
+     voiceover.
+  2. Per live-speech clip, read the source's true peak first (`bashcut audio measure --media ID`): the gain you
+     can add is the true-peak ceiling (−1 dBTP) minus that peak. One +12 dB raise put a clip at +5 dBTP.
+  3. Set each clip's gain to bring it within ~2 LU of the voiceover (`clip volume`); where its peaks cap the gain,
+     raise to the cap and pull its loudest words down with a volume keyframe, or lower the voiceover to meet it.
+  4. Set the bed 15–20 LU under the quieter of the two voices: a bed fitted to the voiceover sat only 0–4 LU under
+     a quiet presenter.
+  5. `mix-measure` again: every speech window within ~2 LU, `musicUnderSpeech` p10 ≥ 15 LU in camera windows too,
+     and no true peak over the ceiling (`audio measure --timeline`). Log the numbers as the stage's evidence.
 - After the mix, report seconds of real speech vs voiceover.
 
 ## Screen recordings ("ẩn giọng desktop")

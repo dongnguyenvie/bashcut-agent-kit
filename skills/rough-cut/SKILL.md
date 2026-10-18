@@ -26,6 +26,9 @@ generous on the first pass and tighten later: a discarded moment is slow to find
    cue; after "cut that", "take two" or "làm lại" the dead take is not a candidate. Between two takes of a line
    (`[again T]` in `media digest`, `alternatives` from `resolve-range`) the later one wins unless you looked and the
    earlier is better; say which in the select's reason.
+5. Cut restarts and repeated phrases, including the ones the transcript hides (the survey's suspect words: a word
+   over ~1 s or under ~0.4 confidence, re-transcribed). A select never holds a phrase said twice; keep the later,
+   complete take, and check the range again with the re-transcribed words before placing it.
 
 ## The select-by-quote loop
 

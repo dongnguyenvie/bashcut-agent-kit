@@ -58,7 +58,7 @@ Without the CLI, the maker records exactly your verdict and count.
 
 ### Process audit
 
-Read the checklist, log, changes. Flag: a required stage `skipped` or missing; `done` without
+Read the checklist, log, changes. Flag: a required stage `skipped`, missing or still `pending` when review ran; `done` without
 evidence, or evidence not in the log; a skill unread for a stage that ran; a missing or `self` audit; a gate request
 without the user's answer; summary claims no entry or change backs ("fixed" without `review verify`, "exported"
 without an export). Return the verdict and lessons (symptom → cause → what to do) for `bc:self-learn`.
@@ -111,6 +111,11 @@ bashcut jobs wait <job> --done --timeout 100       # repeat on timedOut
 bashcut review run --summary --min-severity warning
 ```
 
+Before round 1, `run checklist`: a stage the plan requires (effects, sound, visuals) still `pending` or `started`
+is a blocker, whatever `review run` says. Do it, or log it skipped with the reason; BashCut answers `stage_pending`
+to marking review done, G5 and a final export until then. One tutorial passed review with its required effects
+stage pending: one zoom reused on every screen shot.
+
 Each round:
 
 1. **Measure, then read.** `stale` checks need measuring again; `unreliable` is not a pass; `status` `incomplete`
@@ -149,6 +154,9 @@ failure with a transition or a flash (T16 §4).
 | text in a zone, too small, overlap, contrast | `ui frame F --phone`, `review layout --frame F --contrast` | `bc:captions-text` |
 | no hook, slow opening | `review shots --to F`, `review layout --to F --ink`, `transcript words --to F`, first sheet cells | story (`bc:edit-workflow`), `bc:captions-text` |
 | dead air, music gaps, voice drowned | `review window F`, `audio mix-measure` | `bc:audio-mix` |
+| live speech and voiceover at different levels, music close under a quiet voice | `audio mix-measure` `speechWindows` (each within ~2 LU of the voiceover, music 15–20 LU under), true peak after any raise | `bc:audio-mix` "Real speech vs voiceover" |
+| a restart or a phrase said twice; a voiceover line repeating the live line beside it | `transcript words --heard`: words over ~1 s or under ~0.4 confidence, re-transcribed; the live words around each voiceover line | `bc:rough-cut`, `bc:voiceover` |
+| a screen zoom that misses what the line names, one framing reused across lines | `ui frame F --phone` at each line's key word, `timeline get` transforms per screen clip | `bc:effects` "Zooms on a screen recording" |
 | loudness, true peak | the normalized draft, `platforms get <id>` | `bc:audio-mix` |
 | colour jumps between clips | `color measure --by clip`, `ui frame F` | `bc:color-grade` |
 | a promised shot or line missing | `review coverage`, `script check` | `bc:rough-cut`, `bc:stock-images`, ask |

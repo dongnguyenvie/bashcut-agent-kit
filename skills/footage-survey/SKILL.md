@@ -70,6 +70,15 @@ Say each of these plainly before planning; each one has spoiled a real edit some
     else look at the first second's frames. It is a sync point (`media sync`), never in the cut.
   A cue is yours to judge from its words and place, not from a word list: "làm lại" inside a sentence to the viewer
   ("tôi làm lại từ đầu") is content.
+- **Suspect words hide restarts**: in `media transcript --media ID --as words`, flag every word longer than about
+  1 s or with `confidence` under about 0.4. Whisper merges a false start into one long word: "Hello mọi người, hôm
+  nay mình sẽ" said twice came back as one word "demo", 1.8 s at 0.24, and the restart reached the video.
+  Re-transcribe just that window (±1 s) with another model and read what was said:
+  ```sh
+  ffmpeg -ss 12.0 -to 15.8 -i camera.mov -ac 1 -ar 16000 window.wav
+  mlx_whisper window.wav --model mlx-community/whisper-large-v3-turbo --language vi --word-timestamps True --output-format json
+  ```
+  List each restart or repeated phrase (media, seconds, both takes) with the recording cues, for `bc:rough-cut`.
 
 ## Reading a contact sheet
 

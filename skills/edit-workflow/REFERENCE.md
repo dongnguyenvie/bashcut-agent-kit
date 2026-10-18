@@ -127,7 +127,8 @@ Map the user's phrase to the edit:
 | "người đọc / người nói ở trên video", "khung mặt" | presenter camera on an overlay layer *in front of* the screen, zoom ~0.37 (a 9:16 camera becomes ~400 px wide), at the bottom centre; captions between screen and face. "Ở trên" can mean the layer order or the top of the frame: bottom centre was kept without complaint; ask when unsure |
 | "ẩn giọng desktop", "tắt tiếng màn hình" | mute the screen clips; speech comes from the camera (`bc:audio-mix`, "Screen recordings") |
 | "chọn nhạc phù hợp giọng" | measure candidates against the voice (`audio measure`, `bc:audio-mix`) |
-| (unsaid, always) | zoom onto the panel being talked about, fast-forward waiting and typing (`bc:effects`) |
+| (unsaid, always) | one zoom per narration line onto the panel it names, changing when the screen changes; fast-forward waiting and typing (`bc:effects` "Zooms on a screen recording") |
+| (unsaid, with a voiceover) | live speech levelled to the voiceover within ~2 LU, music 15–20 LU under both (`bc:audio-mix`); no voiceover line repeating the presenter (`bc:voiceover`) |
 
 Real case: a 5 min session (camera + screen) became a 2:00 intro, speech over 92% of it; dropped: fillers, muddled
 lines, reactions to bugs, sentences where the camera mic heard the laptop playing the output. The first cut opened
